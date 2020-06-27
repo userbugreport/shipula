@@ -23,6 +23,7 @@
     "bootstrap": "lerna bootstrap --use-workspaces",
     "pretty": "prettier --write packages tests",
     "lint": "eslint --ext .ts,.tsx .",
-    "test": "jest"
+    "test": "jest",
+    "docs": "yarn workspace @shipula/docs start"
   }
 }
