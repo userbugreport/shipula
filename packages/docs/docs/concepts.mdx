@@ -1,0 +1,58 @@
+---
+title: Concepts
+---
+
+Shipula tries to create an environment as close to your local programming world as possible, but on the cloud.
+
+## Clustering and Load Balancing
+One of the big shocks you get when you go to the cloud is -- having multiple copies of your App running at once, on different machines, virtual machines, or containers. You do this to scale, and you do this for resilience to keep on running if a little bit of your app crashes or is reclaimed by your cloud provider.
+
+Dealing with this is the **big leap** from working locally. 
+
+### Files
+Locally -- you can just write to your disk, files, yaml, json, sqlite -- all just works. On the cloud, by default your find that while you might have a local disk, it's isn't **a** local disk, it's a disk per server/virtual machine/container.
+
+Shipula deals with this by setting up a shared file system that you can always reach at `/var/data`. Store files, have fun.
+
+### Logs
+Multiple running copies means multiple logs streaming from multiple machines. Locally -- you just start your process and watch the log go by, or `> file` or `| less` or some other tool to let you search and grep.
+
+In most hosted cloud setups, pretty complex log search engines are the norm. They are kinda cool -- but they don't have the immediacy of seeing the log go by and `grep`.
+
+Shipula deals with this by setting up cloud hosted log search *and* real time log streaming. The real time logs are the combined logs of each of the runninig copies of you app.
+
+## Apps and Stacks
+
+## Apps
+Your server is an App in Shipula. 
+An App has a few required characteristics:
+* It needs to be node, with a package.json
+* It needs to have its `dependencies` and `devDependencies` correct
+  * Easy way to tell -- make a new directoy, clone from git `npm install` or `yarn` -- then start
+* It needs to have a start script, what you do with `npm start` or `yarn start`
+* It needs to listen on a port that can be set by the environment variable `${PORT}`
+
+## Stacks
+A Stack is an end to end copy of your App, from the internet, through the load balancer, to your running servers, down to shared disk.
+With all the supporting services including logs and monitoring.
+
+### Prod/Stage/Test/Dev
+It's really common to need multiple copies of your app. Setting up multiple copies can be *work* -- depending on which cloud tools you use, it can be as much work each time. And deploying to each copy can be work.
+
+Shipula deals with this by letting you set up multiple Stacks of your App. 
+Each Stack is a complete, isolated copy. 
+Make as many as you like, you just `npx shipula --stack name deploy`.
+
+## Deployment
+Having multiple copies means deploying multiple copies.
+
+And coordinaing those deployments, which can be confusing and hard to keep track of which server/virtual machine/container has which code.
+
+Shipula adopts a simple rolling update strategy, making new copies, and turning down old copies as their web requests end.
+In practice, this means -- you just `npx shipula deploy` and shipula will figure it out for you.
+If you have ever done this by hand, you'll appreaciate it.
+
+## Containers
+Shipula uses containers, it's currently the most efficient method of deployment.
+What Shipula doesn't do is expect you to learn containers.
+Shipula uses [Docker] to create container images, and stores those images in your own private container registry, but you don't have to create a Dockerfile, or learn Kubernetes, or even *run* Docker containers on your machine.

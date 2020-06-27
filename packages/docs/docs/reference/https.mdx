@@ -1,0 +1,13 @@
+---
+title: HTTPS
+---
+
+Shipula will take care of HTTPS for you, but you will need to help out a little bit:
+
+## hostname
+
+Shipula needs to be told where it is in order to provsion a certificate for you, the way to do that is in your [package.json](./package.json#hostname).
+
+## DNS 
+Shipula will tell you the the cloud hostname to create a [CNAME] record with `npx shipula info`.
+Paste this into your DNS provider.
