@@ -1,6 +1,6 @@
 module.exports = {
   title: "⛴🧛🏻‍♂️",
-  tagline: "The tagline of my site",
+  tagline: "The simplest way to get your node server to the cloud!",
   url: "https://userbugreport.github.io/shipula/",
   baseUrl: "/shipula/",
   favicon: "img/favicon.ico",
@@ -69,7 +69,7 @@ module.exports = {
             },
             {
               label: "GitHub",
-              href: "https://github.com/facebook/docusaurus",
+              href: "https://github.com/userbugreport/shipula",
             },
           ],
         },
