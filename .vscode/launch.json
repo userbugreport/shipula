@@ -1,0 +1,20 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    // test with jest -- update that * to any named test filter you like, very handy!
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Tests",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": ["--runInBand", "--coverage", "false", "-t", "*"],
+      "internalConsoleOptions": "openOnSessionStart"
+    }
+  ]
+}
