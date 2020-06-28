@@ -23,7 +23,7 @@ Shipula deals with this by setting up cloud hosted log search *and* real time lo
 
 ## Apps and Stacks
 
-## Apps
+### Apps
 Your server is an App in Shipula. 
 An App has a few required characteristics:
 * It needs to be node, with a package.json
@@ -32,9 +32,10 @@ An App has a few required characteristics:
 * It needs to have a start script, what you do with `npm start` or `yarn start`
 * It needs to listen on a port that can be set by the environment variable `${PORT}`
 
-## Stacks
+### Stacks
 A Stack is an end to end copy of your App, from the internet, through the load balancer, to your running servers, down to shared disk.
 With all the supporting services including logs and monitoring.
+Shipula uses cloud build APIs and configuration for you, so you don't need to learn yet another configuration language.
 
 ### Prod/Stage/Test/Dev
 It's really common to need multiple copies of your app. Setting up multiple copies can be *work* -- depending on which cloud tools you use, it can be as much work each time. And deploying to each copy can be work.
@@ -43,16 +44,24 @@ Shipula deals with this by letting you set up multiple Stacks of your App.
 Each Stack is a complete, isolated copy. 
 Make as many as you like, you just `npx shipula --stack name deploy`.
 
+
 ## Deployment
-Having multiple copies means deploying multiple copies.
+A load balanced cloud app has multiple copies -- and that means deploying multiple copies.
 
 And coordinaing those deployments, which can be confusing and hard to keep track of which server/virtual machine/container has which code.
 
-Shipula adopts a simple rolling update strategy, making new copies, and turning down old copies as their web requests end.
-In practice, this means -- you just `npx shipula deploy` and shipula will figure it out for you.
-If you have ever done this by hand, you'll appreaciate it.
+Shipula makes this automatic.
 
-## Containers
+### Builds
+Shipula will build for you, pulling in dependencies from your package.json as well as creating a cloud ready copy of your App.
+You don't need to set up a separate build server, or even run a separate build.
+
+### Containers
 Shipula uses containers, it's currently the most efficient method of deployment.
 What Shipula doesn't do is expect you to learn containers.
 Shipula uses [Docker] to create container images, and stores those images in your own private container registry, but you don't have to create a Dockerfile, or learn Kubernetes, or even *run* Docker containers on your machine.
+
+### Hot, Rolling Updates
+Shipula adopts a hot rolling update strategy, making new copies of your app with the new version, and turning down old copies as their web requests end.
+In practice, this means -- you just `npx shipula deploy` and shipula will figure it out for you.
+If you have ever done this by hand, you'll appreaciate it.
