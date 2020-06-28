@@ -9,11 +9,21 @@
       "type": "node",
       "request": "launch",
       "name": "Jest Tests",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/packages/cli",
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["--runInBand", "--coverage", "false", "-t", "*"],
+      "args": ["--runInBand", "--coverage", "false", "-t", ""],
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    // test with jest -- update that * to any named test filter you like, very handy!
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "CLI",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/packages/cli",
+      "program": "${workspaceRoot}/packages/cli/bin/index.js",
+      "args": [],
       "internalConsoleOptions": "openOnSessionStart"
     }
   ]

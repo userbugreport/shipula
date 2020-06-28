@@ -1,0 +1,30 @@
+{
+  "name": "@shipula/cli",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "Will Ballard <wballard@mailframe.net>",
+  "homepage": "https://github.com/userbugreport/shipula#readme",
+  "license": "ISC",
+  "bin": "./bin/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/userbugreport/shipula.git"
+  },
+  "scripts": {
+    "test": "jest",
+    "shipula": "./bin/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/userbugreport/shipula/issues"
+  },
+  "dependencies": {
+    "commander": "^5.1.0",
+    "fs-extra": "^9.0.1",
+    "marked": "^1.1.0",
+    "marked-terminal": "^4.1.0",
+    "ts-node": "^8.10.2"
+  },
+  "devDependencies": {
+    "std-mocks": "^1.0.1"
+  }
+}
