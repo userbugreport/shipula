@@ -45,7 +45,7 @@ Options:
 `;
 
 exports[`CLI sub commands info help strings 1`] = `
-"Usage:  destroy [options] [package]
+"Usage:  info [options] [package]
 
 This will tell you all about your App.
 
