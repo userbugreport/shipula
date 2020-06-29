@@ -23,7 +23,7 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}/packages/cli",
       "program": "${workspaceRoot}/packages/cli/bin/index.js",
-      "args": [],
+      "args": ["info"],
       "internalConsoleOptions": "openOnSessionStart"
     }
   ]

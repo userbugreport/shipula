@@ -10,7 +10,8 @@
     "outDir": "lib",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "jsx": "react"
   },
   "include": ["packages/**/*"],
   "exclude": ["node_modules"]
