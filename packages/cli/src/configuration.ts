@@ -3,12 +3,15 @@ import expandTide from "expand-tilde";
 import path from "path";
 import { cosmiconfig } from "cosmiconfig";
 
+export type Region = "us-east-1" | "us-west-1";
+
 /**
  * Look here to know everything that can be configured.
  */
 export type Configuration = {
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
+  AWS_REGION: Region;
 };
 
 /**
@@ -17,10 +20,11 @@ export type Configuration = {
  * The one difference is -- we'll be looking for a ~/.shipula.json as well that
  * will be a default backstop location for AWS keys.
  */
-export const getConfig = async (): Promise<Configuration> => {
-  let initialConfig = {
+export const getConfiguration = async (): Promise<Configuration> => {
+  let initialConfig: Configuration = {
     AWS_ACCESS_KEY_ID: undefined,
     AWS_SECRET_ACCESS_KEY: undefined,
+    AWS_REGION: "us-east-1",
   };
   try {
     // defaults from user home dotfile
@@ -40,10 +44,12 @@ export const getConfig = async (): Promise<Configuration> => {
     // per project config is the 'most specific', so it will
     // write over user home directory
     // I used to say 'trumps the config' a lot, but ...
-    initialConfig = {
-      ...initialConfig,
-      ...configProps.config,
-    };
+    if (configProps) {
+      initialConfig = {
+        ...initialConfig,
+        ...configProps.config,
+      };
+    }
   } catch (e) {
     console.error(e);
   } finally {

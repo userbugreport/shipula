@@ -18,15 +18,23 @@
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
+    "@types/ink": "^2.0.3",
+    "@types/ink-spinner": "^3.0.0",
+    "@types/react": "^16.9.41",
+    "aws-sdk": "^2.706.0",
     "commander": "^5.1.0",
     "cosmiconfig": "^6.0.0",
     "expand-tilde": "^2.0.2",
     "fs-extra": "^9.0.1",
+    "ink": "^2.7.1",
+    "ink-spinner": "^3.1.0",
     "marked": "^1.1.0",
     "marked-terminal": "^4.1.0",
+    "react": "^16.13.1",
     "ts-node": "^8.10.2"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/fs-extra": "^9.0.1",
     "std-mocks": "^1.0.1"
   }

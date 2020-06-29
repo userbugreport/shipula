@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import docs from "./docs";
-import { getConfig } from "./configuration";
+import { buildContext } from "./context";
+import { display } from "./info-view";
 
 export default new Command()
   .command("info [package]")
@@ -9,7 +10,5 @@ export default new Command()
     console.log(docs("info.md"));
   })
   .action(async () => {
-    const config = await getConfig();
-    console.log(config);
-    return;
+    display(await buildContext());
   });
