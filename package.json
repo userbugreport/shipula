@@ -25,5 +25,8 @@
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "docs": "yarn workspace @shipula/docs start"
+  },
+  "dependencies": {
+    "eslint-plugin-react": "^7.20.1"
   }
 }

@@ -1,14 +1,13 @@
 import { Command } from "commander";
 import docs from "./docs";
-import { buildContext } from "./context";
-import { display } from "./info-view";
+import { display } from "./components/application";
 
 export default new Command()
-  .command("info [package]")
+  .command("info [packageName]")
   .description("This will tell you all about your App.")
   .on("--help", () => {
     console.log(docs("info.md"));
   })
-  .action(async () => {
-    display(await buildContext());
+  .action(async (packageName) => {
+    display({ packageName });
   });

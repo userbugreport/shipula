@@ -1,29 +1,39 @@
 import fs from "fs-extra";
 import expandTide from "expand-tilde";
 import path from "path";
-import { cosmiconfig } from "cosmiconfig";
 
-export type Region = "us-east-1" | "us-west-1";
-
+export const AllAWSRegions = ["us-east-1", "us-west-1"] as const;
+export type AWSRegion = typeof AllAWSRegions[number];
 /**
- * Look here to know everything that can be configured.
+ * Information to connect to AWS. Region is in there since
+ * AWS requires it for all the services we'll be using.
  */
-export type Configuration = {
+export type Credentials = {
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
-  AWS_REGION: Region;
+  AWS_REGION: AWSRegion;
 };
 
 /**
- * Load up the configuration with the 'new-normal' cosmic config thing.
- *
- * The one difference is -- we'll be looking for a ~/.shipula.json as well that
- * will be a default backstop location for AWS keys.
+ * If credentials are fully filled out
  */
-export const getConfiguration = async (): Promise<Configuration> => {
-  let initialConfig: Configuration = {
+export const completeCredentials = (credentials: Credentials): boolean => {
+  return (
+    (credentials?.AWS_ACCESS_KEY_ID?.length &&
+      credentials?.AWS_SECRET_ACCESS_KEY?.length &&
+      credentials?.AWS_REGION?.length) > 0
+  );
+};
+
+/**
+ * Credentials can be in environment variables, or in a user dotfile.
+ */
+export const getCredentials = async (): Promise<Credentials> => {
+  //
+  let initialConfig: Credentials = {
     AWS_ACCESS_KEY_ID: undefined,
     AWS_SECRET_ACCESS_KEY: undefined,
+    // default region
     AWS_REGION: "us-east-1",
   };
   try {
@@ -32,24 +42,21 @@ export const getConfiguration = async (): Promise<Configuration> => {
     if (await fs.pathExists(userHomeConfig)) {
       const userHomeConfigProps = JSON.parse(
         await fs.readFile(userHomeConfig, "utf8")
-      );
+      ) as Credentials;
       // keep on writing over -- discovery new props
       initialConfig = {
         ...initialConfig,
         ...userHomeConfigProps,
       };
     }
-    const explorer = cosmiconfig("shipula");
-    const configProps = await explorer.search();
-    // per project config is the 'most specific', so it will
-    // write over user home directory
-    // I used to say 'trumps the config' a lot, but ...
-    if (configProps) {
-      initialConfig = {
-        ...initialConfig,
-        ...configProps.config,
-      };
-    }
+    // env var can be set on the command line -- so they take precedence
+    // over the dotfile
+    initialConfig.AWS_SECRET_ACCESS_KEY =
+      process.env.AWS_SECRET_ACCESS_KEY || initialConfig.AWS_SECRET_ACCESS_KEY;
+    initialConfig.AWS_ACCESS_KEY_ID =
+      process.env.AWS_ACCESS_KEY_ID || initialConfig.AWS_ACCESS_KEY_ID;
+    initialConfig.AWS_REGION =
+      (process.env.AWS_REGION as AWSRegion) || initialConfig.AWS_REGION;
   } catch (e) {
     console.error(e);
   } finally {
