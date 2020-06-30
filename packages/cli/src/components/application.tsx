@@ -14,8 +14,12 @@ const Application: React.FunctionComponent<Props> = ({
   context,
   children,
 }: React.PropsWithChildren<Props>) => {
+  // context is state to allow an update
+  const [contextState, setContextState] = React.useState<ShipulaContextProps>(
+    context
+  );
   return (
-    <ShipulaContext.Provider value={context}>
+    <ShipulaContext.Provider value={{ ...contextState, setContextState }}>
       <Authenticator>{children}</Authenticator>
     </ShipulaContext.Provider>
   );
