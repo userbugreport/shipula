@@ -12,6 +12,8 @@ import AWS from "aws-sdk";
 import { Form, Field } from "react-final-form";
 import InkTextInput from "ink-text-input";
 
+const userHomeConfig = path.join(expandTide("~"), ".shipula.json");
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
 
@@ -100,7 +102,10 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
         },
         // even if we cannot save them -- we are still connected
         onError: {
-          target: "connected",
+          target: "displayingError",
+          actions: actions.assign({
+            lastError: (_context, event) => event.data,
+          }),
         },
       },
     },
@@ -121,10 +126,11 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
  * to log into AWS, and failing that -- asks the user for working credentials.
  */
 export const Authenticator: React.FunctionComponent = () => {
-  const context = React.useContext(ShipulaContext);
+  // app level context is passed along to the state machine level context
+  const appContext = React.useContext(ShipulaContext);
   // configured state machine under closure with context
   const [state, send] = useMachine(machine, {
-    context,
+    appContext,
     services: {
       readEnvVars: async (context) => {
         // load up the context with env vars
@@ -137,7 +143,6 @@ export const Authenticator: React.FunctionComponent = () => {
         else throw new Error();
       },
       readDotfile: async (context) => {
-        const userHomeConfig = path.join(expandTide("~"), ".shipula.json");
         if (await fs.pathExists(userHomeConfig)) {
           const userHomeConfigProps = JSON.parse(
             await fs.readFile(userHomeConfig, "utf8")
@@ -151,7 +156,12 @@ export const Authenticator: React.FunctionComponent = () => {
           else throw new Error();
         }
       },
-      saveCredentials: async () => {
+      saveCredentials: async (context) => {
+        // we've connected. awesome -- save it -- back to the app context
+        appContext.setContextState(context);
+        console.log("saving", userHomeConfig, context.verifiedCredentials);
+        // and to the user profile
+        await fs.writeJSON(userHomeConfig, context.verifiedCredentials);
         return;
       },
       connectAWS: async (context) => {

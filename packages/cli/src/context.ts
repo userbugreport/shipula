@@ -6,6 +6,10 @@ import { Credentials } from "./configuration";
  */
 export type ShipulaContextProps = {
   /**
+   * Update from deep in the react tree.
+   */
+  setContextState?: (context: ShipulaContextProps) => void;
+  /**
    * When set, credentials are verified and can be used.
    */
   verifiedCredentials?: Credentials;
