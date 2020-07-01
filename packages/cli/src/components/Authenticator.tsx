@@ -17,6 +17,9 @@ const userHomeConfig = path.join(expandTide("~"), ".shipula.json");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
 
+/**
+ * The states of the state machine, listed out here for TypeScript.
+ */
 interface Schema {
   states: {
     readingEnvVars: NoSubState;
@@ -28,6 +31,10 @@ interface Schema {
     connected: NoSubState;
   };
 }
+/**
+ * Events raised from user action. This is pretty 'event light' as
+ * most of the state transitions are promises being filled.
+ */
 type Events = {
   type: "HAS_VALUES";
   credentials: Credentials;
@@ -38,6 +45,9 @@ type Events = {
  * There are a few dependencies and transitions, particularly in constraint
  * satisfaction -- connecting to AWS and having packages that are suitable
  * to depoy.
+ *
+ * Most of the state transitions are promises, so promises are in effect mini
+ * state machines with doing/done/error.
  */
 const machine = Machine<ShipulaContextProps, Schema, Events>({
   id: "authenticator",
@@ -84,6 +94,9 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
         src: "connectAWS",
         onDone: {
           target: "savingCredentials",
+          actions: actions.assign({
+            lastError: () => null,
+          }),
         },
         onError: {
           target: "displayingError",
@@ -102,10 +115,7 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
         },
         // even if we cannot save them -- we are still connected
         onError: {
-          target: "displayingError",
-          actions: actions.assign({
-            lastError: (_context, event) => event.data,
-          }),
+          target: "connected",
         },
       },
     },
@@ -159,7 +169,6 @@ export const Authenticator: React.FunctionComponent = () => {
       saveCredentials: async (context) => {
         // we've connected. awesome -- save it -- back to the app context
         appContext.setContextState(context);
-        console.log("saving", userHomeConfig, context.verifiedCredentials);
         // and to the user profile
         await fs.writeJSON(userHomeConfig, context.verifiedCredentials);
         return;
@@ -183,11 +192,14 @@ export const Authenticator: React.FunctionComponent = () => {
             else resolve(data);
           });
         });
-        context.lastError = null;
       },
     },
   });
 
+  /**
+   * This is just typescript trickery to pull out the prop types of a function
+   * component that just so happens to not export...
+   */
   type extractProps<Type> = Type extends React.FunctionComponent<infer X>
     ? X
     : never;
@@ -198,7 +210,7 @@ export const Authenticator: React.FunctionComponent = () => {
     autoFocus?: boolean;
   };
   /**
-   * Focusable text field.
+   * Focusable text field. With the autofocus. Tab through them.
    */
   const FocusableInkTextInput: React.FunctionComponent<FocusableInkTextInputProps> = (
     props: FocusableInkTextInputProps
@@ -218,19 +230,22 @@ export const Authenticator: React.FunctionComponent = () => {
     );
   };
 
+  /**
+   * Snippet to display an error message.
+   */
   const errorMessage = (
     <Text color="red" bold>
       {state.context.lastError?.message}
     </Text>
   );
-  const submitCredentials = (credentials: Credentials) => {
-    send("HAS_VALUES", {
-      credentials,
-    });
-  };
+  /**
+   * Collect credential with this form
+   */
   const credentialsForm = (
     <Form<Credentials>
-      onSubmit={submitCredentials}
+      onSubmit={(credentials: Credentials) =>
+        send("HAS_VALUES", { credentials })
+      }
       initialValues={state.context.verifiedCredentials}
     >
       {({ handleSubmit }) => (
