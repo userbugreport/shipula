@@ -1,6 +1,6 @@
 import React from "react";
 import { Text } from "ink";
-import { ShipulaContext } from "../context";
+import { ShipulaContext, getStackName } from "../context";
 import AWS, { CloudFormation } from "aws-sdk";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
@@ -92,9 +92,30 @@ const machine = Machine<Context, Schema, Events>({
         1000: "checkingCDKToolkit",
       },
     },
-    checkingContainer: {},
-    buildingContainer: {},
-    deployingAppStack: {},
+    checkingContainer: {
+      after: {
+        100: "buildingContainer",
+      },
+    },
+    buildingContainer: {
+      after: {
+        100: "deployingAppStack",
+      },
+    },
+    deployingAppStack: {
+      invoke: {
+        src: "deployAppStack",
+        onError: {
+          target: "error",
+          actions: actions.assign({
+            lastError: (_context, event) => event?.data,
+          }),
+        },
+        onDone: {
+          target: "deployed",
+        },
+      },
+    },
     deployed: {},
     error: {},
   },
@@ -126,11 +147,16 @@ export const Deploy: React.FunctionComponent<Props> = () => {
             }
           );
         });
-        if (CDKToolkit.Stacks[0].StackStatus === "UPDATE_COMPLETE")
+        if (
+          ["UPDATE_COMPLETE", "CREATE_COMPLETE"].includes(
+            CDKToolkit.Stacks[0].StackStatus
+          )
+        )
           return CDKToolkit;
         if (CDKToolkit.Stacks[0].StackStatus.endsWith("IN_PROGRESS"))
           send("CDK_INSTALLING");
         // CDK not existing or not found will except out -- so it'll go to install
+        throw new Error("CDKToolkit not found");
       },
       deployCDK: async () => {
         // less fantastic -- we need to bootstrap CDK
@@ -157,6 +183,29 @@ export const Deploy: React.FunctionComponent<Props> = () => {
       },
       // need our package name cleaned, stage name -- those will form the stack name
       // and tags to be passed along
+      deployAppStack: async () => {
+        await new Promise((resolve, reject) => {
+          // need an app path
+          const CDKSynthesizer = path.resolve(__dirname, "..", "aws", "index");
+          const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
+          const TSNODE = path.resolve(
+            appRoot.path,
+            "node_modules",
+            ".bin",
+            "ts-node"
+          );
+          const TAGS = `--tags packageName=${appContext.packageName} --tags stackName=${appContext.stackName}`;
+          process.env.STACK_NAME = getStackName(appContext);
+          const child = shell.exec(
+            `${CDK} deploy --require-approval never ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
+            { async: true }
+          );
+          child.once("exit", (code) => {
+            if (code) reject(code);
+            else resolve();
+          });
+        });
+      },
     },
   });
   return (
@@ -169,6 +218,7 @@ export const Deploy: React.FunctionComponent<Props> = () => {
       {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />
       )}
+      <Text>{state.value}</Text>
     </>
   );
 };
