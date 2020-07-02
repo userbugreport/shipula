@@ -1,35 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI sub commands backup help strings 1`] = `
-"Usage:  backup [options] [package]
+"Usage:  backup [options]
 
 Creates a backup copy of your App/Stack file system, and provides a link where you can download it.
 
 Options:
-  --stack <stack>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help       display help for command
+  -h, --help  display help for command
 "
 `;
 
 exports[`CLI sub commands deploy help strings 1`] = `
-"Usage:  deploy [options] [package]
+"Usage:  deploy [options]
 
 Deploys your pacakge to the cloud, creating and App and Stack.
 
 Options:
-  --stack <stack>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help       display help for command
+  -h, --help  display help for command
 "
 `;
 
 exports[`CLI sub commands destroy help strings 1`] = `
-"Usage:  destroy [options] [package]
+"Usage:  destroy [options]
 
 Completely remove a Stack from an App
 
 Options:
-  --stack <stack>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help       display help for command
+  -h, --help  display help for command
 "
 `;
 
@@ -39,15 +36,14 @@ exports[`CLI sub commands env help strings 1`] = `
 Manage environment variables for an App/Stack.
 
 Options:
-  --stack <stack>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help       display help for command
+  -h, --help  display help for command
 "
 `;
 
 exports[`CLI sub commands info help strings 1`] = `
-"Usage:  info [options] [package]
+"Usage:  info [options]
 
-This will tell you all about your App.
+This will tell you all about your App and Stack.
 
 Options:
   -h, --help  display help for command
@@ -55,24 +51,22 @@ Options:
 `;
 
 exports[`CLI sub commands logs help strings 1`] = `
-"Usage:  logs [options] [package]
+"Usage:  logs [options]
 
 Stream real time logs or search cloud stored logs.
 
 Options:
-  --stack <stack>   Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
   --search <query>  Search for this content in log messages, returning matches
   -h, --help        display help for command
 "
 `;
 
 exports[`CLI sub commands scale help strings 1`] = `
-"Usage:  scale [options] [package]
+"Usage:  scale [options]
 
-Set scaling limits on your App / Stack.
+Set scaling limits on your App Stack.
 
 Options:
-  --stack <stack>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help       display help for command
+  -h, --help  display help for command
 "
 `;

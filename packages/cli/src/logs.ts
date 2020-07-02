@@ -1,11 +1,9 @@
 import { Command } from "commander";
-import { StackName } from "./constants";
 import docs from "./docs";
 
 export default new Command()
-  .command("logs [package]")
+  .command("logs")
   .description("Stream real time logs or search cloud stored logs.")
-  .option("--stack <stack>", StackName, "default")
   .option(
     "--search <query>",
     "Search for this content in log messages, returning matches "
