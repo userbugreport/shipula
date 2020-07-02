@@ -1,10 +1,7 @@
 import * as cdk from "@aws-cdk/core";
-import { AmazonEfsIntegrationsStack } from "./AmazonEfsIntegrationsStack";
+import { FargateEfs } from "./FargateEfs";
 
 const app = new cdk.App();
-const stack = new AmazonEfsIntegrationsStack(app, "hello", {
-  cpuSize: "256",
-  memorySize: "1024",
-});
+const stack = new FargateEfs(app, "hello");
 console.assert(stack);
 app.synth();

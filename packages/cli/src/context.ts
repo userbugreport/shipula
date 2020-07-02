@@ -18,6 +18,10 @@ export type ShipulaContextProps = {
    */
   packageName: string;
   /**
+   * Work on this stage.
+   */
+  stageName: string;
+  /**
    * Last known error.
    */
   lastError?: Error;
@@ -32,4 +36,5 @@ export type ShipulaContextProps = {
  */
 export const ShipulaContext = React.createContext<ShipulaContextProps>({
   packageName: "",
+  stageName: "",
 });

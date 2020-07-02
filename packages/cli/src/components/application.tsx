@@ -4,19 +4,19 @@ import { ShipulaContext, ShipulaContextProps } from "../context";
 import { Authenticator } from "./authenticator";
 
 type Props = {
-  context: ShipulaContextProps;
+  initialValues: ShipulaContextProps;
 };
 
 /**
  * Root application object, context and authentication is provided.
  */
 const Application: React.FunctionComponent<Props> = ({
-  context,
+  initialValues,
   children,
 }: React.PropsWithChildren<Props>) => {
   // context is state to allow an update
   const [contextState, setContextState] = React.useState<ShipulaContextProps>(
-    context
+    initialValues
   );
   return (
     <ShipulaContext.Provider value={{ ...contextState, setContextState }}>
@@ -29,7 +29,7 @@ const Application: React.FunctionComponent<Props> = ({
  * Main render entry point - this 'starts' the application and is fed arguments
  * and data from the command line through context.
  */
-export const display = (context: ShipulaContextProps): void => {
+export const display = (initialValues: ShipulaContextProps): void => {
   // start Ink rendering
-  render(<Application context={context} />);
+  render(<Application initialValues={initialValues} />);
 };
