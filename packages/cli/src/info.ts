@@ -10,6 +10,6 @@ export default new Command()
   .on("--help", () => {
     console.log(docs("info.md"));
   })
-  .action(async (options: ShipulaContextProps) => {
-    display(options, Info);
+  .action(async (command) => {
+    display(command?.parent as ShipulaContextProps, Info);
   });

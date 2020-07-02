@@ -84,7 +84,7 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
         HAS_VALUES: {
           target: "verifyingCredentials",
           actions: actions.assign({
-            verifiedCredentials: (_context, event) => event.credentials,
+            verifiedCredentials: (_context, event) => event?.credentials,
           }),
         },
       },
@@ -102,7 +102,7 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
         onError: {
           target: "displayingError",
           actions: actions.assign({
-            lastError: (_context, event) => event.data,
+            lastError: (_context, event) => event?.data,
           }),
         },
       },
@@ -175,7 +175,7 @@ export const Authenticator: React.FunctionComponent<Props> = ({
       },
       saveCredentials: async (context) => {
         // we've connected. awesome -- save it -- back to the app context
-        appContext.setContextState(context);
+        appContext.setContextState({ ...appContext, ...context });
         // and to the user profile
         await fs.writeJSON(userHomeConfig, context.verifiedCredentials);
         return;

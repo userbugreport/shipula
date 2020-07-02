@@ -33,10 +33,13 @@ export const display = (
   initialValues: ShipulaContextProps,
   Display: React.FunctionComponent
 ): void => {
-  console.assert(Display);
   // start Ink rendering
+  const props = {
+    packageName: initialValues.packageName,
+    stackName: initialValues.stackName,
+  };
   render(
-    <Application initialValues={initialValues}>
+    <Application initialValues={props}>
       <Display />
     </Application>
   );
