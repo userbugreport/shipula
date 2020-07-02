@@ -55,11 +55,11 @@ export const buildProgram = async () => {
     .version(pj.version)
     .description(`⛴🧛🏻‍♂️-- The simplest way to get your node server to the cloud!`)
     .option(
-      "--app <packageName>",
+      "--packageName <packageName>",
       StackName,
       packages.length ? packages[0].name : "no package found"
     )
-    .option("--stack <stackName>", StackName, "default")
+    .option("--stackName <stackName>", StackName, "default")
     .addCommand(deploy)
     .addCommand(destroy)
     .addCommand(env)

@@ -19,9 +19,9 @@ export type ShipulaContextProps = {
    */
   packageName: string;
   /**
-   * Work on this stage.
+   * Work on this stack.
    */
-  stageName: string;
+  stackName: string;
   /**
    * Last known error.
    */
@@ -37,7 +37,10 @@ export type ShipulaContextProps = {
  * of invalid characters
  */
 export const getStackName = (context: ShipulaContextProps): string => {
-  return `${context.packageName}-${context.stageName}`.replace(/\W/, "-");
+  return `${context.packageName.replace(/\W/g, "")}-${context.stackName.replace(
+    /\W/g,
+    ""
+  )}`;
 };
 
 /**
@@ -49,5 +52,5 @@ export const getStackName = (context: ShipulaContextProps): string => {
  */
 export const ShipulaContext = React.createContext<ShipulaContextProps>({
   packageName: "",
-  stageName: "",
+  stackName: "",
 });
