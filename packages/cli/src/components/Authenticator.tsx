@@ -11,6 +11,7 @@ import path from "path";
 import AWS, { CloudFormation } from "aws-sdk";
 import { Form, Field } from "react-final-form";
 import InkTextInput from "ink-text-input";
+import { ErrorMessage } from "./ErrorMessage";
 
 const userHomeConfig = path.join(expandTide("~"), ".shipula.json");
 
@@ -243,14 +244,6 @@ export const Authenticator: React.FunctionComponent<Props> = ({
   };
 
   /**
-   * Snippet to display an error message.
-   */
-  const errorMessage = (
-    <Text color="red" bold>
-      {state.context.lastError?.message}
-    </Text>
-  );
-  /**
    * Collect credential with this form
    */
   const credentialsForm = (
@@ -298,7 +291,9 @@ export const Authenticator: React.FunctionComponent<Props> = ({
           <Spinner type="dots" />
         </Text>
       )}
-      {state.context.lastError && errorMessage}
+      {state.value === "displayingError" && (
+        <ErrorMessage error={state.context.lastError} />
+      )}
       {state.value === "promptingUser" && credentialsForm}
       {state.value === "connected" && children}
     </>
