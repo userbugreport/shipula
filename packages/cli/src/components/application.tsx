@@ -29,7 +29,14 @@ const Application: React.FunctionComponent<Props> = ({
  * Main render entry point - this 'starts' the application and is fed arguments
  * and data from the command line through context.
  */
-export const display = (initialValues: ShipulaContextProps): void => {
+export const display = (
+  initialValues: ShipulaContextProps,
+  Display: React.FunctionComponent
+): void => {
   // start Ink rendering
-  render(<Application initialValues={initialValues} />);
+  render(
+    <Application initialValues={initialValues}>
+      <Display />
+    </Application>
+  );
 };
