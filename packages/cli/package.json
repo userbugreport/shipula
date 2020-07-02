@@ -18,11 +18,18 @@
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
+    "@aws-cdk/aws-ec2": "^1.48.0",
+    "@aws-cdk/aws-ecs": "^1.48.0",
+    "@aws-cdk/aws-ecs-patterns": "^1.48.0",
+    "@aws-cdk/aws-efs": "^1.48.0",
+    "@aws-cdk/core": "^1.48.0",
+    "@aws-cdk/custom-resources": "^1.48.0",
     "@types/ink": "^2.0.3",
     "@types/ink-spinner": "3.0.0",
     "@types/ink-text-input": "2.0.1",
     "@types/react": "^16.9.41",
     "@xstate/react": "^0.8.1",
+    "aws-cdk": "^1.48.0",
     "aws-sdk": "^2.706.0",
     "commander": "^5.1.0",
     "cosmiconfig": "^6.0.0",
