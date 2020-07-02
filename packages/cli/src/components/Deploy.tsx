@@ -151,12 +151,15 @@ export const Deploy: React.FunctionComponent<Props> = () => {
           ["UPDATE_COMPLETE", "CREATE_COMPLETE"].includes(
             CDKToolkit.Stacks[0].StackStatus
           )
-        )
+        ) {
+          console.log(" ✅  CDK Toolkit is available");
           return CDKToolkit;
-        if (CDKToolkit.Stacks[0].StackStatus.endsWith("IN_PROGRESS"))
+        } else if (CDKToolkit.Stacks[0].StackStatus.endsWith("IN_PROGRESS")) {
           send("CDK_INSTALLING");
-        // CDK not existing or not found will except out -- so it'll go to install
-        throw new Error("CDKToolkit not found");
+        } else {
+          // CDK not existing or not found will except out -- so it'll go to install
+          throw new Error("CDKToolkit not found");
+        }
       },
       deployCDK: async () => {
         // less fantastic -- we need to bootstrap CDK
@@ -181,8 +184,6 @@ export const Deploy: React.FunctionComponent<Props> = () => {
           });
         });
       },
-      // need our package name cleaned, stage name -- those will form the stack name
-      // and tags to be passed along
       deployAppStack: async () => {
         await new Promise((resolve, reject) => {
           // need an app path
