@@ -1,5 +1,6 @@
 import React from "react";
 import { Credentials } from "./configuration";
+import { CloudFormation } from "aws-sdk";
 
 /**
  * Put these props in the context.
@@ -25,6 +26,18 @@ export type ShipulaContextProps = {
    * Last known error.
    */
   lastError?: Error;
+  /**
+   * There is a toolkit stack that needs to exist in order to use CDK to deploy.
+   */
+  CDKToolkit?: CloudFormation.DescribeStacksOutput;
+};
+
+/**
+ * Generate a consistent stack name from the context, with clean up
+ * of invalid characters
+ */
+export const getStackName = (context: ShipulaContextProps): string => {
+  return `${context.packageName}-${context.stageName}`.replace(/\W/, "-");
 };
 
 /**

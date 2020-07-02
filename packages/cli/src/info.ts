@@ -2,6 +2,7 @@ import { Command } from "commander";
 import docs from "./docs";
 import { display } from "./components/application";
 import { ShipulaContextProps } from "./context";
+import { Info } from "./components/Info";
 
 export default new Command()
   .command("info")
@@ -10,5 +11,5 @@ export default new Command()
     console.log(docs("info.md"));
   })
   .action(async (options: ShipulaContextProps) => {
-    display(options);
+    display(options, Info);
   });

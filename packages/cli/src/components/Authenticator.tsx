@@ -8,7 +8,7 @@ import { AWSRegion, completeCredentials, Credentials } from "../configuration";
 import fs from "fs-extra";
 import expandTide from "expand-tilde";
 import path from "path";
-import AWS from "aws-sdk";
+import AWS, { CloudFormation } from "aws-sdk";
 import { Form, Field } from "react-final-form";
 import InkTextInput from "ink-text-input";
 
@@ -129,13 +129,19 @@ const machine = Machine<ShipulaContextProps, Schema, Events>({
   },
 });
 
+type Props = {
+  none?: string;
+};
+
 /**
  * Authenticate against AWS.
  *
  * This is a state machine that looks at available credentials, tries
  * to log into AWS, and failing that -- asks the user for working credentials.
  */
-export const Authenticator: React.FunctionComponent = () => {
+export const Authenticator: React.FunctionComponent<Props> = ({
+  children,
+}: React.PropsWithChildren<Props>) => {
   // app level context is passed along to the state machine level context
   const appContext = React.useContext(ShipulaContext);
   // configured state machine under closure with context
@@ -183,14 +189,20 @@ export const Authenticator: React.FunctionComponent = () => {
           context.verifiedCredentials.AWS_SECRET_ACCESS_KEY;
         process.env.AWS_REGION = context.verifiedCredentials.AWS_REGION;
         // everything we're making is going to be a CloudFormation stack
-        // so query and see apps -- let exceptions out -- the state
-        // machine will handle it
+        // and we're always going to need the CDKToolkit -- so use looking for
+        // that as the auth check
+        // let exceptions out -- the state machine will handle it and prompt login
         const cloudFormation = new AWS.CloudFormation();
-        await new Promise((resolve, reject) => {
-          cloudFormation.listStacks((err, data) => {
-            if (err) reject(err);
-            else resolve(data);
-          });
+        context.CDKToolkit = await new Promise<
+          CloudFormation.DescribeStacksOutput
+        >((resolve, reject) => {
+          cloudFormation.describeStacks(
+            { StackName: "CDKToolkit" },
+            (err, data) => {
+              if (err) reject(err);
+              else resolve(data);
+            }
+          );
         });
       },
     },
@@ -288,6 +300,7 @@ export const Authenticator: React.FunctionComponent = () => {
       )}
       {state.context.lastError && errorMessage}
       {state.value === "promptingUser" && credentialsForm}
+      {state.value === "connected" && children}
     </>
   );
 };
