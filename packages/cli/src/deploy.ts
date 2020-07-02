@@ -1,5 +1,8 @@
 import { Command } from "commander";
 import docs from "./docs";
+import { Deploy } from "./components/Deploy";
+import { ShipulaContextProps } from "./context";
+import { display } from "./components/application";
 
 export default new Command()
   .command("deploy")
@@ -7,12 +10,10 @@ export default new Command()
   .on("--help", () => {
     console.log(docs("deploy.md"));
   })
-  .action(async () => {
+  .action(async (command) => {
     // validate login with 'our app'
-    // make sure there is a CDKToolkit
-    // deployment API ritual with CDK shelling out
-    // need our package name cleaned, stage name -- those will form the stack name
-    // and tags to be passed along
+    display(command?.parent as ShipulaContextProps, Deploy);
+
 
     return;
   });

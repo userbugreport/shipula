@@ -190,21 +190,17 @@ export const Authenticator: React.FunctionComponent<Props> = ({
           context.verifiedCredentials.AWS_SECRET_ACCESS_KEY;
         process.env.AWS_REGION = context.verifiedCredentials.AWS_REGION;
         // everything we're making is going to be a CloudFormation stack
-        // and we're always going to need the CDKToolkit -- so use looking for
-        // that as the auth check
+        // so let's list as the auth check
         // let exceptions out -- the state machine will handle it and prompt login
         const cloudFormation = new AWS.CloudFormation();
-        context.CDKToolkit = await new Promise<
-          CloudFormation.DescribeStacksOutput
-        >((resolve, reject) => {
-          cloudFormation.describeStacks(
-            { StackName: "CDKToolkit" },
-            (err, data) => {
+        await new Promise<CloudFormation.DescribeStacksOutput>(
+          (resolve, reject) => {
+            cloudFormation.listStacks((err, data) => {
               if (err) reject(err);
               else resolve(data);
-            }
-          );
-        });
+            });
+          }
+        );
       },
     },
   });
