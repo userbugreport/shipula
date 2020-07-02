@@ -26,23 +26,21 @@ Shipula deals with this by setting up cloud hosted log search *and* real time lo
 ### Apps
 Your server is an App in Shipula. 
 An App has a few required characteristics:
-* It needs to be node, with a package.json
+* It needs to be node, with a package.json, the App name is the package name
 * It needs to have its `dependencies` and `devDependencies` correct
   * Easy way to tell -- make a new directoy, clone from git `npm install` or `yarn` -- then start
 * It needs to have a start script, what you do with `npm start` or `yarn start`
 * It needs to listen on a port that can be set by the environment variable `${PORT}`
 
 ### Stacks
-A Stack is an end to end copy of your App, from the internet, through the load balancer, to your running servers, down to shared disk.
-With all the supporting services including logs and monitoring.
-Shipula uses cloud build APIs and configuration for you, so you don't need to learn yet another configuration language.
+A Stack is an end to end copy of your App, you can have as many Stacks of your App as you like.
 
 ### Prod/Stage/Test/Dev
 It's really common to need multiple copies of your app. Setting up multiple copies can be *work* -- depending on which cloud tools you use, it can be as much work each time. And deploying to each copy can be work.
 
 Shipula deals with this by letting you set up multiple Stacks of your App. 
 Each Stack is a complete, isolated copy. 
-Make as many as you like, you just `npx shipula --stack name deploy`.
+Make as many as you like, you just `npx shipula --stack stackName deploy appName`.
 
 
 ## Deployment
