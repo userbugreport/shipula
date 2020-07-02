@@ -11,9 +11,6 @@ export default new Command()
     console.log(docs("deploy.md"));
   })
   .action(async (command) => {
-    // validate login with 'our app'
     display(command?.parent as ShipulaContextProps, Deploy);
-
-
     return;
   });

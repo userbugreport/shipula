@@ -1,5 +1,8 @@
 import { Command } from "commander";
 import docs from "./docs";
+import { Destroy } from "./components/Destroy";
+import { ShipulaContextProps } from "./context";
+import { display } from "./components/application";
 
 export default new Command()
   .command("destroy")
@@ -7,6 +10,7 @@ export default new Command()
   .on("--help", () => {
     console.log(docs("destroy.md"));
   })
-  .action(async () => {
+  .action(async (command) => {
+    display(command?.parent as ShipulaContextProps, Destroy);
     return;
   });

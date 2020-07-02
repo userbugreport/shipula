@@ -1,11 +1,12 @@
 import React from "react";
-import { Text } from "ink";
+import { Text, Box } from "ink";
 import { ShipulaContext, getStackName } from "../context";
 import { CloudFormation } from "aws-sdk";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
 import { LoadingMachine } from "./Machines";
+import yaml from "yaml";
 
 const machine = LoadingMachine<CloudFormation.DescribeStacksOutput>();
 
@@ -40,6 +41,12 @@ export const Info: React.FunctionComponent<Props> = () => {
       },
     },
   });
+  // this is the most important part to get
+  const getUrl = (stack: CloudFormation.DescribeStacksOutput): string => {
+    return stack.Stacks[0].Outputs.filter((o) =>
+      o.OutputValue.startsWith("http")
+    )[0]?.OutputValue;
+  };
   return (
     <>
       {state.value === "verifyingCredentials" && (
@@ -50,7 +57,15 @@ export const Info: React.FunctionComponent<Props> = () => {
       {state.value === "displayingError" && (
         <ErrorMessage error={state.context.lastError} />
       )}
-      {state.value === "loaded" && <Text>{state.context.data.toString()}</Text>}
+      {state.value === "loaded" && (
+        <>
+          <Box flexDirection="row">
+            <Text>URL: </Text>
+            <Text>{getUrl(state.context.data)}</Text>
+          </Box>
+          <Text>{yaml.stringify(state.context.data)}</Text>
+        </>
+      )}
     </>
   );
 };
