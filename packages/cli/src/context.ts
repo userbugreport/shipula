@@ -1,6 +1,5 @@
 import React from "react";
 import { Credentials } from "./configuration";
-import { CloudFormation } from "aws-sdk";
 
 /**
  * Put these props in the context.
@@ -26,10 +25,6 @@ export type ShipulaContextProps = {
    * Last known error.
    */
   lastError?: Error;
-  /**
-   * There is a toolkit stack that needs to exist in order to use CDK to deploy.
-   */
-  CDKToolkit?: CloudFormation.DescribeStacksOutput;
 };
 
 /**
