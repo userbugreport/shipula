@@ -34,12 +34,8 @@ export const display = (
   Display: React.FunctionComponent
 ): void => {
   // start Ink rendering
-  const props = {
-    packageName: initialValues.packageName,
-    stackName: initialValues.stackName,
-  };
   render(
-    <Application initialValues={props}>
+    <Application initialValues={initialValues}>
       <Display />
     </Application>
   );

@@ -8,6 +8,11 @@ marked.setOptions({
   renderer: new TerminalRenderer(),
 });
 
+export const StackName =
+  "Optional name to create another stack, or copy of your app -- like dev/test/stage";
+export const AppName =
+  "Optional name of the app, used when in a multirepo to target a pacakge";
+
 /**
  * Read and render a markdown file.
  */

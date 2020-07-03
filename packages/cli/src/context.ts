@@ -1,5 +1,6 @@
 import React from "react";
 import { Credentials } from "./configuration";
+import { Package, loadPackage } from "./nouns/package";
 
 /**
  * Put these props in the context.
@@ -16,11 +17,11 @@ export type ShipulaContextProps = {
   /**
    * Work on this package.
    */
-  packageName: string;
+  package?: Package;
   /**
    * Work on this stack.
    */
-  stackName: string;
+  stackName?: string;
   /**
    * Last known error.
    */
@@ -32,10 +33,10 @@ export type ShipulaContextProps = {
  * of invalid characters
  */
 export const getStackName = (context: ShipulaContextProps): string => {
-  return `${context.packageName.replace(/\W/g, "")}-${context.stackName.replace(
+  return `${context.package.name.replace(
     /\W/g,
     ""
-  )}`;
+  )}-${context.stackName.replace(/\W/g, "")}`;
 };
 
 /**
@@ -45,7 +46,17 @@ export const getStackName = (context: ShipulaContextProps): string => {
  * The first thing the context does -- is load up the configuration for
  * you -- so that is always available.
  */
-export const ShipulaContext = React.createContext<ShipulaContextProps>({
-  packageName: "",
-  stackName: "",
-});
+export const ShipulaContext = React.createContext<ShipulaContextProps>({});
+
+/**
+ * Create a deployment context.
+ */
+export const buildDeployProps = async (
+  packageDirectory: string,
+  stackName?: string
+): Promise<ShipulaContextProps> => {
+  return {
+    package: await loadPackage(packageDirectory),
+    stackName: stackName || "default",
+  };
+};
