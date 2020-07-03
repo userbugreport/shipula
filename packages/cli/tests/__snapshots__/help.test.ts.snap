@@ -11,12 +11,14 @@ Options:
 `;
 
 exports[`CLI sub commands deploy help strings 1`] = `
-"Usage:  deploy [options]
+"Usage:  deploy [options] [packageDirectory]
 
 Deploys your pacakge to the cloud, creating and App and Stack.
 
 Options:
-  -h, --help  display help for command
+  --stackName <stackName>  Optional name to create another stack, or copy of
+                           your app -- like dev/test/stage (default: \\"default\\")
+  -h, --help               display help for command
 "
 `;
 

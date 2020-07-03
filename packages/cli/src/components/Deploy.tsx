@@ -124,7 +124,7 @@ export const Deploy: React.FunctionComponent<Props> = () => {
             ".bin",
             "ts-node"
           );
-          const TAGS = `--tags packageName=${appContext.packageName} --tags stackName=${appContext.stackName}`;
+          const TAGS = `--tags packageName=${appContext.package.name} --tags stackName=${appContext.stackName}`;
           process.env.STACK_NAME = getStackName(appContext);
           const child = shell.exec(
             `${CDK} deploy --require-approval never ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
