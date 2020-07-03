@@ -24,13 +24,7 @@ Shipula deals with this by setting up cloud hosted log search *and* real time lo
 ## Apps and Stacks
 
 ### Apps
-Your server is an App in Shipula. 
-An App has a few required characteristics:
-* It needs to be node, with a package.json, the App name is the package name
-* It needs to have its `dependencies` and `devDependencies` correct
-  * Easy way to tell -- make a new directoy, clone from git `npm install` or `yarn` -- then start
-* It needs to have a start script, what you do with `npm start` or `yarn start`
-* It needs to listen on a port that can be set by the environment variable `${PORT}`
+
 
 ### Stacks
 A Stack is an end to end copy of your App, you can have as many Stacks of your App as you like.
