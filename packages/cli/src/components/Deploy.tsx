@@ -1,6 +1,6 @@
 import React from "react";
 import { Text } from "ink";
-import { ShipulaContext, getStackName } from "../context";
+import { ShipulaContext, getStackName, ShipulaContextProps } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
@@ -38,9 +38,7 @@ type Events = {
 /**
  * Little bit of context -- error tracking is nice.
  */
-type Context = {
-  lastError?: Error;
-};
+type Context = ShipulaContextProps;
 
 /**
  * No props needed, the app context is enough.
@@ -103,17 +101,16 @@ const machine = Machine<Context, Schema, Events>({
  */
 export const Deploy: React.FunctionComponent<Props> = () => {
   const appContext = React.useContext(ShipulaContext);
-  console.assert(appContext);
   const [state] = useMachine(machine, {
+    context: appContext,
     services: {
       buildContainer: async () => {
         // need Docker
-        if (!shell.which("dockerz")) {
+        if (!shell.which("Docker")) {
           throw new Error(docs("docker.md"));
         }
       },
-      deployAppStack: async () => {
-        return;
+      deployAppStack: async (context) => {
         await new Promise((resolve, reject) => {
           // need an app path
           const CDKSynthesizer = path.resolve(__dirname, "..", "aws", "index");
@@ -124,10 +121,11 @@ export const Deploy: React.FunctionComponent<Props> = () => {
             ".bin",
             "ts-node"
           );
-          const TAGS = `--tags packageName=${appContext.package.name} --tags stackName=${appContext.stackName}`;
-          process.env.STACK_NAME = getStackName(appContext);
+          const TAGS = `--tags packageName=${context.package.name} --tags stackName=${context.stackName}`;
+          const CONTEXT = `--context PACKAGE_FROM=${context.package.from}`;
+          process.env.STACK_NAME = getStackName(context);
           const child = shell.exec(
-            `${CDK} deploy --require-approval never ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
+            `${CDK} deploy --require-approval never ${CONTEXT} ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
             { async: true }
           );
           child.once("exit", (code) => {

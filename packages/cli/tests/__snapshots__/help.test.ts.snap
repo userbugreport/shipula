@@ -16,8 +16,7 @@ exports[`CLI sub commands deploy help strings 1`] = `
 Deploys your pacakge to the cloud, creating and App and Stack.
 
 Options:
-  --stackName <stackName>  Optional name to create another stack, or copy of
-                           your app -- like dev/test/stage (default: \\"default\\")
+  --stackName <stackName>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
   -h, --help               display help for command
 "
 `;

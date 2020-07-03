@@ -7,6 +7,10 @@ import path from "path";
  */
 export type Package = {
   /**
+   * This needs to be from somewhere on disk.
+   */
+  from: string;
+  /**
    * Gotta call it something. This is the source, uncleaned names.
    */
   name: string;
@@ -35,6 +39,7 @@ export const loadPackage = async (filename?: string): Promise<Package> => {
       ? path.resolve(defaultToWorkingDirectory)
       : path.resolve(defaultToWorkingDirectory, "package.json");
   const p = (await fs.readJson(forgiveDirectory)) as Package;
+  p.from = path.dirname(forgiveDirectory);
   console.assert(p.name, "Must have a name in your package.");
   console.assert(p.version, "Must have a version in your package");
   console.assert(
