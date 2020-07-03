@@ -9,6 +9,7 @@ import shell from "shelljs";
 import path from "path";
 import appRoot from "app-root-path";
 import { Machine, actions } from "xstate";
+import docs from "../docs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -21,7 +22,6 @@ interface Schema {
     checkingCDKToolkit: NoSubState;
     startingCDKToolkitDeploy: NoSubState;
     deployingCDKToolkit: NoSubState;
-    checkingContainer: NoSubState;
     buildingContainer: NoSubState;
     deployingAppStack: NoSubState;
     deployed: NoSubState;
@@ -69,7 +69,7 @@ const machine = Machine<Context, Schema, Events>({
           }),
         },
         onDone: {
-          target: "checkingContainer",
+          target: "buildingContainer",
         },
       },
     },
@@ -83,7 +83,7 @@ const machine = Machine<Context, Schema, Events>({
           }),
         },
         onDone: {
-          target: "checkingContainer",
+          target: "buildingContainer",
         },
       },
     },
@@ -92,14 +92,18 @@ const machine = Machine<Context, Schema, Events>({
         1000: "checkingCDKToolkit",
       },
     },
-    checkingContainer: {
-      after: {
-        100: "buildingContainer",
-      },
-    },
     buildingContainer: {
-      after: {
-        100: "deployingAppStack",
+      invoke: {
+        src: "buildContainer",
+        onError: {
+          target: "error",
+          actions: actions.assign({
+            lastError: (_context, event) => event?.data,
+          }),
+        },
+        onDone: {
+          target: "deployingAppStack",
+        },
       },
     },
     deployingAppStack: {
@@ -184,6 +188,12 @@ export const Deploy: React.FunctionComponent<Props> = () => {
           });
         });
       },
+      buildContainer: async () => {
+        // need Docker
+        if (!shell.which("docker")) {
+          throw new Error(docs("docker.md"));
+        }
+      },
       deployAppStack: async () => {
         await new Promise((resolve, reject) => {
           // need an app path
@@ -219,7 +229,6 @@ export const Deploy: React.FunctionComponent<Props> = () => {
       {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />
       )}
-      <Text>{state.value}</Text>
     </>
   );
 };
