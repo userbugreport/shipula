@@ -108,7 +108,7 @@ export const Deploy: React.FunctionComponent<Props> = () => {
     services: {
       buildContainer: async () => {
         // need Docker
-        if (!shell.which("docker")) {
+        if (!shell.which("dockerz")) {
           throw new Error(docs("docker.md"));
         }
       },
