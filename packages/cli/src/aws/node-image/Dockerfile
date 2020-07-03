@@ -6,7 +6,7 @@ RUN apk add --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
 
 WORKDIR /app
-COPY "${PACKAGE_FROM}" "."
+COPY . .
 
 # If you have native dependencies, you'll need extra tools
 # RUN apk add --no-cache make gcc g++ python

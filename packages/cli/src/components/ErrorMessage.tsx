@@ -15,8 +15,11 @@ export const ErrorMessage: React.FunctionComponent<Props> = ({
   error,
 }: Props) => {
   return (
-    <Text color="red" bold>
-      {error?.message}
-    </Text>
+    <>
+      <Text color="red" bold>
+        {error?.message}
+      </Text>
+      <Text>{error?.stack}</Text>
+    </>
   );
 };

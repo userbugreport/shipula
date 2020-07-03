@@ -5,7 +5,6 @@ import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 import * as efs from "@aws-cdk/aws-efs";
 import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
-import path from "path";
 
 export class FargateEfs extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -63,18 +62,13 @@ export class FargateEfs extends cdk.Stack {
       cpu: 256,
     });
 
+    // need a relative path to the dockerfile
+    const packageFrom = scope.node.tryGetContext("PACKAGE_FROM");
     const containerDef = new ecs.ContainerDefinition(
       this,
       "MyContainerDefinition",
       {
-        image: ecs.ContainerImage.fromAsset(
-          path.resolve(__dirname, "node-image"),
-          {
-            buildArgs: {
-              PACKAGE_FROM: scope.node.tryGetContext("PACKAGE_FROM"),
-            },
-          }
-        ),
+        image: ecs.ContainerImage.fromAsset(packageFrom),
         taskDefinition: taskDef,
       }
     );
