@@ -1,5 +1,6 @@
 import { Machine, actions } from "xstate";
 import { ShipulaContextProps, getStackName } from "../context";
+import execa from "execa";
 import shell from "shelljs";
 import docs from "../docs";
 import fs from "fs-extra";
@@ -100,17 +101,45 @@ export default Machine<Context, Schema, Events>({
               ".bin",
               "ts-node"
             );
-            const TAGS = `--tags packageName=${context.package.name} --tags stackName=${context.stackName}`;
-            const CONTEXT = `--context PACKAGE_FROM=${context.package.from} --context PACKAGE=${context.package.name} --context STACK=${context.stackName}`;
+            const TAGS = [
+              "--tags",
+              `createdBy=shipula`,
+              "--tags",
+              `packageName=${context.package.name}`,
+              "--tags",
+              `packageVersion=${context.package.version}`,
+              "--tags",
+              `stackName=${context.stackName}`,
+            ];
+            const CONTEXT = [
+              "--context",
+              `PACKAGE_FROM=${context.package.from}`,
+              "--context",
+              `PACKAGE=${context.package.name}`,
+              "--context",
+              `STACK=${context.stackName}`,
+            ];
+            // env var to get the stack named before the CDK context is created
             process.env.STACK_NAME = getStackName(context);
-            const child = shell.exec(
-              `${CDK} deploy --require-approval never ${CONTEXT} ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
-              { async: true, stdio: "inherit" }
+            // synchronous run -- with inherited stdio, this should re-use the
+            // CDK text UI for us
+            const child = execa.sync(
+              CDK,
+              [
+                "deploy",
+                "--require-approval",
+                "never",
+                "--app",
+                `${TSNODE} ${CDKSynthesizer}`,
+                ...TAGS,
+                ...CONTEXT,
+              ],
+              {
+                stdio: "inherit",
+              }
             );
-            child.once("exit", (code) => {
-              if (code) reject(code);
-              else resolve();
-            });
+            if (child.exitCode) reject(child.exitCode);
+            else resolve();
           });
         },
         onDone: "cleaningUp",
