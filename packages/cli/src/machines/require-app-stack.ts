@@ -105,7 +105,7 @@ export default Machine<Context, Schema, Events>({
             process.env.STACK_NAME = getStackName(context);
             const child = shell.exec(
               `${CDK} deploy --require-approval never ${CONTEXT} ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
-              { async: true }
+              { async: true, stdio: "inherit" }
             );
             child.once("exit", (code) => {
               if (code) reject(code);
