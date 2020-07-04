@@ -9,7 +9,7 @@ export type Package = {
   /**
    * This needs to be from somewhere on disk.
    */
-  from: string;
+  from?: string;
   /**
    * Gotta call it something. This is the source, uncleaned names.
    */
@@ -19,13 +19,13 @@ export type Package = {
    * Pull the version string through to be a nice guy Ui friend -- this
    * is useful for display and for tagging cloud resources.
    */
-  version: string;
+  version?: string;
 
   /**
    * Need a start script to exist.
    */
-  scripts: {
-    start: string;
+  scripts?: {
+    start?: string;
   };
 };
 

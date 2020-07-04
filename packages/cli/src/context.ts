@@ -64,3 +64,18 @@ export const buildDeployProps = async (
     stackName: stackName || "default",
   };
 };
+
+/**
+ * Create an info context.
+ */
+export const buildInfoProps = async (
+  packageName?: string,
+  stackName?: string
+): Promise<ShipulaContextProps> => {
+  return {
+    package: {
+      name: packageName,
+    },
+    stackName: stackName,
+  };
+};
