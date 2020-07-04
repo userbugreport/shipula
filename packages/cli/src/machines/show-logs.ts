@@ -1,29 +1,59 @@
 import { Machine, actions } from "xstate";
 import { ShipulaContextProps } from "../context";
 import AWS, { CloudWatchLogs } from "aws-sdk";
+import path from "path";
+import Randoma from "randoma";
+import chalk from "chalk";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
 
 interface Schema {
   states: {
+    starting: NoSubState;
     fetchingLogGroups: NoSubState;
     fetchingLogStreams: NoSubState;
     streaming: NoSubState;
+    sleeping: NoSubState;
     done: NoSubState;
   };
 }
+
+/**
+ * Help create log stream output.
+ */
+type LogStreamOutput = {
+  colorizedSource: string;
+};
+
+/**
+ * An enhanced log stream to allow formatting and fetching.
+ */
+type LogStream = CloudWatchLogs.LogGroup &
+  CloudWatchLogs.LogStream &
+  LogStreamOutput;
+
+/**
+ * An event with its source stream.
+ */
+type LogEvent = {
+  logStream: LogStream;
+  event: CloudWatchLogs.OutputLogEvent;
+};
 
 /**
  * Expand the context a bit to keep track of next
  * tokens.
  */
 type Context = ShipulaContextProps & {
+  // keep these around so we can re-load the available log streams
+  // as compared to storing this on a log stream which would get stomped on reload
   nextTokens: {
     [index: string]: string;
   };
   logGroups: CloudWatchLogs.LogGroup[];
-  logStreams: (CloudWatchLogs.LogGroup & CloudWatchLogs.LogStream)[];
+  logStreams: LogStream[];
+  cycleCounter: number;
 };
 
 type Events = never;
@@ -33,8 +63,23 @@ type Events = never;
  */
 export default Machine<Context, Schema, Events>({
   id: "cdktoolkit",
-  initial: "fetchingLogGroups",
+  initial: "starting",
   states: {
+    starting: {
+      invoke: {
+        src: async (context) => {
+          context.nextTokens = {};
+          context.cycleCounter = 1;
+        },
+        onDone: "fetchingLogGroups",
+        onError: {
+          actions: actions.assign({
+            lastError: (_context, event) => event?.data,
+          }),
+          target: "done",
+        },
+      },
+    },
     fetchingLogGroups: {
       invoke: {
         src: async (context) => {
@@ -107,10 +152,19 @@ export default Machine<Context, Schema, Events>({
               const { logStreams, nextToken } = await moreStreams(token);
               context.logStreams = [
                 ...context.logStreams,
-                ...logStreams.map((logStream) => ({
-                  ...logGroup,
-                  ...logStream,
-                })),
+                ...logStreams.map((logStream) => {
+                  // generate a 'constant random' colorized source
+                  const containerPrefix = path.basename(
+                    logStream.logStreamName
+                  );
+                  const notRandom = new Randoma({ seed: containerPrefix });
+                  const sourceColor = notRandom.color(0.5).hex().toString();
+                  return {
+                    ...logGroup,
+                    ...logStream,
+                    colorizedSource: chalk.hex(sourceColor)(containerPrefix),
+                  };
+                }),
               ];
               token = nextToken;
             }
@@ -131,6 +185,9 @@ export default Machine<Context, Schema, Events>({
         src: async (context) => {
           // and not for all the log events -- these are not saved -- they are emitted
           const cloudWatch = new AWS.CloudWatchLogs();
+          // buffer all the messages so we can get them in time series
+          const buffer = new Array<LogEvent>();
+          //no loop all the streams and fetch all the events
           for (const logStream of context.logStreams) {
             const moreStreams = async (
               nextToken: string
@@ -142,7 +199,6 @@ export default Machine<Context, Schema, Events>({
                     logStreamName: logStream.logStreamName,
                     startFromHead: true,
                     nextToken: nextToken === "-" ? undefined : nextToken,
-                    limit: 1,
                   },
                   (err, data) => {
                     if (err) reject(err);
@@ -151,23 +207,48 @@ export default Machine<Context, Schema, Events>({
                 );
               });
             };
-            let token = "-";
+            let nextToken =
+              context.nextTokens[
+                `${logStream.logGroupName}/${logStream.logStreamName}`
+              ] || "-";
             // more to fetch...
-            while (token) {
-              const { events, nextForwardToken } = await moreStreams(token);
-              token = nextForwardToken;
-              events.forEach((event) => {
-                console.log(event.message);
-              });
+            while (nextToken) {
+              const { events, nextForwardToken } = await moreStreams(nextToken);
+              nextToken = context.nextTokens[
+                `${logStream.logGroupName}/${logStream.logStreamName}`
+              ] = nextForwardToken;
+              if (events.length) {
+                events.forEach((event) => {
+                  buffer.push({ event, logStream });
+                });
+              } else {
+                // let the next stream have a chance
+                break;
+              }
             }
           }
+          // and done -- this is a complete message loop -- time series
+          buffer
+            .sort((l, r) => r.event.timestamp - l.event.timestamp)
+            .forEach((event) => {
+              console.log(
+                new Date(event.event.timestamp).toISOString(),
+                event.logStream.colorizedSource,
+                event.event.message
+              );
+            });
         },
-        onDone: "streaming",
+        onDone: "sleeping",
         onError: {
           actions: actions.assign({
             lastError: (_context, event) => event?.data,
           }),
         },
+      },
+    },
+    sleeping: {
+      after: {
+        1000: "streaming",
       },
     },
     done: { type: "final" },
