@@ -1,6 +1,7 @@
 import * as cdk from "@aws-cdk/core";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as ecs from "@aws-cdk/aws-ecs";
+import * as logs from "@aws-cdk/aws-logs";
 import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 import * as efs from "@aws-cdk/aws-efs";
 import * as cr from "@aws-cdk/custom-resources";
@@ -65,8 +66,13 @@ export class FargateEfs extends cdk.Stack {
     });
 
     // cloud watch logs
+    const logGroup = new logs.LogGroup(
+      this,
+      `shipula/${packageName}/${stackName}`
+    );
     const logging = new ecs.AwsLogDriver({
-      streamPrefix: `${packageName}-${stackName}`,
+      streamPrefix: `console`,
+      logGroup,
     });
 
     // need a relative path to the dockerfile
@@ -84,7 +90,6 @@ export class FargateEfs extends cdk.Stack {
     containerDef.addPortMappings({
       containerPort: 8000,
     });
-
 
     const albFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
       this,
