@@ -9,6 +9,8 @@ import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 export class FargateEfs extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    const packageName = scope.node.tryGetContext("PACKAGE");
+    const stackName = scope.node.tryGetContext("STACk");
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "DefaultEcsCluster", { vpc: vpc });
@@ -62,6 +64,11 @@ export class FargateEfs extends cdk.Stack {
       cpu: 256,
     });
 
+    // cloud watch logs
+    const logging = new ecs.AwsLogDriver({
+      streamPrefix: `${packageName}-${stackName}`,
+    });
+
     // need a relative path to the dockerfile
     const packageFrom = scope.node.tryGetContext("PACKAGE_FROM");
     const containerDef = new ecs.ContainerDefinition(
@@ -69,6 +76,7 @@ export class FargateEfs extends cdk.Stack {
       "MyContainerDefinition",
       {
         image: ecs.ContainerImage.fromAsset(packageFrom),
+        logging: logging,
         taskDefinition: taskDef,
       }
     );
@@ -76,6 +84,7 @@ export class FargateEfs extends cdk.Stack {
     containerDef.addPortMappings({
       containerPort: 8000,
     });
+
 
     const albFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
       this,

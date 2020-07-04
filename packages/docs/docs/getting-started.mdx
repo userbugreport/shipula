@@ -5,14 +5,14 @@ title: Getting Started
 # ⛴🧛🏻‍♂️
 
 :::tip Shipula's Goal
-Be the simplest way to get your node server to the cloud!
+Make **works-on-cloud** as easy as _works-on-my-machine_.
 :::
 
 Programming node servers, whichever frameworks you use like [Express] or [Koa], or just a raw port server, sooner or later you need to ship it.
 
 Then you are going to find out you need to know a lot more things than just [node], things like:
 
-[Docker] 
+[Docker]
 | [AWS]
 | [ALB]
 | [IAM]
@@ -23,19 +23,20 @@ Then you are going to find out you need to know a lot more things than just [nod
 
 It's a lot to take in, and in most team settings, it ends up being a dedicated person to help everyone else out. But what you really want to do is jsut **ship** -- so let's.
 
-
 -- shell 'movie' here --
-* clone our sample
-* yarn
-* run local yarn start
-* shell browser
-* shipula
-* shell browser to the cloud
+
+- clone our sample
+- yarn
+- run local yarn start
+- shell browser
+- shipula
+- shell browser to the cloud
 
 ### Assumptions
-* You have a node http/https  you want on the cloud
-* That node program listens on a `${PORT}` you can read from an environment variable
-* You have signed up for AWS, and have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-* You can go to your shell and type `npx shipula deploy`
+
+- You have a node http/https you want on the cloud
+- That node program listens on a `${PORT}` you can read from an environment variable
+- You have signed up for AWS, and have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+- You can go to your shell and type `npx shipula deploy`
 
 Yep -- that's it.
