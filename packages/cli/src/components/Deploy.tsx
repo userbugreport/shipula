@@ -1,85 +1,29 @@
 import React from "react";
 import { Text } from "ink";
-import { ShipulaContext, ShipulaContextProps } from "../context";
+import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import { Machine, actions } from "xstate";
-import requireCDKToolkit from "../machines/require-cdk-toolkit";
-import requireAppStack from "../machines/require-app-stack";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type NoSubState = any;
-
-/**
- * The states of the state machine, listed out here for TypeScript.
- */
-interface Schema {
-  states: {
-    checkingCDKToolkit: NoSubState;
-    checkingAppStack: NoSubState;
-    deployed: NoSubState;
-    error: NoSubState;
-  };
-}
-
-/**
- * Transtion ye olde state machine
- */
-type Events = {
-  type: "*";
-  data: Error;
-};
-
-/**
- * Little bit of context -- error tracking is nice.
- */
-type Context = ShipulaContextProps;
+import deployStack from "../machines/deploy-stack";
 
 /**
  * No props needed, the app context is enough.
  */
 type Props = never;
 
-const machine = Machine<Context, Schema, Events>({
-  initial: "checkingCDKToolkit",
-  states: {
-    checkingCDKToolkit: {
-      invoke: {
-        src: requireCDKToolkit,
-        data: (context) => context,
-        onDone: "checkingAppStack",
-        onError: "error",
-      },
-    },
-    checkingAppStack: {
-      invoke: {
-        src: requireAppStack,
-        data: (context) => context,
-        onDone: "deployed",
-        onError: "error",
-      },
-    },
-    deployed: { type: "final" },
-    error: {
-      type: "final",
-      entry: actions.assign({
-        lastError: (_context, event) => event?.data,
-      }),
-    },
-  },
-});
-
 /**
  * Gather and display information about a stack based
  * on the current context.
  */
 export const Deploy: React.FunctionComponent<Props> = () => {
+  // the app context is *the* shared data all the way down to
+  // the state machines
   const appContext = React.useContext(ShipulaContext);
-  const [state] = useMachine(machine, {
+  // all of the actual activity is delegated to the state machine
+  const [state] = useMachine(deployStack, {
     context: appContext,
-    services: {},
   });
+  // the display just shows what the state machine is doing
   return (
     <>
       {!state.done && (

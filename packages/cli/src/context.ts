@@ -26,6 +26,10 @@ export type ShipulaContextProps = {
    * Last known error.
    */
   lastError?: Error;
+  /**
+   * We'll make some file on occasion and need to clean up.
+   */
+  cleanUpFiles?: string[];
 };
 
 /**

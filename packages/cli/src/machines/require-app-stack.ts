@@ -6,6 +6,14 @@ import fs from "fs-extra";
 import path from "path";
 import appRoot from "app-root-path";
 
+const dockerFrom = path.resolve(
+  __dirname,
+  "..",
+  "aws",
+  "node-image",
+  "Dockerfile"
+);
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
 
@@ -15,6 +23,7 @@ interface Schema {
     checkingForDockerfile: NoSubState;
     creatingDockerfile: NoSubState;
     creating: NoSubState;
+    cleaningUp: NoSubState;
     ready: NoSubState;
   };
 }
@@ -59,13 +68,6 @@ export default Machine<Context, Schema, Events>({
     creatingDockerfile: {
       invoke: {
         src: async (context) => {
-          const dockerFrom = path.resolve(
-            __dirname,
-            "..",
-            "aws",
-            "node-image",
-            "Dockerfile"
-          );
           const dockerTo = path.resolve(context.package.from, "Dockerfile");
           fs.copyFile(dockerFrom, dockerTo);
         },
@@ -99,7 +101,7 @@ export default Machine<Context, Schema, Events>({
               "ts-node"
             );
             const TAGS = `--tags packageName=${context.package.name} --tags stackName=${context.stackName}`;
-            const CONTEXT = `--context PACKAGE_FROM=${context.package.from}`;
+            const CONTEXT = `--context PACKAGE_FROM=${context.package.from} --context PACKAGE=${context.package.name} --context STACK=${context.stackName}`;
             process.env.STACK_NAME = getStackName(context);
             const child = shell.exec(
               `${CDK} deploy --require-approval never ${CONTEXT} ${TAGS} --app "${TSNODE} ${CDKSynthesizer}"`,
@@ -110,6 +112,22 @@ export default Machine<Context, Schema, Events>({
               else resolve();
             });
           });
+        },
+        onDone: "cleaningUp",
+        onError: {
+          actions: actions.escalate((_context, event) => event.data),
+        },
+      },
+    },
+    cleaningUp: {
+      invoke: {
+        src: async (context) => {
+          // if the Docker file is -- our template we put there -- delete it
+          if (context.cleanUpFiles?.length) {
+            return Promise.all(
+              context.cleanUpFiles.map((fileName) => fs.remove(fileName))
+            );
+          }
         },
         onDone: "ready",
         onError: {
