@@ -1,9 +1,10 @@
 import { Machine, actions } from "xstate";
 import { ShipulaContextProps } from "../context";
 import AWS, { CloudFormation } from "aws-sdk";
+import { getStackName } from "../context";
 import path from "path";
 import appRoot from "app-root-path";
-import shell from "shelljs";
+import execa from "execa";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -72,7 +73,7 @@ export default Machine<Context, Schema, Events>({
     },
     creating: {
       invoke: {
-        src: async () => {
+        src: async (context) => {
           await new Promise((resolve, reject) => {
             // need an app path
             const CDKSynthesizer = path.resolve(
@@ -93,14 +94,23 @@ export default Machine<Context, Schema, Events>({
               ".bin",
               "ts-node"
             );
-            const child = shell.exec(
-              `${CDK} bootstrap --app "${TSNODE} ${CDKSynthesizer}"`,
-              { async: true }
+            // env var to get the stack named before the CDK context is created
+            process.env.STACK_NAME = getStackName(context);
+            const CONTEXT = [
+              "--context",
+              `PACKAGE_FROM=${context.package.from}`,
+              "--context",
+              `PACKAGE=${context.package.name}`,
+              "--context",
+              `STACK=${context.stackName}`,
+            ];
+            const child = execa.sync(
+              CDK,
+              ["bootstrap", "--app", `${TSNODE} ${CDKSynthesizer}`, ...CONTEXT],
+              { stdio: "inherit" }
             );
-            child.once("exit", (code) => {
-              if (code) reject(code);
-              else resolve();
-            });
+            if (child.exitCode) reject(child.exitCode);
+            else resolve();
           });
         },
         onDone: "ready",
