@@ -27,7 +27,7 @@ export const Logs: React.FunctionComponent<Props> = () => {
   // when we are streaming -- hide our spinner and just stream
   return (
     <>
-      {!(state.done || state.value === "streaming") && (
+      {!(state.done || state.value === "displaying") && (
         <Text>
           <Spinner type="dots" /> {state.value}
         </Text>

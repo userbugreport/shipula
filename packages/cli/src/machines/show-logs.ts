@@ -14,6 +14,8 @@ interface Schema {
     fetchingLogGroups: NoSubState;
     fetchingLogStreams: NoSubState;
     streaming: NoSubState;
+    displaying: NoSubState;
+    refreshing: NoSubState;
     sleeping: NoSubState;
     done: NoSubState;
   };
@@ -54,6 +56,7 @@ type Context = ShipulaContextProps & {
   logGroups: CloudWatchLogs.LogGroup[];
   logStreams: LogStream[];
   cycleCounter: number;
+  logEvents: LogEvent[];
 };
 
 type Events = never;
@@ -95,7 +98,6 @@ export default Machine<Context, Schema, Events>({
                 {
                   logGroupNamePrefix: "shipula",
                   nextToken: nextToken === "-" ? undefined : nextToken,
-                  limit: 1,
                 },
                 (err, data) => {
                   if (err) reject(err);
@@ -128,7 +130,10 @@ export default Machine<Context, Schema, Events>({
           // get all the shipula log streams for each group
           const cloudWatch = new AWS.CloudWatchLogs();
           context.logStreams = [];
-          for (const logGroup of context.logGroups) {
+          // let's do a promise for each in parallel
+          const fetchStreams = async (
+            logGroup: CloudWatchLogs.LogGroup
+          ): Promise<void> => {
             const moreStreams = async (
               nextToken: string
             ): Promise<CloudWatchLogs.DescribeLogStreamsResponse> => {
@@ -137,7 +142,6 @@ export default Machine<Context, Schema, Events>({
                   {
                     logGroupName: logGroup.logGroupName,
                     nextToken: nextToken === "-" ? undefined : nextToken,
-                    limit: 1,
                   },
                   (err, data) => {
                     if (err) reject(err);
@@ -168,8 +172,9 @@ export default Machine<Context, Schema, Events>({
               ];
               token = nextToken;
             }
-          }
+          };
           // no news is good news -- the context is updated
+          return Promise.all(context.logGroups.map(fetchStreams));
         },
         onDone: "streaming",
         onError: {
@@ -186,9 +191,10 @@ export default Machine<Context, Schema, Events>({
           // and not for all the log events -- these are not saved -- they are emitted
           const cloudWatch = new AWS.CloudWatchLogs();
           // buffer all the messages so we can get them in time series
-          const buffer = new Array<LogEvent>();
-          //no loop all the streams and fetch all the events
-          for (const logStream of context.logStreams) {
+          context.logEvents = new Array<LogEvent>();
+          // no loop all the streams and fetch all the events
+          // let's do a promise for each in parallel
+          const readAStream = async (logStream: LogStream): Promise<void> => {
             const moreStreams = async (
               nextToken: string
             ): Promise<CloudWatchLogs.GetLogEventsResponse> => {
@@ -219,16 +225,29 @@ export default Machine<Context, Schema, Events>({
               ] = nextForwardToken;
               if (events.length) {
                 events.forEach((event) => {
-                  buffer.push({ event, logStream });
+                  context.logEvents.push({ event, logStream });
                 });
               } else {
                 // let the next stream have a chance
                 break;
               }
             }
-          }
+          };
+          return Promise.all(context.logStreams.map(readAStream));
+        },
+        onDone: "displaying",
+        onError: {
+          actions: actions.assign({
+            lastError: (_context, event) => event?.data,
+          }),
+        },
+      },
+    },
+    displaying: {
+      invoke: {
+        src: async (context) => {
           // and done -- this is a complete message loop -- time series
-          buffer
+          context.logEvents
             .sort((l, r) => r.event.timestamp - l.event.timestamp)
             .forEach((event) => {
               console.log(
@@ -238,12 +257,19 @@ export default Machine<Context, Schema, Events>({
               );
             });
         },
-        onDone: "sleeping",
-        onError: {
-          actions: actions.assign({
-            lastError: (_context, event) => event?.data,
-          }),
+        onDone: "refreshing",
+        onError: "fetchingLogGroups",
+      },
+    },
+    refreshing: {
+      invoke: {
+        src: async (context) => {
+          if (context.cycleCounter % 10 === 0)
+            throw new Error("Need to refresh");
+          // no news is good news
         },
+        onDone: "sleeping",
+        onError: "fetchingLogGroups",
       },
     },
     sleeping: {
