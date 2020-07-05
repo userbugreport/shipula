@@ -1,6 +1,7 @@
 import React from "react";
 import { Credentials } from "./configuration";
 import { Package, loadPackage } from "./nouns/package";
+import { CloudFormation } from "aws-sdk";
 
 /**
  * Put these props in the context.
@@ -30,6 +31,10 @@ export type ShipulaContextProps = {
    * We'll make some file on occasion and need to clean up.
    */
   cleanUpFiles?: string[];
+  /**
+   * Keep track of stacks, used to list and filter.
+   */
+  stacks?: CloudFormation.Stack[];
 };
 
 /**

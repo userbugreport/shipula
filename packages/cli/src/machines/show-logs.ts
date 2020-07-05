@@ -1,7 +1,6 @@
 import { Machine, actions } from "xstate";
 import { ShipulaContextProps } from "../context";
 import AWS, { CloudWatchLogs } from "aws-sdk";
-import path from "path";
 import Randoma from "randoma";
 import chalk from "chalk";
 
@@ -89,6 +88,9 @@ export default Machine<Context, Schema, Events>({
           // get all the shipula log groups
           const cloudWatch = new AWS.CloudWatchLogs();
           context.logGroups = [];
+          // filter down to a log group name following our rules
+          // TODO - log hierarchy filter
+          // TODO - logs only since the last minute
 
           const moreLogs = async (
             nextToken: string
@@ -96,7 +98,7 @@ export default Machine<Context, Schema, Events>({
             return new Promise((resolve, reject) => {
               cloudWatch.describeLogGroups(
                 {
-                  logGroupNamePrefix: "shipula",
+                  logGroupNamePrefix: "shipula/",
                   nextToken: nextToken === "-" ? undefined : nextToken,
                 },
                 (err, data) => {
@@ -158,15 +160,16 @@ export default Machine<Context, Schema, Events>({
                 ...context.logStreams,
                 ...logStreams.map((logStream) => {
                   // generate a 'constant random' colorized source
-                  const containerPrefix = path.basename(
-                    logStream.logStreamName
-                  );
-                  const notRandom = new Randoma({ seed: containerPrefix });
+                  const notRandom = new Randoma({
+                    seed: logStream.logStreamName,
+                  });
                   const sourceColor = notRandom.color(0.5).hex().toString();
                   return {
                     ...logGroup,
                     ...logStream,
-                    colorizedSource: chalk.hex(sourceColor)(containerPrefix),
+                    colorizedSource: chalk.hex(sourceColor)(
+                      logStream.logStreamName
+                    ),
                   };
                 }),
               ];
