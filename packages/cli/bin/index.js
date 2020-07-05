@@ -15,8 +15,12 @@ const buildProgram = require(path.join(__dirname, "..", "src", "index"))
  */
 const main = async () => {
   // GO!
-  const program = await buildProgram();
-  await program.parseAsync(process.argv);
+  try {
+    const program = await buildProgram();
+    await program.parseAsync(process.argv);
+  } catch (e) {
+    console.log(e);
+  }
 };
 // load and go
 main();

@@ -46,6 +46,7 @@
     "ink-spinner": "4.0.0-0",
     "ink-table": "^2.0.1",
     "ink-text-input": "4.0.0-1",
+    "ink-use-stdout-dimensions": "^1.0.5",
     "marked": "^1.1.0",
     "marked-terminal": "^4.1.0",
     "package-json": "^6.5.0",

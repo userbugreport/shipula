@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import assert from "assert";
 
 /**
  * A specific node package. We don't need all the properties
@@ -40,9 +41,9 @@ export const loadPackage = async (filename?: string): Promise<Package> => {
       : path.resolve(defaultToWorkingDirectory, "package.json");
   const p = (await fs.readJson(forgiveDirectory)) as Package;
   p.from = path.dirname(forgiveDirectory);
-  console.assert(p.name, "Must have a name in your package.");
-  console.assert(p.version, "Must have a version in your package");
-  console.assert(
+  assert(p.name, "Must have a name in your package.");
+  assert(p.version, "Must have a version in your package");
+  assert(
     p?.scripts?.start,
     "Must have a scripts section with a start command in your pacakge"
   );
