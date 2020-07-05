@@ -63,8 +63,8 @@ export class FargateEfs extends cdk.Stack {
     efsAccessPoint.node.addDependency(fileSystem);
 
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
-      memoryLimitMiB: 512,
-      cpu: 256,
+      memoryLimitMiB: 2048,
+      cpu: 1024,
     });
 
     // cloud watch logs

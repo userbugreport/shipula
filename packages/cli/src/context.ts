@@ -10,6 +10,7 @@ export type ShipulaStack = {
   stack: CloudFormation.Stack;
   resources: CloudFormation.StackResources;
   webCluster: ECS.Cluster;
+  webTasks: ECS.Tasks;
   webTaskDefinition: ECS.TaskDefinition;
 };
 

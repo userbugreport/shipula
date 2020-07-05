@@ -13,7 +13,9 @@ export const buildProgram = async () => {
   const program = new Command();
   program
     .version(pj.version)
-    .description(`⛴🧛🏻‍♂️-- The simplest way to get your node server to the cloud!`)
+    .description(
+      `⛴🧛🏻‍♂️-- Make **works-on-cloud** as easy as *works-on-my-machine*.`
+    )
     .addCommand(deploy)
     .addCommand(destroy)
     .addCommand(env)
