@@ -1,15 +1,18 @@
 import { Command } from "commander";
-import docs from "./docs";
-import { display } from "./components/application";
-import { ShipulaContextProps } from "./context";
+import docs, { StackName, PackageName } from "./docs";
 import { Info } from "./components/Info";
+import { display } from "./components/application";
+import { buildInfoProps } from "./context";
 
 export default new Command()
   .command("info")
   .description("This will tell you all about your App and Stack.")
+  .option("--packageName <packageName>", PackageName)
+  .option("--stackName <stackName>", StackName)
   .on("--help", () => {
-    console.log(docs("info.md"));
+    console.log(docs("destroy.md"));
   })
   .action(async (command) => {
-    display(command?.parent as ShipulaContextProps, Info);
+    display(await buildInfoProps(command.packageName, command.stackName), Info);
+    return;
   });
