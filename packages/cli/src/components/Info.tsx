@@ -1,70 +1,39 @@
 import React from "react";
-import { Text, Box } from "ink";
-import { ShipulaContext, getStackName } from "../context";
-import { CloudFormation } from "aws-sdk";
+import { Text } from "ink";
+import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import { LoadingMachine } from "./Machines";
-import yaml from "yaml";
+import infoStack from "../machines/info-stack";
+import { Stacks } from "./Stacks";
 
-const machine = LoadingMachine<CloudFormation.DescribeStacksOutput>();
-
-type Props = never;
 /**
- * Gather and display information about a stack based
- * on the current context.
+ * No props needed, the app context is enough.
+ */
+type Props = never;
+
+/**
+ * List our stacks -- or drill in detail into one.
  */
 export const Info: React.FunctionComponent<Props> = () => {
+  // the app context is *the* shared data all the way down to
+  // the state machines
   const appContext = React.useContext(ShipulaContext);
-  const [state, send] = useMachine(machine, {
-    services: {
-      readData: async (context) => {
-        console.assert(context);
-        console.assert(send);
-        const cloudFormation = new CloudFormation();
-        const stackInfo = await new Promise<
-          CloudFormation.DescribeStacksOutput
-        >((resolve, reject) => {
-          cloudFormation.describeStacks(
-            { StackName: getStackName(appContext) },
-            (err, data) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(data);
-              }
-            }
-          );
-        });
-        return stackInfo;
-      },
-    },
+  // all of the actual activity is delegated to the state machine
+  const [state] = useMachine(infoStack, {
+    context: appContext,
   });
-  // this is the most important part to get
-  const getUrl = (stack: CloudFormation.DescribeStacksOutput): string => {
-    return stack.Stacks[0].Outputs.filter((o) =>
-      o.OutputValue.startsWith("http")
-    )[0]?.OutputValue;
-  };
+  // the display just shows what the state machine is doing
   return (
     <>
-      {state.value === "verifyingCredentials" && (
+      {!state.done && (
         <Text>
-          <Spinner type="dots" />
+          <Spinner type="dots" /> {state.value}
         </Text>
       )}
-      {state.value === "displayingError" && (
+      {state.context.stacks && <Stacks stacks={state.context.stacks} />}
+      {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />
-      )}
-      {state.value === "loaded" && (
-        <>
-          <Box flexDirection="row">
-            <Text>URL: </Text>
-            <Text>{getUrl(state.context.data)}</Text>
-          </Box>
-          <Text>{yaml.stringify(state.context.data)}</Text>
-        </>
       )}
     </>
   );
