@@ -6,17 +6,18 @@ import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 import * as efs from "@aws-cdk/aws-efs";
 import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
+import { RetentionDays } from "@aws-cdk/aws-logs";
 
 export class FargateEfs extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     const packageName = scope.node.tryGetContext("PACKAGE");
-    const stackName = scope.node.tryGetContext("STACk");
+    const stackName = scope.node.tryGetContext("STACK");
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "DefaultEcsCluster", { vpc: vpc });
 
-    const fileSystem = new efs.FileSystem(this, "MyEfsFileSystem", {
+    const fileSystem = new efs.FileSystem(this, "Efs", {
       vpc: vpc,
       encrypted: true,
       lifecyclePolicy: efs.LifecyclePolicy.AFTER_14_DAYS,
@@ -60,16 +61,20 @@ export class FargateEfs extends cdk.Stack {
 
     efsAccessPoint.node.addDependency(fileSystem);
 
-    const taskDef = new ecs.FargateTaskDefinition(this, "MyTaskDefinition", {
+    const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
       memoryLimitMiB: 512,
       cpu: 256,
     });
 
     // cloud watch logs
-    const logGroup = new logs.LogGroup(
-      this,
-      `shipula/${packageName}/${stackName}`
+    const logGroupName = `shipula/${packageName}/${stackName}`.replace(
+      /[^\.\-_/#A-Za-z0-9]/,
+      ""
     );
+    const logGroup = new logs.LogGroup(this, "LogGroup", {
+      logGroupName,
+      retention: RetentionDays.INFINITE,
+    });
     const logging = new ecs.AwsLogDriver({
       streamPrefix: `console`,
       logGroup,
@@ -77,15 +82,11 @@ export class FargateEfs extends cdk.Stack {
 
     // need a relative path to the dockerfile
     const packageFrom = scope.node.tryGetContext("PACKAGE_FROM");
-    const containerDef = new ecs.ContainerDefinition(
-      this,
-      "MyContainerDefinition",
-      {
-        image: ecs.ContainerImage.fromAsset(packageFrom),
-        logging: logging,
-        taskDefinition: taskDef,
-      }
-    );
+    const containerDef = new ecs.ContainerDefinition(this, "WebContainer", {
+      image: ecs.ContainerImage.fromAsset(packageFrom),
+      logging: logging,
+      taskDefinition: taskDef,
+    });
 
     containerDef.addPortMappings({
       containerPort: 8000,
@@ -93,7 +94,7 @@ export class FargateEfs extends cdk.Stack {
 
     const albFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
       this,
-      "Service01",
+      "WebService",
       {
         cluster: ecsCluster,
         taskDefinition: taskDef,
