@@ -1,7 +1,17 @@
 import React from "react";
 import { Credentials } from "./configuration";
 import { Package, loadPackage } from "./nouns/package";
-import { CloudFormation } from "aws-sdk";
+import { CloudFormation, ECS } from "aws-sdk";
+
+/**
+ * Thinks we know about a stack.
+ */
+export type ShipulaStack = {
+  stack: CloudFormation.Stack;
+  resources: CloudFormation.StackResources;
+  webCluster: ECS.Cluster;
+  webTaskDefinition: ECS.TaskDefinition;
+};
 
 /**
  * Put these props in the context.
@@ -35,6 +45,10 @@ export type ShipulaContextProps = {
    * Keep track of stacks, used to list and filter.
    */
   stacks?: CloudFormation.Stack[];
+  /**
+   * Current selected stack;
+   */
+  selectedStack?: ShipulaStack;
 };
 
 /**

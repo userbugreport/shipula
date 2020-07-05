@@ -7,6 +7,7 @@ import * as efs from "@aws-cdk/aws-efs";
 import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
+import { RemovalPolicy } from "@aws-cdk/core";
 
 export class FargateEfs extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -15,7 +16,7 @@ export class FargateEfs extends cdk.Stack {
     const stackName = scope.node.tryGetContext("STACK");
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
-    const ecsCluster = new ecs.Cluster(this, "DefaultEcsCluster", { vpc: vpc });
+    const ecsCluster = new ecs.Cluster(this, "WebCluster", { vpc: vpc });
 
     const fileSystem = new efs.FileSystem(this, "Efs", {
       vpc: vpc,
@@ -37,7 +38,7 @@ export class FargateEfs extends cdk.Stack {
           OwnerUid: 1000,
           Permissions: "755",
         },
-        Path: "/uploads",
+        Path: "/cluster_shared",
       },
       Tags: [
         {
@@ -74,6 +75,7 @@ export class FargateEfs extends cdk.Stack {
     const logGroup = new logs.LogGroup(this, "LogGroup", {
       logGroupName,
       retention: RetentionDays.INFINITE,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
     const logging = new ecs.AwsLogDriver({
       streamPrefix: `console`,
@@ -127,7 +129,7 @@ export class FargateEfs extends cdk.Stack {
         EcsService: albFargateService.service.serviceName,
         EcsCluster: ecsCluster.clusterName,
         EfsFileSystemId: fileSystem.fileSystemId,
-        EfsMountName: "uploads",
+        EfsMountName: "cluster_shared",
       }
     );
 
