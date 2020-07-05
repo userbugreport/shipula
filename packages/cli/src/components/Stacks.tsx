@@ -13,7 +13,7 @@ type Props = {
 /**
  * List out stacks.
  */
-export const Stacks: React.FC<Props> = ({ stacks }) => {
+export const Stacks: React.FC<Props> = ({ stacks }: Props) => {
   const [columns] = useStdoutDimensions();
   // re-format the table into the columns we like
   const getTag = (stack: CloudFormation.Stack, key: string): string => {
@@ -33,9 +33,6 @@ export const Stacks: React.FC<Props> = ({ stacks }) => {
           <Box width="20">
             <Text>Status</Text>
           </Box>
-          <Box width="50%">
-            <Text>Arguments</Text>
-          </Box>
         </Box>
         {stacks.map((stack) => (
           <Box key={stack.StackId}>
@@ -47,12 +44,6 @@ export const Stacks: React.FC<Props> = ({ stacks }) => {
             </Box>
             <Box width="20">
               <Text>{stack.StackStatus}</Text>
-            </Box>
-            <Box width="50%" flexDirection="row">
-              <Text>--packageName </Text>
-              <Text>{getTag(stack, "packageName")} </Text>
-              <Text>--stackName </Text>
-              <Text>{getTag(stack, "stackName")}</Text>
             </Box>
           </Box>
         ))}

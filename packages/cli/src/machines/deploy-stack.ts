@@ -1,7 +1,8 @@
 import requireCDKToolkit from "./require-cdk-toolkit";
 import requireAppStack from "./require-app-stack";
-import { ShipulaContextProps } from "../context";
+import { ShipulaContextProps, getStackName } from "../context";
 import { Machine, actions } from "xstate";
+import assert from "assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -11,6 +12,7 @@ type NoSubState = any;
  */
 interface Schema {
   states: {
+    checkingSettings: NoSubState;
     checkingCDKToolkit: NoSubState;
     checkingAppStack: NoSubState;
     deployed: NoSubState;
@@ -34,6 +36,15 @@ type Context = ShipulaContextProps;
 export default Machine<Context, Schema, Events>({
   initial: "checkingCDKToolkit",
   states: {
+    checkingSettings: {
+      invoke: {
+        src: async (context) => {
+          assert(getStackName(context));
+        },
+        onDone: "checkingCDKToolkit",
+        onError: "error",
+      },
+    },
     checkingCDKToolkit: {
       invoke: {
         src: requireCDKToolkit,

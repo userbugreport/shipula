@@ -1,6 +1,7 @@
 import { ShipulaContextProps, getStackName } from "../context";
 import { Machine, actions } from "xstate";
 import { listShipulaStacks } from "../aws/info";
+import AWS from "aws-sdk";
 import assert from "assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,12 +15,10 @@ interface Schema {
     checkingSettings: NoSubState;
     listingStacks: NoSubState;
     describingStack: NoSubState;
-    waiting: NoSubState;
     error: NoSubState;
     done: NoSubState;
   };
 }
-
 /**
  * Transtion ye olde state machine
  */
@@ -57,15 +56,68 @@ export default Machine<Context, Schema, Events>({
     describingStack: {
       invoke: {
         src: async (context) => {
-          assert(context);
+          const cloudFormation = new AWS.CloudFormation();
+          const stack = (
+            await cloudFormation
+              .describeStacks({
+                StackName: getStackName(context),
+              })
+              .promise()
+          ).Stacks[0];
+          const resources = (
+            await cloudFormation
+              .describeStackResources({
+                StackName: stack.StackId,
+              })
+              .promise()
+          ).StackResources;
+
+          const ecs = new AWS.ECS();
+          const webClusterResource = resources.find(
+            (r) =>
+              r.ResourceType === "AWS::ECS::Cluster" &&
+              r.LogicalResourceId.startsWith("WebCluster")
+          );
+
+          const webCluster = (
+            await ecs
+              .describeClusters({
+                clusters: [webClusterResource.PhysicalResourceId],
+              })
+              .promise()
+          ).clusters[0];
+          const webClusterTaskArns = (
+            await ecs
+              .listTasks({
+                cluster: webCluster.clusterArn,
+              })
+              .promise()
+          ).taskArns;
+          const webClusterTasks = (
+            await ecs
+              .describeTasks({
+                tasks: webClusterTaskArns,
+                cluster: webCluster.clusterArn,
+              })
+              .promise()
+          ).tasks;
+          const webTaskDefinition = (
+            await ecs
+              .describeTaskDefinition({
+                taskDefinition: webClusterTasks[0].taskDefinitionArn,
+              })
+              .promise()
+          ).taskDefinition;
+
+          context.selectedStack = {
+            stack,
+            resources,
+            webCluster,
+            webTaskDefinition,
+          };
         },
-        onDone: "waiting",
+        onDone: "done",
         onError: "error",
-      },
-    },
-    waiting: {
-      after: {
-        1000: "describingStack",
       },
     },
     done: { type: "final" },
