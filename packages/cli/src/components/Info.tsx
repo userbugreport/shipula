@@ -9,6 +9,7 @@ import { Stacks } from "./Stacks";
 import yaml from "yaml";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
 import path from "path";
+import { decodeCPU } from "../aws/info";
 
 /**
  * No props needed, the app context is enough.
@@ -37,8 +38,9 @@ export const Info: React.FunctionComponent<Props> = () => {
         url: stack.stack.Outputs.find((o) =>
           o.OutputKey.startsWith("WebServiceServiceURL")
         )?.OutputValue,
-        cpu: stack.webTaskDefinition.cpu,
-        memory: stack.webTaskDefinition.memory,
+        numberRunning: stack.webTasks.length,
+        cpu: decodeCPU(stack.webTaskDefinition.cpu),
+        memory: Number.parseInt(stack.webTaskDefinition.memory),
         port: webContainer.portMappings[0].containerPort,
         sharedDirectory: path.join(
           "/",

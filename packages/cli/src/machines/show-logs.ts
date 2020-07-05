@@ -3,6 +3,7 @@ import { ShipulaContextProps } from "../context";
 import AWS, { CloudWatchLogs } from "aws-sdk";
 import Randoma from "randoma";
 import chalk from "chalk";
+import path from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -25,6 +26,7 @@ interface Schema {
  */
 type LogStreamOutput = {
   colorizedSource: string;
+  colorizer: (string) => string;
 };
 
 /**
@@ -89,24 +91,16 @@ export default Machine<Context, Schema, Events>({
           const cloudWatch = new AWS.CloudWatchLogs();
           context.logGroups = [];
           // filter down to a log group name following our rules
-          // TODO - log hierarchy filter
-          // TODO - logs only since the last minute
 
           const moreLogs = async (
             nextToken: string
           ): Promise<CloudWatchLogs.DescribeLogGroupsResponse> => {
-            return new Promise((resolve, reject) => {
-              cloudWatch.describeLogGroups(
-                {
-                  logGroupNamePrefix: "shipula/",
-                  nextToken: nextToken === "-" ? undefined : nextToken,
-                },
-                (err, data) => {
-                  if (err) reject(err);
-                  else resolve(data);
-                }
-              );
-            });
+            return cloudWatch
+              .describeLogGroups({
+                logGroupNamePrefix: "shipula/",
+                nextToken: nextToken === "-" ? undefined : nextToken,
+              })
+              .promise();
           };
           let token = "-";
           // more to fetch...
@@ -139,18 +133,12 @@ export default Machine<Context, Schema, Events>({
             const moreStreams = async (
               nextToken: string
             ): Promise<CloudWatchLogs.DescribeLogStreamsResponse> => {
-              return new Promise((resolve, reject) => {
-                cloudWatch.describeLogStreams(
-                  {
-                    logGroupName: logGroup.logGroupName,
-                    nextToken: nextToken === "-" ? undefined : nextToken,
-                  },
-                  (err, data) => {
-                    if (err) reject(err);
-                    else resolve(data);
-                  }
-                );
-              });
+              return cloudWatch
+                .describeLogStreams({
+                  logGroupName: logGroup.logGroupName,
+                  nextToken: nextToken === "-" ? undefined : nextToken,
+                })
+                .promise();
             };
             let token = "-";
             // more to fetch...
@@ -168,8 +156,9 @@ export default Machine<Context, Schema, Events>({
                     ...logGroup,
                     ...logStream,
                     colorizedSource: chalk.hex(sourceColor)(
-                      logStream.logStreamName
+                      `${logGroup.logGroupName}/${logStream.logStreamName}`
                     ),
+                    colorizer: chalk.hex(sourceColor),
                   };
                 }),
               ];
@@ -177,7 +166,8 @@ export default Machine<Context, Schema, Events>({
             }
           };
           // no news is good news -- the context is updated
-          return Promise.all(context.logGroups.map(fetchStreams));
+          await Promise.all(context.logGroups.map(fetchStreams));
+          return;
         },
         onDone: "streaming",
         onError: {
@@ -256,8 +246,14 @@ export default Machine<Context, Schema, Events>({
             .sort((l, r) => r.event.timestamp - l.event.timestamp)
             .forEach((event) => {
               console.log(
-                new Date(event.event.timestamp).toISOString(),
-                event.logStream.colorizedSource,
+                event.logStream.colorizer(
+                  new Date(event.event.timestamp).toISOString()
+                ),
+                event.logStream.colorizer(
+                  path.basename(
+                    `${event.logStream.logGroupName}/${event.logStream.logStreamName}`
+                  )
+                ),
                 event.event.message
               );
             });
