@@ -207,6 +207,8 @@ export default Machine<Context, Schema, Events>({
                     logGroupName: logStream.logGroupName,
                     logStreamName: logStream.logStreamName,
                     startFromHead: true,
+                    // starting just about now
+                    startTime: Date.now() - 60 * 1000,
                     nextToken: nextToken === "-" ? undefined : nextToken,
                   },
                   (err, data) => {
