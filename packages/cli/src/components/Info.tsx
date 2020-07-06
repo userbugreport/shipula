@@ -46,8 +46,9 @@ export const Info: React.FunctionComponent<Props> = () => {
           "/",
           stack.webTaskDefinition.volumes[0]?.name
         ),
-        environment: webContainer.environment,
-        secrets: webContainer.secrets,
+        environment: Object.fromEntries(
+          stack.parameters.map((p) => [path.basename(p.Name), p.Value])
+        ),
       },
     };
   };
@@ -62,7 +63,7 @@ export const Info: React.FunctionComponent<Props> = () => {
       {state.context.stacks && <Stacks stacks={state.context.stacks} />}
       {state.context.selectedStack && (
         <Box flexDirection="column" width={columns}>
-          <Text>{true && yaml.stringify(state.context.selectedStack)}</Text>
+          <Text>{false && yaml.stringify(state.context.selectedStack)}</Text>
           <Text> {yaml.stringify(display(state.context.selectedStack))} </Text>
         </Box>
       )}

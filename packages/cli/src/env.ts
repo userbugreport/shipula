@@ -21,7 +21,6 @@ const setCommand = new Command()
       variables: string[]
     ) => {
       const props = await buildEnvProps(packageDirectory, stackName, variables);
-      console.log(props);
       display(props, EnvSet);
       return;
     }

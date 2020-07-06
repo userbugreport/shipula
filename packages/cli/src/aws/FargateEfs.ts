@@ -26,7 +26,11 @@ export class FargateEfs extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
-    const ecsCluster = new ecs.Cluster(this, "WebCluster", { vpc: vpc });
+    const ecsCluster = new ecs.Cluster(this, "WebCluster", {
+      vpc: vpc,
+      // use a name without guidtrash
+      clusterName: id,
+    });
 
     const fileSystem = new efs.FileSystem(this, "Efs", {
       vpc: vpc,
@@ -75,6 +79,8 @@ export class FargateEfs extends cdk.Stack {
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
       memoryLimitMiB: 2048,
       cpu: 1024,
+      // avoid guid trash names
+      family: `${id}-WebTask`,
     });
 
     // cloud watch logs
@@ -109,6 +115,9 @@ export class FargateEfs extends cdk.Stack {
       image: ecs.ContainerImage.fromAsset(packageFrom),
       logging: logging,
       taskDefinition: taskDef,
+      environment: {
+        PORT: "8000",
+      },
       secrets,
     });
 
@@ -120,9 +129,11 @@ export class FargateEfs extends cdk.Stack {
       this,
       "WebService",
       {
+        serviceName: "WebService",
         cluster: ecsCluster,
         taskDefinition: taskDef,
         desiredCount: 2,
+        platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
       }
     );
 
@@ -130,12 +141,6 @@ export class FargateEfs extends cdk.Stack {
       "deregistration_delay.timeout_seconds",
       "30"
     );
-
-    // Override Platform version (until Latest = 1.4.0)
-    const albFargateServiceResource = albFargateService.service.node.findChild(
-      "Service"
-    ) as ecs.CfnService;
-    albFargateServiceResource.addPropertyOverride("PlatformVersion", "1.4.0");
 
     // Allow access to EFS from Fargate ECS
     fileSystem.connections.allowDefaultPortFrom(
