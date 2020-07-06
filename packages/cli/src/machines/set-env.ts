@@ -136,7 +136,16 @@ export default Machine<Context, Schema, Events>({
                 .promise();
             }
           );
-          return Promise.all(waitfor);
+          await Promise.all(waitfor);
+          // and let them get stable so we can see our variable...
+          await ecs
+            .waitFor("servicesStable", {
+              cluster: context.selectedStack.webCluster.clusterArn,
+              services: context.selectedStack.webServices.map(
+                (w) => w.serviceArn
+              ),
+            })
+            .promise();
         },
         onDone: "done",
         onError: "error",
