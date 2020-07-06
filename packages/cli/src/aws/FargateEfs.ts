@@ -9,7 +9,7 @@ import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
-import { getStackPath, getStackName } from "../context";
+import { getStackPath, getStackName, getInternalPath } from "../context";
 import path from "path";
 
 export class FargateEfs extends cdk.Stack {
@@ -24,6 +24,17 @@ export class FargateEfs extends cdk.Stack {
     // build a name cloud formation will accept
     const id = getStackName(packageName, stackName);
     super(scope, id, props);
+    const parameterOrDefault = (
+      parameterName: string,
+      defaultValue: string
+    ) => {
+      return (
+        ssm.StringParameter.valueFromLookup(
+          this,
+          path.join("/", getInternalPath(packageName, stackName), parameterName)
+        ) || defaultValue
+      );
+    };
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "WebCluster", {
@@ -77,8 +88,8 @@ export class FargateEfs extends cdk.Stack {
     efsAccessPoint.node.addDependency(fileSystem);
 
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
-      memoryLimitMiB: 2048,
-      cpu: 1024,
+      memoryLimitMiB: parseInt(parameterOrDefault("memory", "2048")),
+      cpu: parseInt(parameterOrDefault("cpu", "1024")),
       // avoid guid trash names
       family: `${id}-WebTask`,
     });
@@ -131,7 +142,7 @@ export class FargateEfs extends cdk.Stack {
         serviceName: "WebService",
         cluster: ecsCluster,
         taskDefinition: taskDef,
-        desiredCount: 2,
+        desiredCount: parseInt(parameterOrDefault("number", "2")),
         platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
       }
     );

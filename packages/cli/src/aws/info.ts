@@ -50,7 +50,6 @@ export const listShipulaParameters = async (
       .getParametersByPath({
         Path: path.join("/", getStackPath(packageName, stackName)),
         NextToken: nextToken === "-" ? undefined : nextToken,
-        MaxResults: 1,
       })
       .promise();
   };

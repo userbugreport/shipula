@@ -20,8 +20,12 @@ export const message = (fileName: string): string => {
   return marked(content);
 };
 
-export const errorMessage = (fileName: string): Error => {
-  return new ErrorMessage(message(fileName));
+export const errorMessage = (fileName: string, extra?: string[]): Error => {
+  if (extra)
+    return new ErrorMessage(
+      message(fileName) + " " + marked(extra.map((e) => `**${e}**`).join(", "))
+    );
+  else return new ErrorMessage(message(fileName));
 };
 
 /**

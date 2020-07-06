@@ -5,6 +5,7 @@ import assert from "assert";
 import path from "path";
 import fs from "fs-extra";
 import { errorMessage } from "./docs";
+import { decodeCPU } from "./aws/info";
 
 /**
  * A specific node package. We don't need all the properties
@@ -74,6 +75,31 @@ export type ShipulaStack = {
 };
 
 /**
+ * Cherry pick the parts we want to display.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const displayStack = (stack: ShipulaStack) => {
+  const webContainer = stack.webTaskDefinition?.containerDefinitions.find(
+    (c) => c.name === "WebContainer"
+  );
+  return {
+    web: {
+      url: stack.stack.Outputs.find((o) =>
+        o.OutputKey.startsWith("WebServiceServiceURL")
+      )?.OutputValue,
+      numberRunning: stack.webTasks.length,
+      cpu: decodeCPU(stack.webTaskDefinition.cpu),
+      memory: Number.parseInt(stack.webTaskDefinition.memory),
+      port: webContainer.portMappings[0].containerPort,
+      sharedDirectory: path.join("/", stack.webTaskDefinition.volumes[0]?.name),
+      environment: Object.fromEntries(
+        stack.parameters.map((p) => [path.basename(p.Name), p.Value])
+      ),
+    },
+  };
+};
+
+/**
  * Environment variables at the level of an individual
  * stack -- no / namespace or hierarchy these are
  * 'just env vars'
@@ -122,6 +148,15 @@ export type ShipulaContextProps = {
    * Variables we may be setting.
    */
   setVariables?: ShipulaStackEnvironment;
+
+  /**
+   * Scaling options
+   */
+  scale?: {
+    number: number;
+    cpu: number;
+    memory: number;
+  };
 };
 
 /**
@@ -140,7 +175,7 @@ export const getStackName = (
 };
 
 /**
- * Generate a consisten stack 'path' for AWS services that allow it.
+ * Generate a consistent stack 'path' for AWS services that allow it.
  */
 export const getStackPath = (
   packageName: string,
@@ -149,6 +184,21 @@ export const getStackPath = (
   assert(packageName, "A package name is required");
   assert(stackName, "A stack name is required");
   return `shipula/${packageName}/${stackName}`.replace(
+    /[^\.\-_/#A-Za-z0-9]/g,
+    ""
+  );
+};
+
+/**
+ * Generate a consistent stack 'path' for AWS services that allow it.
+ */
+export const getInternalPath = (
+  packageName: string,
+  stackName: string
+): string => {
+  assert(packageName, "A package name is required");
+  assert(stackName, "A stack name is required");
+  return `.shipula/${packageName}/${stackName}`.replace(
     /[^\.\-_/#A-Za-z0-9]/g,
     ""
   );

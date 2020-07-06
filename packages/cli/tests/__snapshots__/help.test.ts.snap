@@ -66,11 +66,14 @@ Options:
 `;
 
 exports[`CLI sub commands scale help strings 1`] = `
-"Usage:  scale [options]
+"Usage:  scale [options] <packageDirectory> [stackName]
 
 Set scaling limits on your App Stack.
 
 Options:
-  -h, --help  display help for command
+  --number <number>  Number of copies to run -- horizontal scale
+  --cpu <number>     Number of CPUs per copy
+  --memory <number>  Number of GB of memory, limited by number of CPUs
+  -h, --help         display help for command
 "
 `;
