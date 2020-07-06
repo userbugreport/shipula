@@ -33,11 +33,13 @@ export const EnvSet: React.FunctionComponent<Props> = () => {
           <Spinner type="dots" /> {state.value}
         </Text>
       )}
-      {state.context.selectedStack && (
+      {state.done && state.context.selectedStack && (
         <Box flexDirection="column" width={columns}>
           <Text>{false && yaml.stringify(state.context.selectedStack)}</Text>
           <Text>
-            {yaml.stringify(displayStack(state.context.selectedStack))}
+            {yaml.stringify(
+              displayStack(state.context.selectedStack).web.environment
+            )}
           </Text>
         </Box>
       )}
