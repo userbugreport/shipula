@@ -1,5 +1,5 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps } from "../context";
 import execa from "execa";
 import shell from "shelljs";
 import docs from "../docs";
@@ -111,16 +111,11 @@ export default Machine<Context, Schema, Events>({
               "--tags",
               `stackName=${context.stackName}`,
             ];
-            const CONTEXT = [
-              "--context",
-              `PACKAGE_FROM=${context.package.from}`,
-              "--context",
-              `PACKAGE=${context.package.name}`,
-              "--context",
-              `STACK=${context.stackName}`,
-            ];
+            const CONTEXT = [];
             // env var to get the stack named before the CDK context is created
-            process.env.STACK_NAME = getStackName(context);
+            process.env.PACKAGE_FROM = context.package.from;
+            process.env.PACKAGE_NAME = context.package.name;
+            process.env.STACK_NAME = context.stackName;
             // synchronous run -- with inherited stdio, this should re-use the
             // CDK text UI for us
             const child = execa.sync(

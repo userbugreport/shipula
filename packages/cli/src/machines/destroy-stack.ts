@@ -39,7 +39,7 @@ export default Machine<Context, Schema, Events>({
     checkingSettings: {
       invoke: {
         src: async (context) => {
-          assert(getStackName(context));
+          assert(getStackName(context.package.name, context.stackName));
         },
         onDone: "destroyingStack",
         onError: "listingStacks",
@@ -61,7 +61,12 @@ export default Machine<Context, Schema, Events>({
           await new Promise<CloudFormation.DescribeStacksOutput>(
             (resolve, reject) => {
               cloudFormation.deleteStack(
-                { StackName: getStackName(context) },
+                {
+                  StackName: getStackName(
+                    context.package.name,
+                    context.stackName
+                  ),
+                },
                 (err, data) => {
                   if (err) reject(err);
                   else resolve(data);

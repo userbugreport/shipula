@@ -63,6 +63,7 @@ export type ShipulaStack = {
   webServices: ECS.Services;
   webTasks: ECS.Tasks;
   webTaskDefinition: ECS.TaskDefinition;
+  parameters: AWS.SSM.ParameterList;
 };
 
 /**
@@ -122,13 +123,13 @@ export type ShipulaContextProps = {
  *
  * This is used for AWS services with flat namespaces, without / paths.
  */
-export const getStackName = (context: ShipulaContextProps): string => {
-  assert(context.package?.name, "A package name is required");
-  assert(context.stackName, "A stack name is required");
-  return `${context.package.name.replace(
-    /\W/g,
-    ""
-  )}-${context.stackName.replace(/\W/g, "")}`;
+export const getStackName = (
+  packageName: string,
+  stackName: string
+): string => {
+  assert(packageName, "A package name is required");
+  assert(stackName, "A stack name is required");
+  return `${packageName.replace(/\W/g, "")}-${stackName.replace(/\W/g, "")}`;
 };
 
 /**

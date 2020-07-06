@@ -39,7 +39,7 @@ export default Machine<Context, Schema, Events>({
     checkingSettings: {
       invoke: {
         src: async (context) => {
-          assert(getStackName(context));
+          assert(getStackName(context.package.name, context.stackName));
         },
         onDone: "checkingCDKToolkit",
         onError: "error",

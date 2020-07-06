@@ -1,4 +1,5 @@
 import * as cdk from "@aws-cdk/core";
+import * as ssm from "@aws-cdk/aws-ssm";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as ecs from "@aws-cdk/aws-ecs";
 import * as logs from "@aws-cdk/aws-logs";
@@ -8,13 +9,21 @@ import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
-import { getStackPath } from "../context";
+import { getStackPath, getStackName } from "../context";
+import path from "path";
 
 export class FargateEfs extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: cdk.App,
+    packageFrom: string,
+    packageName: string,
+    stackName: string,
+    parameters: AWS.SSM.ParameterList,
+    props?: cdk.StackProps
+  ) {
+    // build a name cloud formation will accept
+    const id = getStackName(packageName, stackName);
     super(scope, id, props);
-    const packageName = scope.node.tryGetContext("PACKAGE");
-    const stackName = scope.node.tryGetContext("STACK");
 
     const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "WebCluster", { vpc: vpc });
@@ -81,11 +90,26 @@ export class FargateEfs extends cdk.Stack {
     });
 
     // need a relative path to the dockerfile
-    const packageFrom = scope.node.tryGetContext("PACKAGE_FROM");
+    const secrets = Object.fromEntries(
+      parameters.map((p) => [
+        path.basename(p.Name),
+        // this one is quite the doozy to import existing parameters
+        // so we can manage parameters separately from deploys
+        ecs.Secret.fromSsmParameter(
+          ssm.StringParameter.fromStringParameterName(
+            this,
+            path.basename(p.Name),
+            p.Name
+          )
+        ),
+      ])
+    );
+    console.log(secrets);
     const containerDef = new ecs.ContainerDefinition(this, "WebContainer", {
       image: ecs.ContainerImage.fromAsset(packageFrom),
       logging: logging,
       taskDefinition: taskDef,
+      secrets,
     });
 
     containerDef.addPortMappings({
