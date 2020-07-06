@@ -32,6 +32,10 @@ type Events = {
  */
 type Context = ShipulaContextProps;
 
+/**
+ * This is a pretty long query chain that interrogates AWS
+ * and figure out an app stack clsuter and running tasks.
+ */
 export default Machine<Context, Schema, Events>({
   initial: "checkingSettings",
   states: {

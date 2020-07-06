@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import docs from "./docs";
-import { buildInfoProps } from "./context";
+import { buildInfoProps, buildEnvProps } from "./context";
 import { Info } from "./components/Info";
+import { EnvSet } from "./components/EnvSet";
 import { display } from "./components/application";
 
 const getCommand = new Command()
@@ -13,11 +14,14 @@ const getCommand = new Command()
 
 const setCommand = new Command()
   .command("set [packageName] [stackName] [variables...]")
-  .action(async (packageName, stackName, variables) => {
-    console.assert(variables);
-    display(await buildInfoProps(packageName, stackName), Info);
-    return;
-  });
+  .action(
+    async (packageName: string, stackName: string, variables: string[]) => {
+      const props = await buildEnvProps(packageName, stackName, variables);
+      console.log(props);
+      display(props, EnvSet);
+      return;
+    }
+  );
 
 export default new Command()
   .command("env")
