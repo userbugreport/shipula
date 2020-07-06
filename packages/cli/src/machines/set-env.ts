@@ -1,8 +1,10 @@
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps, getStackPath } from "../context";
 import { Machine, actions } from "xstate";
+import deployStack from "./deploy-stack";
 import infoStack from "./info-stack";
 import AWS from "aws-sdk";
 import assert from "assert";
+import path from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -13,10 +15,9 @@ type NoSubState = any;
 interface Schema {
   states: {
     checkingSettings: NoSubState;
-    infoStack: NoSubState;
+    checkingStack: NoSubState;
     setParameters: NoSubState;
     maybeDeploying: NoSubState;
-    deploying: NoSubState;
     restarting: NoSubState;
     error: NoSubState;
     done: NoSubState;
@@ -26,15 +27,9 @@ interface Schema {
  * Transtion ye olde state machine
  */
 type Events = {
+  type: "*";
   data: Error;
-} & (
-  | {
-      type: "DEPLOYING";
-    }
-  | {
-      type: "RESTARTING";
-    }
-);
+};
 
 /**
  * Little bit of context -- error tracking is nice.
@@ -53,10 +48,20 @@ export default Machine<Context, Schema, Events>({
     checkingSettings: {
       invoke: {
         src: async (context) => {
-          // clean up the stack path
-          assert(getStackName(context));
-          // clean up the env parameter name
+          assert(getStackPath(context.package?.name, context.stackName));
+          assert(
+            Object.keys(context.setVariables).length,
+            "No variables to set"
+          );
         },
+        onDone: "checkingStack",
+        onError: "error",
+      },
+    },
+    checkingStack: {
+      invoke: {
+        src: infoStack,
+        data: (context) => context,
         onDone: "setParameters",
         onError: "error",
       },
@@ -64,37 +69,56 @@ export default Machine<Context, Schema, Events>({
     setParameters: {
       invoke: {
         src: async (context) => {
-          assert(context);
-          assert(AWS);
+          const ssm = new AWS.SSM();
+          const waitfor = Object.keys(context.setVariables).map((name) => {
+            return ssm
+              .putParameter({
+                Name: path.join(
+                  "/",
+                  getStackPath(context.package.name, context.stackName),
+                  name
+                ),
+                Value: context.setVariables[name],
+                Overwrite: true,
+                Type: "String",
+              })
+              .promise();
+          });
+          await Promise.all(waitfor);
         },
-        onDone: "infoStack",
-        onError: "error",
-      },
-    },
-    infoStack: {
-      invoke: {
-        src: infoStack,
-        data: (context) => context,
         onDone: "maybeDeploying",
         onError: "error",
       },
     },
     maybeDeploying: {
-      entry: actions.pure((context) => {
-        assert(context);
-        if (true) {
-          return actions.send("DEPLOYING");
-        } else {
-          return actions.send("RESTARTING");
-        }
-      }),
-      on: {
-        DEPLOYING: "deploying",
-        RESTARTING: "restarting",
+      invoke: {
+        src: deployStack,
+        data: (context) => context,
+        onDone: "restarting",
+        onError: "error",
       },
     },
-    restarting: {},
-    deploying: {},
+    restarting: {
+      invoke: {
+        src: async (context) => {
+          const ecs = new AWS.ECS();
+          const waitfor = context.selectedStack.webServices.map(
+            async (service) => {
+              return ecs
+                .updateService({
+                  cluster: context.selectedStack.webCluster.clusterArn,
+                  service: service.serviceArn,
+                  forceNewDeployment: true,
+                })
+                .promise();
+            }
+          );
+          return Promise.all(waitfor);
+        },
+        onDone: "done",
+        onError: "error",
+      },
+    },
     error: {
       type: "final",
       entry: actions.assign({

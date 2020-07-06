@@ -5,12 +5,12 @@ import { display } from "./components/application";
 import { Logs } from "./components/Logs";
 
 export default new Command()
-  .command("logs [packageName] [stackName]")
+  .command("logs [packageDirectory] [stackName]")
   .description("Stream real time logs or search cloud stored logs.")
   .on("--help", () => {
     console.log(docs("logs.md"));
   })
-  .action(async (packageName, stackName) => {
-    display(await buildInfoProps(packageName, stackName), Logs);
+  .action(async (packageDirectory, stackName) => {
+    display(await buildInfoProps(packageDirectory, stackName), Logs);
     return;
   });

@@ -3,7 +3,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  const message = "⛴🧛🏻‍♂️ - shipula says 👋";
+  const message = `⛴🧛🏻‍♂️ - shipula says ${process.env.SAY} ${process.env.EXTRA}`;
   console.log(message);
   res.send(message);
 });

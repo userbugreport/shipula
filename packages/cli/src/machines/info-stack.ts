@@ -105,6 +105,17 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).tasks;
+          const webServicesArns = (
+            await ecs.listServices({ cluster: webCluster.clusterArn }).promise()
+          ).serviceArns;
+          const webServices = (
+            await ecs
+              .describeServices({
+                services: webServicesArns,
+                cluster: webCluster.clusterArn,
+              })
+              .promise()
+          ).services;
           const webTaskDefinition = (
             await ecs
               .describeTaskDefinition({
@@ -117,6 +128,7 @@ export default Machine<Context, Schema, Events>({
             stack,
             resources,
             webCluster,
+            webServices,
             webTasks,
             webTaskDefinition,
           };

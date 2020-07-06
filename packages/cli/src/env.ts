@@ -6,17 +6,21 @@ import { EnvSet } from "./components/EnvSet";
 import { display } from "./components/application";
 
 const getCommand = new Command()
-  .command("get [packageName] [stackName]")
-  .action(async (packageName, stackName) => {
-    display(await buildInfoProps(packageName, stackName), Info);
+  .command("get [packageDirectory] [stackName]")
+  .action(async (packageDirectory, stackName) => {
+    display(await buildInfoProps(packageDirectory, stackName), Info);
     return;
   });
 
 const setCommand = new Command()
-  .command("set [packageName] [stackName] [variables...]")
+  .command("set [packageDirectory] [stackName] [variables...]")
   .action(
-    async (packageName: string, stackName: string, variables: string[]) => {
-      const props = await buildEnvProps(packageName, stackName, variables);
+    async (
+      packageDirectory: string,
+      stackName: string,
+      variables: string[]
+    ) => {
+      const props = await buildEnvProps(packageDirectory, stackName, variables);
       console.log(props);
       display(props, EnvSet);
       return;
