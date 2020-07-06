@@ -47,6 +47,7 @@ export const Info: React.FunctionComponent<Props> = () => {
           stack.webTaskDefinition.volumes[0]?.name
         ),
         environment: webContainer.environment,
+        secrets: webContainer.secrets,
       },
     };
   };

@@ -1,4 +1,6 @@
 import AWS, { CloudFormation } from "aws-sdk";
+import { getStackPath } from "../context";
+import path from "path";
 
 /**
  * List all Shipula stacks. This grabs all stacks
@@ -11,17 +13,9 @@ export const listShipulaStacks = async (): Promise<CloudFormation.Stack[]> => {
   const more = async (
     nextToken: string
   ): Promise<CloudFormation.DescribeStacksOutput> => {
-    return new Promise((resolve, reject) => {
-      cloudFormation.describeStacks(
-        {
-          NextToken: nextToken === "-" ? undefined : nextToken,
-        },
-        (err, data) => {
-          if (err) reject(err);
-          else resolve(data);
-        }
-      );
-    });
+    return cloudFormation
+      .describeStacks({ NextToken: nextToken === "-" ? undefined : nextToken })
+      .promise();
   };
   let token = "-";
   // more to fetch...
@@ -37,6 +31,38 @@ export const listShipulaStacks = async (): Promise<CloudFormation.Stack[]> => {
       (tag) => tag.Key === "createdBy" && tag.Value === "shipula"
     )
   );
+};
+
+/**
+ * List all shipula parameters for a given app and stack.
+ */
+export const listShipulaParameters = async (
+  packageName: string,
+  stackName: string
+): Promise<AWS.SSM.ParameterList> => {
+  const ssm = new AWS.SSM();
+  let buffer = new Array<AWS.SSM.Parameter>();
+
+  const more = async (
+    nextToken: string
+  ): Promise<AWS.SSM.GetParametersByPathResult> => {
+    return ssm
+      .getParametersByPath({
+        Path: path.join("/", getStackPath(packageName, stackName)),
+        NextToken: nextToken === "-" ? undefined : nextToken,
+        MaxResults: 1,
+      })
+      .promise();
+  };
+
+  let token = "-";
+  // more to fetch...
+  while (token) {
+    const { Parameters, NextToken } = await more(token);
+    buffer = [...buffer, ...Parameters];
+    token = NextToken;
+  }
+  return buffer;
 };
 
 /**

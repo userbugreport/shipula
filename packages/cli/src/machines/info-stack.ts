@@ -1,6 +1,6 @@
 import { ShipulaContextProps, getStackName } from "../context";
 import { Machine, actions } from "xstate";
-import { listShipulaStacks } from "../aws/info";
+import { listShipulaStacks, listShipulaParameters } from "../aws/info";
 import AWS from "aws-sdk";
 import assert from "assert";
 
@@ -42,7 +42,7 @@ export default Machine<Context, Schema, Events>({
     checkingSettings: {
       invoke: {
         src: async (context) => {
-          assert(getStackName(context));
+          assert(getStackName(context.package.name, context.stackName));
         },
         onDone: "describingStack",
         onError: "listingStacks",
@@ -64,7 +64,10 @@ export default Machine<Context, Schema, Events>({
           const stack = (
             await cloudFormation
               .describeStacks({
-                StackName: getStackName(context),
+                StackName: getStackName(
+                  context.package.name,
+                  context.stackName
+                ),
               })
               .promise()
           ).Stacks[0];
@@ -123,6 +126,10 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).taskDefinition;
+          const parameters = await listShipulaParameters(
+            context.package.name,
+            context.stackName
+          );
 
           context.selectedStack = {
             stack,
@@ -131,6 +138,7 @@ export default Machine<Context, Schema, Events>({
             webServices,
             webTasks,
             webTaskDefinition,
+            parameters,
           };
         },
         onDone: "done",

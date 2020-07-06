@@ -95,7 +95,10 @@ export default Machine<Context, Schema, Events>({
               "ts-node"
             );
             // env var to get the stack named before the CDK context is created
-            process.env.STACK_NAME = getStackName(context);
+            process.env.STACK_NAME = getStackName(
+              context.package.name,
+              context.stackName
+            );
             const CONTEXT = [
               "--context",
               `PACKAGE_FROM=${context.package.from}`,
