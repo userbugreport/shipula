@@ -110,7 +110,6 @@ export class FargateEfs extends cdk.Stack {
         ),
       ])
     );
-    console.log(secrets);
     const containerDef = new ecs.ContainerDefinition(this, "WebContainer", {
       image: ecs.ContainerImage.fromAsset(packageFrom),
       logging: logging,
