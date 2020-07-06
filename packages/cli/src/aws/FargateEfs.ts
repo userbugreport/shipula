@@ -8,6 +8,7 @@ import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
+import { getStackPath } from "../context";
 
 export class FargateEfs extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -68,10 +69,7 @@ export class FargateEfs extends cdk.Stack {
     });
 
     // cloud watch logs
-    const logGroupName = `shipula/${packageName}/${stackName}`.replace(
-      /[^\.\-_/#A-Za-z0-9]/,
-      ""
-    );
+    const logGroupName = getStackPath(packageName, stackName);
     const logGroup = new logs.LogGroup(this, "LogGroup", {
       logGroupName,
       retention: RetentionDays.INFINITE,

@@ -11,18 +11,17 @@ Options:
 `;
 
 exports[`CLI sub commands deploy help strings 1`] = `
-"Usage:  deploy [options] [packageDirectory]
+"Usage:  deploy [options] [packageDirectory] [stackName]
 
 Deploys your pacakge to the cloud, creating and App and Stack.
 
 Options:
-  --stackName <stackName>  Optional name to create another stack, or copy of your app -- like dev/test/stage (default: \\"default\\")
-  -h, --help               display help for command
+  -h, --help  display help for command
 "
 `;
 
 exports[`CLI sub commands destroy help strings 1`] = `
-"Usage:  destroy [options]
+"Usage:  destroy [options] [packageName] [stackName]
 
 Completely remove a Stack from an App
 
@@ -32,17 +31,22 @@ Options:
 `;
 
 exports[`CLI sub commands env help strings 1`] = `
-"Usage:  env [options] [package]
+"Usage:  env [options] [command]
 
 Manage environment variables for an App/Stack.
 
 Options:
-  -h, --help  display help for command
+  -h, --help                                    display help for command
+
+Commands:
+  get [packageName] [stackName]
+  set [packageName] [stackName] [variables...]
+  help [command]                                display help for command
 "
 `;
 
 exports[`CLI sub commands info help strings 1`] = `
-"Usage:  info [options]
+"Usage:  info [options] [packageName] [stackName]
 
 This will tell you all about your App and Stack.
 
@@ -52,13 +56,12 @@ Options:
 `;
 
 exports[`CLI sub commands logs help strings 1`] = `
-"Usage:  logs [options]
+"Usage:  logs [options] [packageName] [stackName]
 
 Stream real time logs or search cloud stored logs.
 
 Options:
-  --search <query>  Search for this content in log messages, returning matches
-  -h, --help        display help for command
+  -h, --help  display help for command
 "
 `;
 
