@@ -60,6 +60,7 @@ export type ShipulaStack = {
   stack: CloudFormation.Stack;
   resources: CloudFormation.StackResources;
   webCluster: ECS.Cluster;
+  webServices: ECS.Services;
   webTasks: ECS.Tasks;
   webTaskDefinition: ECS.TaskDefinition;
 };
@@ -171,22 +172,17 @@ export const buildDeployProps = async (
  * Create an info context.
  */
 export const buildInfoProps = async (
-  packageName?: string,
+  packageDirectory?: string,
   stackName?: string
 ): Promise<ShipulaContextProps> => {
-  return {
-    package: {
-      name: packageName,
-    },
-    stackName: stackName || "default",
-  };
+  return buildDeployProps(packageDirectory, stackName);
 };
 
 /**
  * Create a context for setting and updateing the environment.
  */
 export const buildEnvProps = async (
-  packageName?: string,
+  packageDirectory?: string,
   stackName?: string,
   variables?: string[]
 ): Promise<ShipulaContextProps> => {
@@ -205,11 +201,9 @@ export const buildEnvProps = async (
         return [name, v];
       }) || []
   );
+  const deployProps = await buildDeployProps(packageDirectory, stackName);
   return {
-    package: {
-      name: packageName,
-    },
-    stackName: stackName || "default",
+    ...deployProps,
     setVariables,
   };
 };

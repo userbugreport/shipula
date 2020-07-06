@@ -22,7 +22,17 @@ Object {
 exports[`Context can build env props with default stack 1`] = `
 Object {
   "package": Object {
+    "dependencies": Object {
+      "express": "^4.17.1",
+    },
+    "from": "/Users/wballard/github/userbugreport/shipula/packages/express-sample",
+    "license": "MIT",
+    "main": "index.js",
     "name": "@shipula/express-sample",
+    "scripts": Object {
+      "start": "node index.js",
+    },
+    "version": "0.0.0",
   },
   "setVariables": Object {
     "a": "b",
@@ -34,7 +44,17 @@ Object {
 exports[`Context can build env props with named stack 1`] = `
 Object {
   "package": Object {
+    "dependencies": Object {
+      "express": "^4.17.1",
+    },
+    "from": "/Users/wballard/github/userbugreport/shipula/packages/express-sample",
+    "license": "MIT",
+    "main": "index.js",
     "name": "@shipula/express-sample",
+    "scripts": Object {
+      "start": "node index.js",
+    },
+    "version": "0.0.0",
   },
   "setVariables": Object {
     "a": "b",
@@ -47,7 +67,17 @@ Object {
 exports[`Context can build info props with default stack 1`] = `
 Object {
   "package": Object {
+    "dependencies": Object {
+      "express": "^4.17.1",
+    },
+    "from": "/Users/wballard/github/userbugreport/shipula/packages/express-sample",
+    "license": "MIT",
+    "main": "index.js",
     "name": "@shipula/express-sample",
+    "scripts": Object {
+      "start": "node index.js",
+    },
+    "version": "0.0.0",
   },
   "stackName": "default",
 }
@@ -56,7 +86,17 @@ Object {
 exports[`Context can build info props with named stack 1`] = `
 Object {
   "package": Object {
+    "dependencies": Object {
+      "express": "^4.17.1",
+    },
+    "from": "/Users/wballard/github/userbugreport/shipula/packages/express-sample",
+    "license": "MIT",
+    "main": "index.js",
     "name": "@shipula/express-sample",
+    "scripts": Object {
+      "start": "node index.js",
+    },
+    "version": "0.0.0",
   },
   "stackName": "dev",
 }

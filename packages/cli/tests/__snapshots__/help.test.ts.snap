@@ -21,7 +21,7 @@ Options:
 `;
 
 exports[`CLI sub commands destroy help strings 1`] = `
-"Usage:  destroy [options] [packageName] [stackName]
+"Usage:  destroy [options] [packageDirectory] [stackName]
 
 Completely remove a Stack from an App
 
@@ -36,17 +36,17 @@ exports[`CLI sub commands env help strings 1`] = `
 Manage environment variables for an App/Stack.
 
 Options:
-  -h, --help                                    display help for command
+  -h, --help                                         display help for command
 
 Commands:
-  get [packageName] [stackName]
-  set [packageName] [stackName] [variables...]
-  help [command]                                display help for command
+  get [packageDirectory] [stackName]
+  set [packageDirectory] [stackName] [variables...]
+  help [command]                                     display help for command
 "
 `;
 
 exports[`CLI sub commands info help strings 1`] = `
-"Usage:  info [options] [packageName] [stackName]
+"Usage:  info [options] [packageDirectory] [stackName]
 
 This will tell you all about your App and Stack.
 
@@ -56,7 +56,7 @@ Options:
 `;
 
 exports[`CLI sub commands logs help strings 1`] = `
-"Usage:  logs [options] [packageName] [stackName]
+"Usage:  logs [options] [packageDirectory] [stackName]
 
 Stream real time logs or search cloud stored logs.
 
