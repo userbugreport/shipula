@@ -1,4 +1,4 @@
-import { ShipulaContextProps, getStackPath } from "../context";
+import { ShipulaContextProps, getStackPath, getInternalPath } from "../context";
 import { Machine, actions } from "xstate";
 import deployStack from "./deploy-stack";
 import infoStack from "./info-stack";
@@ -17,6 +17,7 @@ interface Schema {
     checkingSettings: NoSubState;
     checkingStack: NoSubState;
     setParameters: NoSubState;
+    setScale: NoSubState;
     maybeDeploying: NoSubState;
     restarting: NoSubState;
     error: NoSubState;
@@ -49,19 +50,7 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           assert(getStackPath(context.package?.name, context.stackName));
-          assert(
-            Object.keys(context.setVariables).length,
-            "No variables to set"
-          );
         },
-        onDone: "checkingStack",
-        onError: "error",
-      },
-    },
-    checkingStack: {
-      invoke: {
-        src: infoStack,
-        data: (context) => context,
         onDone: "setParameters",
         onError: "error",
       },
@@ -70,15 +59,41 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           const ssm = new AWS.SSM();
-          const waitfor = Object.keys(context.setVariables).map((name) => {
+          const waitfor = Object.keys(context.setVariables || {}).map(
+            (name) => {
+              return ssm
+                .putParameter({
+                  Name: path.join(
+                    "/",
+                    getStackPath(context.package.name, context.stackName),
+                    name
+                  ),
+                  Value: context.setVariables[name],
+                  Overwrite: true,
+                  Type: "String",
+                })
+                .promise();
+            }
+          );
+          await Promise.all(waitfor);
+        },
+        onDone: "setScale",
+        onError: "error",
+      },
+    },
+    setScale: {
+      invoke: {
+        src: async (context) => {
+          const ssm = new AWS.SSM();
+          const waitfor = Object.keys(context.scale || {}).map((name) => {
             return ssm
               .putParameter({
                 Name: path.join(
                   "/",
-                  getStackPath(context.package.name, context.stackName),
+                  getInternalPath(context.package.name, context.stackName),
                   name
                 ),
-                Value: context.setVariables[name],
+                Value: `${context.scale[name]}`,
                 Overwrite: true,
                 Type: "String",
               })
@@ -93,6 +108,14 @@ export default Machine<Context, Schema, Events>({
     maybeDeploying: {
       invoke: {
         src: deployStack,
+        data: (context) => context,
+        onDone: "checkingStack",
+        onError: "error",
+      },
+    },
+    checkingStack: {
+      invoke: {
+        src: infoStack,
         data: (context) => context,
         onDone: "restarting",
         onError: "error",

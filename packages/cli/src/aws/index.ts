@@ -18,7 +18,13 @@ const main = async () => {
     packageFrom,
     packageName,
     stackName,
-    parameters
+    parameters,
+    {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
+    }
   );
   assert(stack);
   app.synth();

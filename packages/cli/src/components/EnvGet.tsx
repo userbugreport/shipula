@@ -4,7 +4,7 @@ import { ShipulaContext, displayStack } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import setEnv from "../machines/set-env";
+import infoStack from "../machines/info-stack";
 import yaml from "yaml";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
 
@@ -16,13 +16,13 @@ type Props = never;
 /**
  * Update the running environment variables.
  */
-export const EnvSet: React.FunctionComponent<Props> = () => {
+export const EnvGet: React.FunctionComponent<Props> = () => {
   const [columns] = useStdoutDimensions();
   // the app context is *the* shared data all the way down to
   // the state machines
   const appContext = React.useContext(ShipulaContext);
   // all of the actual activity is delegated to the state machine
-  const [state] = useMachine(setEnv, {
+  const [state] = useMachine(infoStack, {
     context: appContext,
   });
   // the display just shows what the state machine is doing
@@ -35,9 +35,10 @@ export const EnvSet: React.FunctionComponent<Props> = () => {
       )}
       {state.context.selectedStack && (
         <Box flexDirection="column" width={columns}>
-          <Text>{false && yaml.stringify(state.context.selectedStack)}</Text>
           <Text>
-            {yaml.stringify(displayStack(state.context.selectedStack))}
+            {yaml.stringify(
+              displayStack(state.context.selectedStack).web.environment
+            )}
           </Text>
         </Box>
       )}
