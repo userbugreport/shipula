@@ -15,7 +15,18 @@ export const PackageName = "Name of the app pacakge -- from your pacakge.json";
 /**
  * Read and render a markdown file.
  */
-export default (fileName: string): string => {
+export const message = (fileName: string): string => {
   const content = fs.readFileSync(path.resolve(__dirname, fileName), "utf8");
   return marked(content);
 };
+
+export const errorMessage = (fileName: string): Error => {
+  return new ErrorMessage(message(fileName));
+};
+
+/**
+ * Our own error message type.
+ */
+export class ErrorMessage extends Error {}
+
+export default message;

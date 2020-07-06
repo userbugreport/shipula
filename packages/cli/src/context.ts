@@ -4,6 +4,7 @@ import { CloudFormation, ECS } from "aws-sdk";
 import assert from "assert";
 import path from "path";
 import fs from "fs-extra";
+import { errorMessage } from "./docs";
 
 /**
  * A specific node package. We don't need all the properties
@@ -37,20 +38,26 @@ export type Package = {
  * Load -- just throws if there are ny problems at all.
  */
 export const loadPackage = async (filename?: string): Promise<Package> => {
-  const defaultToWorkingDirectory = filename || ".";
-  const forgiveDirectory =
-    path.basename(defaultToWorkingDirectory, ".json") === "package"
-      ? path.resolve(defaultToWorkingDirectory)
-      : path.resolve(defaultToWorkingDirectory, "package.json");
-  const p = (await fs.readJson(forgiveDirectory)) as Package;
-  p.from = path.dirname(forgiveDirectory);
-  assert(p.name, "Must have a name in your package.");
-  assert(p.version, "Must have a version in your package");
-  assert(
-    p?.scripts?.start,
-    "Must have a scripts section with a start command in your pacakge"
-  );
-  return p;
+  try {
+    const defaultToWorkingDirectory = filename || ".";
+    const forgiveDirectory =
+      path.basename(defaultToWorkingDirectory, ".json") === "package"
+        ? path.resolve(defaultToWorkingDirectory)
+        : path.resolve(defaultToWorkingDirectory, "package.json");
+    const p = (await fs.readJson(forgiveDirectory)) as Package;
+    p.from = path.dirname(forgiveDirectory);
+    assert(p.name, "Must have a name in your package.");
+    assert(p.version, "Must have a version in your package");
+    assert(
+      p?.scripts?.start,
+      "Must have a scripts section with a start command in your pacakge"
+    );
+    return p;
+  } catch (e) {
+    const err: Error = e;
+    if (err.message.startsWith("ENOENT")) throw errorMessage("nopackage.md");
+    throw e;
+  }
 };
 
 /**

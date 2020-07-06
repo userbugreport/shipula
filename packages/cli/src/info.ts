@@ -11,6 +11,9 @@ export default new Command()
     console.log(docs("destroy.md"));
   })
   .action(async (packageDirectory, stackName) => {
-    display(await buildInfoProps(packageDirectory, stackName), Info);
+    const props = packageDirectory
+      ? await buildInfoProps(packageDirectory, stackName)
+      : {};
+    display(props, Info);
     return;
   });
