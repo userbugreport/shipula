@@ -7,20 +7,11 @@ require("ts-node").register({
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
 
-const buildProgram = require(path.join(__dirname, "..", "src", "index"))
-  .buildProgram;
-/**
- * Our little command line interface. This can be used from Docker -- which is the
- * intended use, or with `yarn cli` for development and testing.
- */
-const main = async () => {
-  // GO!
-  try {
-    const program = await buildProgram();
-    await program.parseAsync(process.argv);
-  } catch (e) {
-    console.log(e);
-  }
-};
+const { buildProgram, main } = require(path.join(
+  __dirname,
+  "..",
+  "src",
+  "index"
+));
 // load and go
 main();
