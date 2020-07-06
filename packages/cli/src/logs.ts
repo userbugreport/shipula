@@ -11,6 +11,9 @@ export default new Command()
     console.log(docs("logs.md"));
   })
   .action(async (packageDirectory, stackName) => {
-    display(await buildInfoProps(packageDirectory, stackName), Logs);
+    const props = packageDirectory
+      ? await buildInfoProps(packageDirectory, stackName)
+      : {};
+    display(props, Logs);
     return;
   });

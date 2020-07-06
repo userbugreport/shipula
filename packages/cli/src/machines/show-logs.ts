@@ -5,6 +5,8 @@ import Randoma from "randoma";
 import chalk from "chalk";
 import path from "path";
 
+const PollInterval = 5000;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
 
@@ -275,7 +277,7 @@ export default Machine<Context, Schema, Events>({
     },
     sleeping: {
       after: {
-        1000: "streaming",
+        [PollInterval]: "streaming",
       },
     },
     done: { type: "final" },
