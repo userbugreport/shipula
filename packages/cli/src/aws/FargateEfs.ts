@@ -1,3 +1,4 @@
+import * as backup from "@aws-cdk/aws-backup";
 import * as cdk from "@aws-cdk/core";
 import * as ssm from "@aws-cdk/aws-ssm";
 import * as ec2 from "@aws-cdk/aws-ec2";
@@ -36,7 +37,7 @@ export class FargateEfs extends cdk.Stack {
       );
     };
 
-    const vpc = new ec2.Vpc(this, "DefaultVpc", { maxAzs: 2 });
+    const vpc = new ec2.Vpc(this, "vpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "WebCluster", {
       vpc: vpc,
       // use a name without guidtrash
@@ -46,10 +47,23 @@ export class FargateEfs extends cdk.Stack {
     const fileSystem = new efs.FileSystem(this, "Efs", {
       vpc: vpc,
       encrypted: true,
-      lifecyclePolicy: efs.LifecyclePolicy.AFTER_14_DAYS,
+      lifecyclePolicy: efs.LifecyclePolicy.AFTER_90_DAYS,
       performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
       throughputMode: efs.ThroughputMode.BURSTING,
     });
+
+    // auto backup the file system
+    const vault = new backup.BackupVault(this, "Backup", {
+      backupVaultName: id,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+    const plan = new backup.BackupPlan(this, "BackupPlan", {
+      backupPlanName: id,
+    });
+    plan.addSelection("Efs", {
+      resources: [backup.BackupResource.fromConstruct(fileSystem)],
+    });
+    plan.addRule(backup.BackupPlanRule.daily(vault));
 
     const params = {
       FileSystemId: fileSystem.fileSystemId,

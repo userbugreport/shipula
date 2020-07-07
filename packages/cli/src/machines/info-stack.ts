@@ -19,9 +19,7 @@ interface Schema {
     done: NoSubState;
   };
 }
-/**
- * Transtion ye olde state machine
- */
+
 type Events = {
   type: "*";
   data: Error;

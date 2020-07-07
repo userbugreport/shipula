@@ -65,6 +65,35 @@ export const listShipulaParameters = async (
 };
 
 /**
+ * List all backup plans
+ */
+export const listBackupPlans = async (): Promise<
+  AWS.Backup.BackupPlansList
+> => {
+  const backup = new AWS.Backup();
+  let buffer = new Array<AWS.Backup.BackupPlansListMember>();
+
+  const more = async (
+    nextToken: string
+  ): Promise<AWS.Backup.ListBackupPlansOutput> => {
+    return backup
+      .listBackupPlans({
+        NextToken: nextToken === "-" ? undefined : nextToken,
+      })
+      .promise();
+  };
+
+  let token = "-";
+  // more to fetch...
+  while (token) {
+    const { BackupPlansList, NextToken } = await more(token);
+    buffer = [...buffer, ...BackupPlansList];
+    token = NextToken;
+  }
+  return buffer;
+};
+
+/**
  * ECS has some batshit names for CPUs. No real person will think that 256 means .25 of a CPU.
  *
  * Spell this out in a big, painful constant.
