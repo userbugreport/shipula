@@ -21,6 +21,7 @@
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
+    "@aws-cdk/aws-backup": "^1.49.1",
     "@aws-cdk/aws-ec2": "^1.49.0",
     "@aws-cdk/aws-ecs": "^1.49.0",
     "@aws-cdk/aws-ecs-patterns": "^1.49.0",
@@ -43,6 +44,7 @@
     "fs-extra": "^9.0.1",
     "ignore-walk": "^3.0.3",
     "ink": "3.0.0-5",
+    "ink-progress-bar": "^3.0.0",
     "ink-select-input": "^3.1.2",
     "ink-spinner": "4.0.0-0",
     "ink-table": "^2.0.1",

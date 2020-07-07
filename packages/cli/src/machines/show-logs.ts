@@ -18,7 +18,7 @@ interface Schema {
     streaming: NoSubState;
     displaying: NoSubState;
     refreshing: NoSubState;
-    sleeping: NoSubState;
+    working: NoSubState;
     done: NoSubState;
   };
 }
@@ -271,11 +271,11 @@ export default Machine<Context, Schema, Events>({
             throw new Error("Need to refresh");
           // no news is good news
         },
-        onDone: "sleeping",
+        onDone: "working",
         onError: "fetchingLogGroups",
       },
     },
-    sleeping: {
+    working: {
       after: {
         [PollInterval]: "streaming",
       },
