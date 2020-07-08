@@ -157,6 +157,22 @@ export type ShipulaContextProps = {
     cpu: number;
     memory: number;
   };
+
+  /**
+   * Specific timestamp of a backup to restore. This is a ISO date string. useable
+   * in the context of an app and stack.
+   */
+  backupFrom?: string;
+
+  /**
+   * Setting a domain name?
+   */
+  domainName?: string;
+
+  /**
+   * Setting a host name?
+   */
+  hostName?: string;
 };
 
 /**
@@ -237,7 +253,7 @@ export const buildInfoProps = async (
 };
 
 /**
- * Create a context for setting and updateing the environment.
+ * Create a context for setting and updating the environment.
  */
 export const buildEnvProps = async (
   packageDirectory?: string,

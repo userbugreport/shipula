@@ -50,6 +50,7 @@ export class FargateEfs extends cdk.Stack {
       lifecyclePolicy: efs.LifecyclePolicy.AFTER_90_DAYS,
       performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
       throughputMode: efs.ThroughputMode.BURSTING,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // auto backup the file system
@@ -62,6 +63,7 @@ export class FargateEfs extends cdk.Stack {
     });
     plan.addSelection("Efs", {
       resources: [backup.BackupResource.fromConstruct(fileSystem)],
+      allowRestores: true,
     });
     plan.addRule(backup.BackupPlanRule.daily(vault));
 

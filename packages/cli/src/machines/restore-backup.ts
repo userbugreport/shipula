@@ -1,5 +1,6 @@
 import { Machine, actions } from "xstate";
 import { ShipulaContextProps, getStackName } from "../context";
+import listBackup from "./list-backup";
 import assert from "assert";
 import AWS from "aws-sdk";
 
@@ -11,6 +12,7 @@ type NoSubState = any;
 interface Schema {
   states: {
     checkingSettings: NoSubState;
+    listBackup: NoSubState;
     starting: NoSubState;
     displaying: NoSubState;
     working: NoSubState;
@@ -31,6 +33,10 @@ type Events =
 
 type Context = ShipulaContextProps & {
   /**
+   * Data from AWS on the available backups.
+   */
+  availableBackups?: AWS.Backup.RecoveryPointByBackupVaultList;
+  /**
    * Track the percent complete on taking this backup. Fun with
    * progress bars will ensue
    */
@@ -38,34 +44,7 @@ type Context = ShipulaContextProps & {
   /**
    * Know the job that is running.
    */
-  backupJobId?: string;
-};
-
-/**
- * List all backup plans
- */
-const listBackupPlans = async (): Promise<AWS.Backup.BackupPlansList> => {
-  const backup = new AWS.Backup();
-  let buffer = new Array<AWS.Backup.BackupPlansListMember>();
-
-  const more = async (
-    nextToken: string
-  ): Promise<AWS.Backup.ListBackupPlansOutput> => {
-    return backup
-      .listBackupPlans({
-        NextToken: nextToken === "-" ? undefined : nextToken,
-      })
-      .promise();
-  };
-
-  let token = "-";
-  // more to fetch...
-  while (token) {
-    const { BackupPlansList, NextToken } = await more(token);
-    buffer = [...buffer, ...BackupPlansList];
-    token = NextToken;
-  }
-  return buffer;
+  restoreJobId?: string;
 };
 
 /**
@@ -79,6 +58,14 @@ export default Machine<Context, Schema, Events>({
         src: async (context) => {
           assert(getStackName(context.package.name, context.stackName));
         },
+        onDone: "listBackup",
+        onError: "error",
+      },
+    },
+    listBackup: {
+      invoke: {
+        src: listBackup,
+        data: (context) => context,
         onDone: "starting",
         onError: "error",
       },
@@ -87,42 +74,51 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           context.percentComplete = 0.0;
+
           const backup = new AWS.Backup();
-          const planName = getStackName(
+          const vaultName = getStackName(
             context.package.name,
             context.stackName
           );
-          // shared name
-          const vaultName = planName;
-          const plans = await listBackupPlans();
-          const currentPlan = plans.find((p) => p.BackupPlanName === planName);
 
-          const selection = await backup
-            .listBackupSelections({
-              BackupPlanId: currentPlan.BackupPlanId,
-            })
-            .promise();
-          // this API is pretty roundabout but I cna get the selection
-          // which has an IAM role to use
-          const efsSelection = selection.BackupSelectionsList.find(
-            (f) => f.SelectionName === "Efs"
+          // filter down to the requested backup to restore
+          const recoverThis = context.availableBackups.find(
+            (b) => b.CompletionDate.toISOString() === context.backupFrom
           );
-          // and then get the selection another way -- and get the ARM
-          // of the thing to actually back up
-          const efs = await backup
-            .getBackupSelection({
-              BackupPlanId: currentPlan.BackupPlanId,
-              SelectionId: efsSelection.SelectionId,
-            })
-            .promise();
-          const job = await backup
-            .startBackupJob({
+
+          const recoveryMetadata = await backup
+            .getRecoveryPointRestoreMetadata({
               BackupVaultName: vaultName,
-              ResourceArn: efs.BackupSelection.Resources[0],
-              IamRoleArn: efsSelection.IamRoleArn,
+              RecoveryPointArn: recoverThis.RecoveryPointArn,
             })
             .promise();
-          context.backupJobId = job.BackupJobId;
+
+          const efs = new AWS.EFS();
+          const fileSystems = await efs
+            .describeFileSystems({
+              FileSystemId: recoveryMetadata.RestoreMetadata["file-system-id"],
+            })
+            .promise();
+
+          const fileSystem = fileSystems.FileSystems[0];
+
+          // now we know what -- and where
+          const job = await backup
+            .startRestoreJob({
+              IdempotencyToken: new Date().toISOString(),
+              ResourceType: "EFS",
+              IamRoleArn: recoverThis.IamRoleArn,
+              RecoveryPointArn: recoverThis.RecoveryPointArn,
+              Metadata: {
+                "file-system-id": fileSystem.FileSystemId,
+                Encrypted: "true",
+                KmsKeyId: fileSystem.KmsKeyId,
+                PerformanceMode: fileSystem.PerformanceMode,
+                newFileSystem: "false",
+              },
+            })
+            .promise();
+          context.restoreJobId = job.RestoreJobId;
         },
         onDone: "displaying",
         onError: "error",
@@ -143,11 +139,15 @@ export default Machine<Context, Schema, Events>({
           assert(context);
           const backup = new AWS.Backup();
           const job = await backup
-            .describeBackupJob({
-              BackupJobId: context.backupJobId,
+            .describeRestoreJob({
+              RestoreJobId: context.restoreJobId,
             })
             .promise();
           context.percentComplete = parseFloat(job.PercentDone);
+          if (job.Status.toUpperCase() === "FAILED")
+            throw new Error(job.StatusMessage);
+          if (job.Status.toUpperCase() === "COMPLETED")
+            context.percentComplete = 1.0;
         },
         onDone: "working",
         onError: "error",

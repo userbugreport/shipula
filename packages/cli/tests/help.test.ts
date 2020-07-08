@@ -5,6 +5,7 @@ import env from "../src/env";
 import info from "../src/info";
 import logs from "../src/logs";
 import scale from "../src/scale";
+import dns from "../src/dns";
 
 const commands = {
   backup,
@@ -14,6 +15,7 @@ const commands = {
   info,
   logs,
   scale,
+  dns,
 };
 
 describe("CLI", () => {
