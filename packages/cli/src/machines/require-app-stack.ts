@@ -6,6 +6,9 @@ import docs from "../docs";
 import fs from "fs-extra";
 import path from "path";
 import appRoot from "app-root-path";
+import { listShipulaParameters, listShipulaCertificates } from "../aws/info";
+import { parseDomain, ParseResultType } from "parse-domain";
+import AWS from "aws-sdk";
 
 const dockerFrom = path.resolve(
   __dirname,
@@ -81,61 +84,81 @@ export default Machine<Context, Schema, Events>({
     creating: {
       invoke: {
         src: async (context) => {
-          await new Promise((resolve, reject) => {
-            // need an app path
-            const CDKSynthesizer = path.resolve(
-              __dirname,
-              "..",
-              "aws",
-              "index"
-            );
-            const CDK = path.resolve(
-              appRoot.path,
-              "node_modules",
-              ".bin",
-              "cdk"
-            );
-            const TSNODE = path.resolve(
-              appRoot.path,
-              "node_modules",
-              ".bin",
-              "ts-node"
-            );
-            const TAGS = [
-              "--tags",
-              `createdBy=shipula`,
-              "--tags",
-              `packageName=${context.package.name}`,
-              "--tags",
-              `packageVersion=${context.package.version}`,
-              "--tags",
-              `stackName=${context.stackName}`,
-            ];
-            const CONTEXT = [];
-            // env var to get the stack named before the CDK context is created
-            process.env.PACKAGE_FROM = context.package.from;
-            process.env.PACKAGE_NAME = context.package.name;
-            process.env.STACK_NAME = context.stackName;
-            // synchronous run -- with inherited stdio, this should re-use the
-            // CDK text UI for us
-            const child = execa.sync(
-              CDK,
-              [
-                "deploy",
-                "--require-approval",
-                "never",
-                "--app",
-                `${TSNODE} ${CDKSynthesizer}`,
-                ...TAGS,
-                ...CONTEXT,
-              ],
-              {
-                stdio: "inherit",
-              }
-            );
-            if (child.exitCode) reject(child.exitCode);
-            else resolve();
-          });
+          // need an app path
+          const CDKSynthesizer = path.resolve(__dirname, "..", "aws", "index");
+          const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
+          const TSNODE = path.resolve(
+            appRoot.path,
+            "node_modules",
+            ".bin",
+            "ts-node"
+          );
+          const TAGS = [
+            "--tags",
+            `createdBy=shipula`,
+            "--tags",
+            `packageName=${context.package.name}`,
+            "--tags",
+            `packageVersion=${context.package.version}`,
+            "--tags",
+            `stackName=${context.stackName}`,
+          ];
+          const CONTEXT = [];
+          const parameters = await listShipulaParameters(
+            context.package.name,
+            context.stackName
+          );
+          // env var to get the stack named before the CDK context is created
+          process.env.PACKAGE_FROM = context.package.from;
+          process.env.PACKAGE_NAME = context.package.name;
+          process.env.STACK_NAME = context.stackName;
+          const hostName = parameters.find(
+            (p) => path.basename(p.Name) === "SHIPULA_HOST_NAME"
+          )?.Value;
+          if (hostName) {
+            process.env.HOST_NAME = hostName;
+            const parsed = parseDomain(process.env.HOST_NAME);
+            if (parsed.type === ParseResultType.Listed) {
+              const { domain, topLevelDomains } = parsed;
+              process.env.DOMAIN_NAME = `${domain}.${topLevelDomains.join(
+                "."
+              )}`;
+              // oh AWS -- zone lookup yet again...
+              const route53 = new AWS.Route53();
+              const zone = await route53
+                .listHostedZonesByName({
+                  DNSName: process.env.DOMAIN_NAME,
+                })
+                .promise();
+              // really AWS -- /hostedzone/ ?
+              process.env.ZONE_ID = path.basename(zone.HostedZones[0].Id);
+              process.env.ZONE_NAME = process.env.DOMAIN_NAME;
+              // and we'll need a certificate
+              const certificate = (await listShipulaCertificates()).find(
+                (c) => c.DomainName === `*.${process.env.DOMAIN_NAME}`
+              );
+              process.env.CERTIFICATE_ARN = certificate.CertificateArn;
+            }
+          }
+          //
+          // synchronous run -- with inherited stdio, this should re-use the
+          // CDK text UI for us
+          const child = execa.sync(
+            CDK,
+            [
+              "deploy",
+              "--require-approval",
+              "never",
+              "--app",
+              `${TSNODE} ${CDKSynthesizer}`,
+              ...TAGS,
+              ...CONTEXT,
+            ],
+            {
+              stdio: "inherit",
+            }
+          );
+          if (child.exitCode) throw Error();
         },
         onDone: "cleaningUp",
         onError: {

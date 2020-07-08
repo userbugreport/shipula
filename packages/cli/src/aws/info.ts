@@ -64,11 +64,34 @@ export const listShipulaParameters = async (
   return buffer;
 };
 
+/**
+ * List all certificates.
+ */
+export const listShipulaCertificates = async (): Promise<
+  AWS.ACM.CertificateSummaryList
+> => {
+  const acm = new AWS.ACM();
+  let buffer = new Array<AWS.ACM.CertificateSummary>();
 
+  const more = async (
+    nextToken: string
+  ): Promise<AWS.ACM.ListCertificatesResponse> => {
+    return acm
+      .listCertificates({
+        NextToken: nextToken === "-" ? undefined : nextToken,
+      })
+      .promise();
+  };
 
-
-
-
+  let token = "-";
+  // more to fetch...
+  while (token) {
+    const { CertificateSummaryList, NextToken } = await more(token);
+    buffer = [...buffer, ...CertificateSummaryList];
+    token = NextToken;
+  }
+  return buffer;
+};
 
 /**
  * ECS has some batshit names for CPUs. No real person will think that 256 means .25 of a CPU.

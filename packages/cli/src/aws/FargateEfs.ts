@@ -1,7 +1,10 @@
 import * as backup from "@aws-cdk/aws-backup";
+import * as acm from "@aws-cdk/aws-certificatemanager";
+import * as route53 from "@aws-cdk/aws-route53";
 import * as cdk from "@aws-cdk/core";
 import * as ssm from "@aws-cdk/aws-ssm";
 import * as ec2 from "@aws-cdk/aws-ec2";
+import * as alb from "@aws-cdk/aws-elasticloadbalancingv2";
 import * as ecs from "@aws-cdk/aws-ecs";
 import * as logs from "@aws-cdk/aws-logs";
 import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
@@ -10,21 +13,22 @@ import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
-import { getStackPath, getStackName, getInternalPath } from "../context";
+import { getStackPath } from "../context";
 import path from "path";
 
 export class FargateEfs extends cdk.Stack {
   constructor(
     scope: cdk.App,
+    id: string,
     packageFrom: string,
     packageName: string,
     stackName: string,
     parameters: AWS.SSM.ParameterList,
     props?: cdk.StackProps
   ) {
-    // build a name cloud formation will accept
-    const id = getStackName(packageName, stackName);
     super(scope, id, props);
+
+    // used to read parameters
     const parameterOrDefault = (
       parameterName: string,
       defaultValue: string
@@ -32,10 +36,28 @@ export class FargateEfs extends cdk.Stack {
       return (
         ssm.StringParameter.valueFromLookup(
           this,
-          path.join("/", getInternalPath(packageName, stackName), parameterName)
+          path.join("/", getStackPath(packageName, stackName), parameterName)
         ) || defaultValue
       );
     };
+
+    const domainZone =
+      process.env.ZONE_ID && process.env.ZONE_NAME
+        ? route53.PublicHostedZone.fromHostedZoneAttributes(this, "zone", {
+            hostedZoneId: process.env.ZONE_ID,
+            zoneName: process.env.ZONE_NAME,
+          })
+        : undefined;
+    const certificate = process.env.CERTIFICATE_ARN
+      ? acm.Certificate.fromCertificateArn(
+          this,
+          "certificate",
+          process.env.CERTIFICATE_ARN
+        )
+      : undefined;
+    // on purpose -- they call 'host name' 'domain name' in this api
+    // and the 'domain' is a 'zone' -- Amazon specific language
+    const domainName = process.env.HOST_NAME || undefined;
 
     const vpc = new ec2.Vpc(this, "vpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "WebCluster", {
@@ -104,8 +126,8 @@ export class FargateEfs extends cdk.Stack {
     efsAccessPoint.node.addDependency(fileSystem);
 
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
-      memoryLimitMiB: parseInt(parameterOrDefault("memory", "2048")),
-      cpu: parseInt(parameterOrDefault("cpu", "1024")),
+      memoryLimitMiB: parseInt(parameterOrDefault("SHIPULA_MEMORY", "2048")),
+      cpu: parseInt(parameterOrDefault("SHIPULA_CPU", "1024")),
       // avoid guid trash names
       family: `${id}-WebTask`,
     });
@@ -147,9 +169,16 @@ export class FargateEfs extends cdk.Stack {
       secrets,
     });
 
+    // oh yes, this is the port
     containerDef.addPortMappings({
       containerPort: 8000,
     });
+
+    // if all the stars are aligned -- then we get https
+    const protocol =
+      domainZone && certificate && domainName
+        ? alb.ApplicationProtocol.HTTPS
+        : alb.ApplicationProtocol.HTTP;
 
     const albFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
       this,
@@ -158,8 +187,12 @@ export class FargateEfs extends cdk.Stack {
         serviceName: "WebService",
         cluster: ecsCluster,
         taskDefinition: taskDef,
-        desiredCount: parseInt(parameterOrDefault("number", "2")),
+        desiredCount: parseInt(parameterOrDefault("SHIPULA_NUMBER", "2")),
         platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
+        domainZone,
+        certificate,
+        domainName,
+        protocol,
       }
     );
 
