@@ -1,4 +1,4 @@
-import { ShipulaContextProps, getStackPath, getInternalPath } from "../context";
+import { ShipulaContextProps, getStackPath } from "../context";
 import { Machine, actions } from "xstate";
 import deployStack from "./deploy-stack";
 import infoStack from "./info-stack";
@@ -17,7 +17,6 @@ interface Schema {
     checkingSettings: NoSubState;
     checkingStack: NoSubState;
     setParameters: NoSubState;
-    setScale: NoSubState;
     maybeDeploying: NoSubState;
     restarting: NoSubState;
     error: NoSubState;
@@ -75,30 +74,6 @@ export default Machine<Context, Schema, Events>({
                 .promise();
             }
           );
-          await Promise.all(waitfor);
-        },
-        onDone: "setScale",
-        onError: "error",
-      },
-    },
-    setScale: {
-      invoke: {
-        src: async (context) => {
-          const ssm = new AWS.SSM();
-          const waitfor = Object.keys(context.scale || {}).map((name) => {
-            return ssm
-              .putParameter({
-                Name: path.join(
-                  "/",
-                  getInternalPath(context.package.name, context.stackName),
-                  name
-                ),
-                Value: `${context.scale[name]}`,
-                Overwrite: true,
-                Type: "String",
-              })
-              .promise();
-          });
           await Promise.all(waitfor);
         },
         onDone: "maybeDeploying",

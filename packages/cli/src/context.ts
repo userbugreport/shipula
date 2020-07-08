@@ -150,15 +150,6 @@ export type ShipulaContextProps = {
   setVariables?: ShipulaStackEnvironment;
 
   /**
-   * Scaling options
-   */
-  scale?: {
-    number: number;
-    cpu: number;
-    memory: number;
-  };
-
-  /**
    * Specific timestamp of a backup to restore. This is a ISO date string. useable
    * in the context of an app and stack.
    */
@@ -169,10 +160,6 @@ export type ShipulaContextProps = {
    */
   domainName?: string;
 
-  /**
-   * Setting a host name?
-   */
-  hostName?: string;
 };
 
 /**
@@ -200,21 +187,6 @@ export const getStackPath = (
   assert(packageName, "A package name is required");
   assert(stackName, "A stack name is required");
   return `shipula/${packageName}/${stackName}`.replace(
-    /[^\.\-_/#A-Za-z0-9]/g,
-    ""
-  );
-};
-
-/**
- * Generate a consistent stack 'path' for AWS services that allow it.
- */
-export const getInternalPath = (
-  packageName: string,
-  stackName: string
-): string => {
-  assert(packageName, "A package name is required");
-  assert(stackName, "A stack name is required");
-  return `.shipula/${packageName}/${stackName}`.replace(
     /[^\.\-_/#A-Za-z0-9]/g,
     ""
   );

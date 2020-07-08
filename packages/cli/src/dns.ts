@@ -3,7 +3,7 @@ import docs from "./docs";
 import { buildEnvProps } from "./context";
 import { DnsDomain } from "./components/DnsDomain";
 import { display } from "./components/application";
-import { DnsName } from "./components/DnsName";
+import { EnvSet } from "./components/EnvSet";
 
 const domainCommand = new Command()
   .command("domain <domainName>")
@@ -17,7 +17,8 @@ const nameCommand = new Command()
   .action(
     async (hostName: string, packageDirectory: string, stackName: string) => {
       const props = await buildEnvProps(packageDirectory, stackName);
-      display({ ...props, hostName }, DnsName);
+      props.setVariables = { SHIPULA_HOST_NAME: hostName };
+      display(props, EnvSet);
       return;
     }
   );

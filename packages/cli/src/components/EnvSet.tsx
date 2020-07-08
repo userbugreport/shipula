@@ -35,7 +35,6 @@ export const EnvSet: React.FunctionComponent<Props> = () => {
       )}
       {state.done && state.context.selectedStack && (
         <Box flexDirection="column" width={columns}>
-          <Text>{false && yaml.stringify(state.context.selectedStack)}</Text>
           <Text>
             {yaml.stringify(
               displayStack(state.context.selectedStack).web.environment

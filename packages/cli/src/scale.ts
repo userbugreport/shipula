@@ -32,10 +32,10 @@ export default new Command()
     if (!validMemory[command.memory])
       throw errorMessage("scale_memory.md", Object.keys(validMemory));
     const props = await buildInfoProps(packageDirectory, stackName);
-    props.scale = {
-      number: command.number,
-      cpu: validCPU.cpu,
-      memory: validMemory[command.memory],
+    props.setVariables = {
+      SHIPULA_NUMBER: `${command.number}`,
+      SHIPULA_CPU: `${validCPU.cpu}`,
+      SHIPULA_MEMORY: `${validMemory[command.memory]}`,
     };
     // scale is just another env set
     display(props, EnvSet);

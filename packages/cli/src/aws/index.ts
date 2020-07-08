@@ -2,6 +2,7 @@ import * as cdk from "@aws-cdk/core";
 import { FargateEfs } from "./FargateEfs";
 import assert from "assert";
 import { listShipulaParameters } from "./info";
+import { getStackName } from "../context";
 
 const app = new cdk.App();
 
@@ -13,8 +14,10 @@ const stackName = process.env.STACK_NAME;
 // pull in from an env var, or just default
 const main = async () => {
   const parameters = await listShipulaParameters(packageName, stackName);
+  const id = getStackName(packageName, stackName);
   const stack = new FargateEfs(
     app,
+    id,
     packageFrom,
     packageName,
     stackName,
