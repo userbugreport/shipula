@@ -14,14 +14,15 @@ Then you are going to find out you need to know a lot more things than just [nod
 
 [Docker]
 | [AWS]
-| [ALB]
+| [ALB]~[Route53]~[ACM]
 | [IAM]
 | [S3]
 | [ECS]~[ECR]~[FarGate]~[EKS]~[Kubernetes]
-| [CloudWatch]
+| [CloudWatch]~[CloudBackup]
 | [CloudFormation]~[CDK]~[Terraform]~[AWSCLI]
 
-It's a lot to take in, and in most team settings, it ends up being a dedicated person to help everyone else out. But what you really want to do is jsut **ship** -- so let's.
+It's a lot to take in, and in most team settings, it ends up being a dedicated person to help everyone else out. 
+But what you really want to do is just **ship** -- so let's.
 
 -- shell 'movie' here --
 
@@ -29,14 +30,13 @@ It's a lot to take in, and in most team settings, it ends up being a dedicated p
 - yarn
 - run local yarn start
 - shell browser
-- shipula
+- shipula deploy
 - shell browser to the cloud
 
-### Assumptions
+### Basic Assumptions
 
-- You have a node http/https you want on the cloud
-- That node program listens on a `${PORT}` you can read from an environment variable
+- You have a node http serving program you want on the cloud, using tools like [Express] or [Koa]
+- That node program listens on a `${PORT}` you can read from an environment variable.
 - You have signed up for AWS, and have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-- You can go to your shell and type `npx shipula deploy`
 
 Yep -- that's it.

@@ -5,27 +5,28 @@ import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
 import takeBackup from "../machines/take-backup";
-import { Stacks } from "./Stacks";
+import restoreBackup from "../machines/restore-backup";
+import listBackup from "../machines/list-backup";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
 import ProgressBar from "ink-progress-bar";
 
-/**
- * No props needed, the app context is enough.
- */
-type Props = never;
+type Props = {
+  machine: typeof takeBackup | typeof restoreBackup;
+};
 
 /**
- * List our stacks -- or drill in detail into one.
+ * Our dual purpose backup display.
  */
-export const Backup: React.FunctionComponent<Props> = () => {
+const Backup: React.FunctionComponent<Props> = ({ machine }: Props) => {
   const [columns] = useStdoutDimensions();
-  console.assert(columns);
   // the app context is *the* shared data all the way down to
   // the state machines
   const appContext = React.useContext(ShipulaContext);
   // all of the actual activity is delegated to the state machine
-  const [state] = useMachine(takeBackup, {
-    context: appContext,
+  const [state] = useMachine(machine, {
+    context: {
+      ...appContext,
+    },
   });
 
   // the display just shows what the state machine is doing
@@ -45,7 +46,64 @@ export const Backup: React.FunctionComponent<Props> = () => {
           />
         </Box>
       )}
-      {state.context.stacks && <Stacks stacks={state.context.stacks} />}
+      {state.context.lastError && (
+        <ErrorMessage error={state.context.lastError} />
+      )}
+    </>
+  );
+};
+
+/**
+ * Used to take backups
+ */
+export const TakeBackup: React.FC<never> = () => {
+  return <Backup machine={takeBackup}></Backup>;
+};
+
+/**
+ * Used to take backups
+ */
+export const RestoreBackup: React.FC<never> = () => {
+  return <Backup machine={restoreBackup}></Backup>;
+};
+
+/**
+ * Display the available backups when the user didn't specify
+ */
+export const ListBackups: React.FunctionComponent<never> = () => {
+  const [columns] = useStdoutDimensions();
+  console.assert(columns);
+  // the app context is *the* shared data all the way down to
+  // the state machines
+  const appContext = React.useContext(ShipulaContext);
+  // all of the actual activity is delegated to the state machine
+  const [state] = useMachine(listBackup, {
+    context: appContext,
+  });
+
+  // the display just shows what the state machine is doing
+  return (
+    <>
+      {!state.done && (
+        <Text>
+          <Spinner type="dots" /> {state.value}
+        </Text>
+      )}
+      <Box flexDirection="column">
+        <Box>
+          <Box width="20%">
+            <Text>Backup From</Text>
+          </Box>
+        </Box>
+        {state.context.availableBackups &&
+          state.context.availableBackups?.map((backup) => (
+            <Box key={backup.RecoveryPointArn}>
+              <Box width="20%">
+                <Text>{backup.CompletionDate.toISOString()}</Text>
+              </Box>
+            </Box>
+          ))}
+      </Box>
       {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />
       )}

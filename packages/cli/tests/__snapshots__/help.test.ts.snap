@@ -1,12 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI sub commands backup help strings 1`] = `
-"Usage:  backup [options]
+"Usage:  backup [options] [command]
 
-Creates a backup copy of your App/Stack file system, and provides a link where you can download it.
+Manage backups of your App/Stack shared file system.
 
 Options:
-  -h, --help  display help for command
+  -h, --help                                           display help for command
+
+Commands:
+  take [packageDirectory] [stackName]                  Creates a backup copy of your App/Stack file system, and provides a link where you can download it.
+  restore [packageDirectory] [stackName] [backupFrom]  Restore a backup to your App/Stack file system
+  help [command]                                       display help for command
 "
 `;
 
@@ -27,6 +32,21 @@ Completely remove a Stack from an App
 
 Options:
   -h, --help  display help for command
+"
+`;
+
+exports[`CLI sub commands dns help strings 1`] = `
+"Usage:  dns [options] [command]
+
+Manage custom domain names.
+
+Options:
+  -h, --help                                       display help for command
+
+Commands:
+  domain <domainName>
+  name <hostName> <packageDirectory>> [stackName]
+  help [command]                                   display help for command
 "
 `;
 
