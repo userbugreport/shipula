@@ -7,6 +7,7 @@ import info from "./info";
 import backup from "./backup";
 import logs from "./logs";
 import scale from "./scale";
+import dns from "./dns";
 import { ErrorMessage } from "./docs";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -23,6 +24,7 @@ export const buildProgram = async () => {
     .addCommand(info)
     .addCommand(backup)
     .addCommand(logs)
+    .addCommand(dns)
     .addCommand(scale);
   return program;
 };
