@@ -26,4 +26,3 @@ cdk.out
 cdk.context.json  
 
 packages/cli/lib
-packages/cli/package-lock.json
