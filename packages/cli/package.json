@@ -14,12 +14,14 @@
   },
   "scripts": {
     "test": "jest",
-    "shipula-cli-test": "ts-node ./src/index.ts"
+    "shipula-cli-test": "ts-node ./src/index.ts",
+    "build": "rm -rf ./build && tsc"
   },
   "bugs": {
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
+    "@shipula/domain":"",
     "@aws-cdk/aws-backup": "^1.50.0",
     "@aws-cdk/aws-certificatemanager": "^1.50.0",
     "@aws-cdk/aws-ec2": "^1.50.0",

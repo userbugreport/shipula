@@ -7,7 +7,8 @@
     "express": "^4.17.1"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": ""
   },
   "gitHead": "ccc3e30a08223eed35daaf9ec94c25ffc2dfc2f5"
 }
