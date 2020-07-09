@@ -1,6 +1,6 @@
 module.exports = {
   title: "⛴🧛🏻‍♂️",
-  tagline: "The simplest way to get your node server to the cloud!",
+  tagline: "Make **works-on-cloud** as easy as *works-on-my-machine*!",
   url: "https://userbugreport.github.io/shipula/",
   baseUrl: "/shipula/",
   favicon: "img/favicon.ico",
@@ -34,29 +34,12 @@ module.exports = {
           title: "Docs",
           items: [
             {
-              label: "Style Guide",
+              label: "Getting Started",
               to: "docs/",
             },
             {
-              label: "Second Doc",
-              to: "docs/doc2/",
-            },
-          ],
-        },
-        {
-          title: "Community",
-          items: [
-            {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/docusaurus",
-            },
-            {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus",
-            },
-            {
-              label: "Twitter",
-              href: "https://twitter.com/docusaurus",
+              label: "Concepts",
+              to: "docs/concepts/",
             },
           ],
         },
@@ -64,17 +47,13 @@ module.exports = {
           title: "More",
           items: [
             {
-              label: "Blog",
-              to: "blog",
-            },
-            {
               label: "GitHub",
               href: "https://github.com/userbugreport/shipula",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()}`,
     },
   },
   presets: [
