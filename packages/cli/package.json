@@ -1,6 +1,6 @@
 {
   "name": "@shipula/cli",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "The simplest way to get your node server to the cloud!",
   "author": "Will Ballard <wballard@mailframe.net>",
   "homepage": "https://github.com/userbugreport/shipula#readme",
