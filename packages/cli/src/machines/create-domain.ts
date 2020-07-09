@@ -55,20 +55,12 @@ type Events = { data?: Error } & { type: "*" };
 
 const deployCDK = async (context: Context, runPath: string): Promise<void> => {
   const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
-  const TSNODE = path.resolve(appRoot.path, "node_modules", ".bin", "ts-node");
   const CONTEXT = [];
   // env var to get the stack named before the CDK context is created
   process.env.DOMAIN_NAME = context.domainName;
   const child = execa.sync(
     CDK,
-    [
-      "deploy",
-      "--require-approval",
-      "never",
-      "--app",
-      `${TSNODE} ${runPath}`,
-      ...CONTEXT,
-    ],
+    ["deploy", "--require-approval", "never", "--app", runPath, ...CONTEXT],
     {
       stdio: "inherit",
     }
@@ -86,13 +78,7 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           // need an app path
-          const CDKSynthesizer = path.resolve(
-            __dirname,
-            "..",
-            "aws",
-            "domain",
-            "index"
-          );
+          const CDKSynthesizer = require.resolve("@shipula/domain");
           await deployCDK(context, CDKSynthesizer);
         },
         onDone: "displaying",
@@ -149,13 +135,7 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           // need an app path
-          const CDKSynthesizer = path.resolve(
-            __dirname,
-            "..",
-            "aws",
-            "certificate",
-            "index"
-          );
+          const CDKSynthesizer = require.resolve("@shipula/certificate");
           await deployCDK(context, CDKSynthesizer);
         },
         onDone: "done",

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./build",
     "module": "commonjs",
-    "typeRoots": []
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["./src"],
   "exclude": ["./tests"]

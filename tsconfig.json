@@ -13,6 +13,5 @@
     "declaration": true,
     "jsx": "react"
   },
-  "include": ["packages/**/*"],
   "exclude": ["node_modules"]
 }
