@@ -14,9 +14,7 @@
   },
   "scripts": {
     "test": "jest",
-    "shipula-cli-test": "ts-node ./src/index.ts",
-    "build": "rm -rf ./lib && ncc build ./src/index.ts -o ./lib",
-    "prepare": "yarn build"
+    "shipula-cli-test": "ts-node ./src/index.ts"
   },
   "bugs": {
     "url": "https://github.com/userbugreport/shipula/issues"
@@ -33,7 +31,6 @@
     "@aws-cdk/aws-ssm": "^1.50.0",
     "@aws-cdk/core": "^1.50.0",
     "@aws-cdk/custom-resources": "^1.50.0",
-    "@types/term-size": "^2.0.3",
     "@xstate/react": "^0.8.1",
     "app-root-path": "^3.0.0",
     "aws-cdk": "^1.50.0",
@@ -41,6 +38,7 @@
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "cosmiconfig": "^6.0.0",
+    "eslint-plugin-react": "^7.20.1",
     "execa": "^4.0.2",
     "expand-tilde": "^2.0.2",
     "final-form": "^4.20.0",
@@ -61,6 +59,7 @@
     "react": "^16.13.1",
     "react-final-form": "^6.5.0",
     "read-package-json": "^2.1.1",
+    "resolve-bin": "^0.4.0",
     "shelljs": "^0.8.4",
     "term-size": "^2.2.0",
     "ts-node": "^8.10.2",
@@ -77,9 +76,13 @@
     "@types/ink-text-input": "2.0.1",
     "@types/react": "^16.9.41",
     "@types/shelljs": "^0.8.8",
+    "@types/term-size": "^2.0.3",
     "@types/yaml": "^1.9.7",
-    "@zeit/ncc": "^0.22.3",
-    "std-mocks": "^1.0.1"
+    "@typescript-eslint/eslint-plugin": "^3.1.0",
+    "@typescript-eslint/parser": "^3.1.0",
+    "eslint": "^7.1.0",
+    "std-mocks": "^1.0.1",
+    "typescript": "^3.9.3"
   },
   "gitHead": "ccc3e30a08223eed35daaf9ec94c25ffc2dfc2f5"
 }
