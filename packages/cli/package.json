@@ -6,8 +6,7 @@
   "homepage": "https://github.com/userbugreport/shipula#readme",
   "license": "ISC",
   "bin": {
-    "shipula": "./bin/index.js",
-    "@shipula/cli": "./bin/index.js"
+    "shipula": "./bin/index.js"
   },
   "repository": {
     "type": "git",
@@ -15,7 +14,9 @@
   },
   "scripts": {
     "test": "jest",
-    "shipula": "./bin/index.js"
+    "shipula-cli-test": "ts-node ./src/index.ts",
+    "build": "rm -rf ./lib && ncc build ./src/index.ts -o ./lib",
+    "prepare": "yarn build"
   },
   "bugs": {
     "url": "https://github.com/userbugreport/shipula/issues"
@@ -77,6 +78,7 @@
     "@types/react": "^16.9.41",
     "@types/shelljs": "^0.8.8",
     "@types/yaml": "^1.9.7",
+    "@zeit/ncc": "^0.22.3",
     "std-mocks": "^1.0.1"
   },
   "gitHead": "ccc3e30a08223eed35daaf9ec94c25ffc2dfc2f5"
