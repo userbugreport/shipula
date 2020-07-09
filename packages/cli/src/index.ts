@@ -36,6 +36,7 @@ export const main = async (): Promise<void> => {
   // GO!
   try {
     const program = await buildProgram();
+    if (process.argv.length === 2) process.argv.push("--help");
     await program.parseAsync(process.argv);
   } catch (e) {
     if (e instanceof ErrorMessage) {

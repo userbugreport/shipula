@@ -43,8 +43,8 @@ export const loadPackage = async (filename?: string): Promise<Package> => {
     const defaultToWorkingDirectory = filename || ".";
     const forgiveDirectory =
       path.basename(defaultToWorkingDirectory, ".json") === "package"
-        ? path.resolve(defaultToWorkingDirectory)
-        : path.resolve(defaultToWorkingDirectory, "package.json");
+        ? defaultToWorkingDirectory
+        : path.join(defaultToWorkingDirectory, "package.json");
     const p = (await fs.readJson(forgiveDirectory)) as Package;
     p.from = path.dirname(forgiveDirectory);
     assert(p.name, "Must have a name in your package.");
@@ -159,7 +159,6 @@ export type ShipulaContextProps = {
    * Setting a domain name?
    */
   domainName?: string;
-
 };
 
 /**
