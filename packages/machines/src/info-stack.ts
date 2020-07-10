@@ -1,6 +1,5 @@
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps, getStackName, Info } from "@shipula/context";
 import { Machine, actions } from "xstate";
-import { listShipulaStacks, listShipulaParameters } from "../aws/info";
 import AWS from "aws-sdk";
 import assert from "assert";
 
@@ -49,7 +48,7 @@ export default Machine<Context, Schema, Events>({
     listingStacks: {
       invoke: {
         src: async (context) => {
-          context.stacks = await listShipulaStacks();
+          context.stacks = await Info.listShipulaStacks();
         },
         onDone: "done",
         onError: "error",
@@ -124,7 +123,7 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).taskDefinition;
-          const parameters = await listShipulaParameters(
+          const parameters = await Info.listShipulaParameters(
             context.package.name,
             context.stackName
           );

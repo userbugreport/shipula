@@ -1,5 +1,5 @@
 import AWS, { CloudFormation } from "aws-sdk";
-import { getStackPath } from "../context";
+import { getStackPath } from "./index";
 import path from "path";
 
 /**

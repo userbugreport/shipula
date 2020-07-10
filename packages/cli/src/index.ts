@@ -8,7 +8,7 @@ import backup from "./backup";
 import logs from "./logs";
 import scale from "./scale";
 import dns from "./dns";
-import { ErrorMessage } from "./docs";
+import { ErrorMessage } from "@shipula/context";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const buildProgram = async () => {

@@ -1,9 +1,10 @@
 import { Command } from "commander";
-import docs, { errorMessage } from "./docs";
-import { CPU_Memory } from "./aws/info";
+import docs from "./docs";
+import { Info } from "@shipula/context";
 import { buildInfoProps } from "./context";
 import { EnvSet } from "./components/EnvSet";
 import { display } from "./components/application";
+import { ErrorMessage } from "@shipula/context";
 
 export default new Command()
   .command("scale <packageDirectory> [stackName]")
@@ -24,13 +25,16 @@ export default new Command()
   })
   .action(async (packageDirectory, stackName, command) => {
     if (isNaN(command.number) || command.number <= 0 || command.number > 32)
-      throw errorMessage("scale_number.md");
-    const validCPU = CPU_Memory.find((c) => c.display === command.cpu);
-    if (!validCPU) throw errorMessage("scale_cpu.md");
-    const validMemory = CPU_Memory.find((c) => c.display === command.cpu)
+      throw new ErrorMessage("Specify a number of copies between `1` and `32`");
+    const validCPU = Info.CPU_Memory.find((c) => c.display === command.cpu);
+    if (!validCPU)
+      throw new ErrorMessage("Specify a number of CPUs between `1` and `4`");
+    const validMemory = Info.CPU_Memory.find((c) => c.display === command.cpu)
       .memory;
     if (!validMemory[command.memory])
-      throw errorMessage("scale_memory.md", Object.keys(validMemory));
+      throw new ErrorMessage(
+        `Specify an amount of memory from ${Object.keys(validMemory)}`
+      );
     const props = await buildInfoProps(packageDirectory, stackName);
     props.setVariables = {
       SHIPULA_NUMBER: `${command.number}`,

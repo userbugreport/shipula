@@ -13,7 +13,8 @@ import * as cr from "@aws-cdk/custom-resources";
 import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
-import { getStackPath } from "../context";
+import AWS from "aws-sdk";
+import { getStackPath } from "@shipula/context";
 import path from "path";
 
 export class FargateEfs extends cdk.Stack {

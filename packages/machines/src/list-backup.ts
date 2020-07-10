@@ -1,5 +1,5 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps, getStackName } from "@shipula/context";
 import assert from "assert";
 import AWS from "aws-sdk";
 

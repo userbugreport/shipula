@@ -1,5 +1,5 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps } from "../context";
+import { ShipulaContextProps } from "@shipula/context";
 import AWS, { CloudWatchLogs } from "aws-sdk";
 import Randoma from "randoma";
 import chalk from "chalk";

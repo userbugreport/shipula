@@ -1,12 +1,13 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { ShipulaContext, displayStack } from "../context";
+import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import infoStack from "../machines/info-stack";
+import { infoStack } from "@shipula/machines";
 import yaml from "yaml";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
+import { displayStack } from "./Info";
 
 /**
  * No props needed, the app context is enough.

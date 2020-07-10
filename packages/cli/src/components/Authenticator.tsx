@@ -2,9 +2,14 @@ import React from "react";
 import { Text, Box, useFocus } from "ink";
 import { Machine, actions } from "xstate";
 import { useMachine } from "@xstate/react";
-import { ShipulaContext, ShipulaContextProps } from "../context";
+import { ShipulaContext } from "../context";
 import Spinner from "ink-spinner";
-import { AWSRegion, completeCredentials, Credentials } from "../configuration";
+import {
+  AWSRegion,
+  completeCredentials,
+  Credentials,
+  ShipulaContextProps,
+} from "@shipula/context";
 import fs from "fs-extra";
 import expandTide from "expand-tilde";
 import path from "path";

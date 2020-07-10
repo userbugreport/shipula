@@ -1,4 +1,4 @@
-import { ShipulaContextProps, getStackPath } from "../context";
+import { ShipulaContextProps, getStackPath } from "@shipula/context";
 import { Machine, actions } from "xstate";
 import deployStack from "./deploy-stack";
 import infoStack from "./info-stack";

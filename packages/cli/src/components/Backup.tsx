@@ -4,9 +4,7 @@ import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import takeBackup from "../machines/take-backup";
-import restoreBackup from "../machines/restore-backup";
-import listBackup from "../machines/list-backup";
+import { takeBackup, restoreBackup, listBackup } from "@shipula/machines";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
 import ProgressBar from "ink-progress-bar";
 
