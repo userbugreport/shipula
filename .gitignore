@@ -26,3 +26,4 @@ cdk.out
 cdk.context.json  
 
 packages/cli/lib
+packages/express-sample/Dockerfile
