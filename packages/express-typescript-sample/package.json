@@ -1,0 +1,17 @@
+{
+  "name": "@shipula/express-typescript-sample",
+  "version": "0.0.16",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "touch index.ts",
+    "prepublish": "tsc"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.7",
+    "typescript": "^3.9.6"
+  }
+}

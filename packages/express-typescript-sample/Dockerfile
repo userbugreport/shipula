@@ -12,7 +12,7 @@ COPY . .
 # RUN apk add --no-cache make gcc g++ python
 
 RUN yarn
-RUN if [ "${PREPUBLISH}" = "YES" ]; then yarn prepublish; fi
+RUN if [ "${PREPUBLISH}" = "YES"]; then yarn prepublish; fi
 
 # expect that the processes honor the port variable
 # this needs to match up with what we tell ECS

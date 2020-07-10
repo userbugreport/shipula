@@ -107,6 +107,9 @@ export default Machine<Context, Schema, Events>({
           process.env.PACKAGE_FROM = context.package.from;
           process.env.PACKAGE_NAME = context.package.name;
           process.env.STACK_NAME = context.stackName;
+          // do we have a prepublish?
+          if (context.package.scripts.prepublish)
+            process.env.PREPUBLISH = "YES";
           const hostName = parameters.find(
             (p) => path.basename(p.Name) === "SHIPULA_HOST_NAME"
           )?.Value;

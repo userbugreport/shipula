@@ -34,12 +34,20 @@ export class FargateEfs extends cdk.Stack {
       parameterName: string,
       defaultValue: string
     ) => {
-      return (
-        ssm.StringParameter.valueFromLookup(
+      // see if this is defined -- CDK throws an error that I cannot
+      // seem to try/catch when asking for parameters that don't exist
+      // I think it is related to the two-pass approach to synth and execution
+      const defined = parameters.find(
+        (p) => path.basename(p.Name) === parameterName
+      );
+      if (defined) {
+        return ssm.StringParameter.valueFromLookup(
           this,
           path.join("/", getStackPath(packageName, stackName), parameterName)
-        ) || defaultValue
-      );
+        );
+      } else {
+        return defaultValue;
+      }
     };
 
     const domainZone =
@@ -161,7 +169,11 @@ export class FargateEfs extends cdk.Stack {
       ])
     );
     const containerDef = new ecs.ContainerDefinition(this, "WebContainer", {
-      image: ecs.ContainerImage.fromAsset(packageFrom),
+      image: ecs.ContainerImage.fromAsset(packageFrom, {
+        buildArgs: {
+          PREPUBLISH: process.env.PREPUBLISH,
+        },
+      }),
       logging: logging,
       taskDefinition: taskDef,
       environment: {
