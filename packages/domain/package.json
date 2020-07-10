@@ -1,6 +1,6 @@
 {
   "name": "@shipula/domain",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
