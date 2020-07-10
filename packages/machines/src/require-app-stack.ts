@@ -4,9 +4,9 @@ import execa from "execa";
 import shell from "shelljs";
 import fs from "fs-extra";
 import path from "path";
-import appRoot from "app-root-path";
 import { parseDomain, ParseResultType } from "parse-domain";
 import AWS from "aws-sdk";
+import { CDK } from "./cdk";
 
 const dockerFrom = path.resolve(
   __dirname,
@@ -88,7 +88,6 @@ export default Machine<Context, Schema, Events>({
         src: async (context) => {
           // need an app path
           const CDKSynthesizer = require.resolve("@shipula/server");
-          const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
           const TAGS = [
             "--tags",
             `createdBy=shipula`,

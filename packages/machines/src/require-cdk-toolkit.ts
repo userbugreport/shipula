@@ -1,8 +1,7 @@
 import { Machine, actions } from "xstate";
 import AWS, { CloudFormation } from "aws-sdk";
 import { ShipulaContextProps, getStackName } from "@shipula/context";
-import path from "path";
-import appRoot from "app-root-path";
+import { CDK } from "./cdk";
 import execa from "execa";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,12 +75,6 @@ export default Machine<Context, Schema, Events>({
           await new Promise((resolve, reject) => {
             // need an app path
             const CDKSynthesizer = require.resolve("@shipula/server");
-            const CDK = path.resolve(
-              appRoot.path,
-              "node_modules",
-              ".bin",
-              "cdk"
-            );
 
             // env var to get the stack named before the CDK context is created
             process.env.STACK_NAME = getStackName(
