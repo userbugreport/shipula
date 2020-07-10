@@ -1,6 +1,6 @@
 {
   "name": "@shipula/certificate",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
