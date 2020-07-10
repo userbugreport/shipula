@@ -1,6 +1,6 @@
 {
   "name": "@shipula/express-typescript-sample",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1"
