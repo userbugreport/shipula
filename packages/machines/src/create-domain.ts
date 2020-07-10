@@ -1,5 +1,5 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps } from "../context";
+import { ShipulaContextProps } from "@shipula/context";
 import AWS from "aws-sdk";
 import path from "path";
 import appRoot from "app-root-path";

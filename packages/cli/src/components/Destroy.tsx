@@ -4,7 +4,7 @@ import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import destroyStack from "../machines/destroy-stack";
+import { destroyStack } from "@shipula/machines";
 import { Stacks } from "./Stacks";
 
 /**

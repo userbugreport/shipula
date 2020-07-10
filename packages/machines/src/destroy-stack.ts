@@ -1,7 +1,6 @@
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps, getStackName, Info } from "@shipula/context";
 import { Machine, actions } from "xstate";
 import AWS, { CloudFormation } from "aws-sdk";
-import { listShipulaStacks } from "../aws/info";
 import assert from "assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +47,7 @@ export default Machine<Context, Schema, Events>({
     listingStacks: {
       invoke: {
         src: async (context) => {
-          context.stacks = await listShipulaStacks();
+          context.stacks = await Info.listShipulaStacks();
         },
         onDone: "done",
         onError: "error",

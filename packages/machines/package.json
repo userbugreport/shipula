@@ -1,5 +1,5 @@
 {
-  "name": "@shipula/certificate",
+  "name": "@shipula/machines",
   "version": "0.0.12",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
@@ -9,11 +9,8 @@
     "build": "rm -rf ./build && tsc"
   },
   "dependencies": {
-    "@aws-cdk/aws-certificatemanager": "^1.50.0",
-    "@aws-cdk/aws-route53": "^1.50.0",
-    "@aws-cdk/core": "^1.50.0"
+    "@shipula/context": "",
+    "xstate": "^4.11.0"
   },
-  "devDependencies": {
-    "@types/node": "^14.0.20"
-  }
+  "devDependencies": {}
 }

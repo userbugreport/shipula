@@ -1,6 +1,7 @@
 {
   "name": "@shipula/docs",
   "version": "0.0.12",
+  "license": "MIT",
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",

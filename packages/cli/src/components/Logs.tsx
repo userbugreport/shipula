@@ -4,7 +4,7 @@ import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import showLogs from "../machines/show-logs";
+import { showLogs } from "@shipula/machines";
 
 /**
  * No props needed, the app context is enough.

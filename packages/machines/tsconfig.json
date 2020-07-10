@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./build",
     "module": "commonjs",
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types"],
+    "allowJs": true
   },
   "include": ["./src"],
   "exclude": ["./tests"]

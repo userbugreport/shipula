@@ -1,13 +1,40 @@
 import React from "react";
 import { Text, Box } from "ink";
-import { ShipulaContext, displayStack } from "../context";
+import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
-import infoStack from "../machines/info-stack";
+import { infoStack } from "@shipula/machines";
 import { Stacks } from "./Stacks";
 import yaml from "yaml";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
+import { Info as ShipulaInfo, ShipulaStack } from "@shipula/context";
+import path from "path";
+
+/**
+ * Cherry pick the parts we want to display.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const displayStack = (stack: ShipulaStack) => {
+  const webContainer = stack.webTaskDefinition?.containerDefinitions.find(
+    (c) => c.name === "WebContainer"
+  );
+  return {
+    web: {
+      url: stack.stack.Outputs.find((o) =>
+        o.OutputKey.startsWith("WebServiceServiceURL")
+      )?.OutputValue,
+      numberRunning: stack.webTasks.length,
+      cpu: ShipulaInfo.decodeCPU(stack.webTaskDefinition.cpu),
+      memory: Number.parseInt(stack.webTaskDefinition.memory),
+      port: webContainer.portMappings[0].containerPort,
+      sharedDirectory: path.join("/", stack.webTaskDefinition.volumes[0]?.name),
+      environment: Object.fromEntries(
+        stack.parameters.map((p) => [path.basename(p.Name), p.Value])
+      ),
+    },
+  };
+};
 
 /**
  * No props needed, the app context is enough.

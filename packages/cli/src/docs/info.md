@@ -1,11 +1,11 @@
+- App
 
-* App
-  * Name
-  * Location
+  - Name
+  - Location
 
-* Stacks
-  * node sizes
-  * urls
-  * hostnames 
-  * dns
-  * https status
+- Stacks
+  - node sizes
+  - urls
+  - hostnames
+  - dns
+  - https status

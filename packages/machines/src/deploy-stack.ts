@@ -1,6 +1,6 @@
 import requireCDKToolkit from "./require-cdk-toolkit";
 import requireAppStack from "./require-app-stack";
-import { ShipulaContextProps, getStackName } from "../context";
+import { ShipulaContextProps, getStackName } from "@shipula/context";
 import { Machine, actions } from "xstate";
 import assert from "assert";
 

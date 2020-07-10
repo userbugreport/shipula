@@ -8,20 +8,20 @@ First -- you need to have your own domain name from a domain name provider.
 Go get one of those now if you don't have one.
 
 ## DNS Domain Name
+
 Shipula will set up a DNS server for you, and this can be shared across many different services you run with shipula.
 
 `shipula dns domain yourdomain.com`
 
-This will set up a domain name server -- the *end part*, which is the name you purchased.
+This will set up a domain name server -- the _end part_, which is the name you purchased.
 
-Shipula will tell you the the records you need to paste into your domain name provider to transfer the domain naming service. 
+Shipula will tell you the the records you need to paste into your domain name provider to transfer the domain naming service.
 Paste this into your domain name provider.
 
-Shipula will then verify the domain is resolving properly and issue a *certificate* to use [HTTPS], and validate this.
+Shipula will then verify the domain is resolving properly and issue a _certificate_ to use [HTTPS], and validate this.
 
 ## Hostnames
 
 With a Domain Name all set up, you can now assign host names to your shipula stacks like this:
 
 `shipula dns name server.yourdomain.com <packageDirectory> [stackName]`
-

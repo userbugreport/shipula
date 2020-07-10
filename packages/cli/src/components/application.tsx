@@ -1,7 +1,8 @@
 import React from "react";
 import { render } from "ink";
-import { ShipulaContext, ShipulaContextProps } from "../context";
+import { ShipulaContext } from "../context";
 import { Authenticator } from "./authenticator";
+import { ShipulaContextProps } from "@shipula/context";
 
 type Props = {
   initialValues: ShipulaContextProps;

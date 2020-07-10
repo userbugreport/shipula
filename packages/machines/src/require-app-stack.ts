@@ -1,19 +1,17 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps } from "../context";
+import { Info, ShipulaContextProps, ErrorMessage } from "@shipula/context";
 import execa from "execa";
 import shell from "shelljs";
-import docs from "../docs";
 import fs from "fs-extra";
 import path from "path";
 import appRoot from "app-root-path";
-import { listShipulaParameters, listShipulaCertificates } from "../aws/info";
 import { parseDomain, ParseResultType } from "parse-domain";
 import AWS from "aws-sdk";
 
 const dockerFrom = path.resolve(
   __dirname,
   "..",
-  "aws",
+  "dockerfiles",
   "node-image",
   "Dockerfile"
 );
@@ -27,12 +25,13 @@ interface Schema {
     checkingForDockerfile: NoSubState;
     creatingDockerfile: NoSubState;
     creating: NoSubState;
-    cleaningUp: NoSubState;
     ready: NoSubState;
   };
 }
 
-type Context = ShipulaContextProps;
+type Context = ShipulaContextProps & {
+  cleanUpFiles?: string[];
+};
 
 type Events = never;
 
@@ -47,7 +46,9 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async () => {
           if (!shell.which("Docker")) {
-            throw new Error(docs("docker.md"));
+            throw new ErrorMessage(
+              "You need [Docker](https://docs.docker.com/get-docker/) installed."
+            );
           }
         },
         onDone: "checkingForDockerfile",
@@ -63,7 +64,7 @@ export default Machine<Context, Schema, Events>({
             path.join(context.package.from, "Dockerfile")
           );
           if (exists) return true;
-          else throw new Error("Missing Dockerfile");
+          else throw new ErrorMessage("Missing Dockerfile");
         },
         onDone: "creating",
         onError: "creatingDockerfile",
@@ -73,7 +74,8 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           const dockerTo = path.resolve(context.package.from, "Dockerfile");
-          fs.copyFile(dockerFrom, dockerTo);
+          context.cleanUpFiles = [dockerTo];
+          return fs.copyFile(dockerFrom, dockerTo);
         },
         onDone: "creating",
         onError: {
@@ -85,14 +87,8 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           // need an app path
-          const CDKSynthesizer = path.resolve(__dirname, "..", "aws", "index");
+          const CDKSynthesizer = require.resolve("@shipula/server");
           const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
-          const TSNODE = path.resolve(
-            appRoot.path,
-            "node_modules",
-            ".bin",
-            "ts-node"
-          );
           const TAGS = [
             "--tags",
             `createdBy=shipula`,
@@ -104,7 +100,7 @@ export default Machine<Context, Schema, Events>({
             `stackName=${context.stackName}`,
           ];
           const CONTEXT = [];
-          const parameters = await listShipulaParameters(
+          const parameters = await Info.listShipulaParameters(
             context.package.name,
             context.stackName
           );
@@ -134,7 +130,7 @@ export default Machine<Context, Schema, Events>({
               process.env.ZONE_ID = path.basename(zone.HostedZones[0].Id);
               process.env.ZONE_NAME = process.env.DOMAIN_NAME;
               // and we'll need a certificate
-              const certificate = (await listShipulaCertificates()).find(
+              const certificate = (await Info.listShipulaCertificates()).find(
                 (c) => c.DomainName === `*.${process.env.DOMAIN_NAME}`
               );
               process.env.CERTIFICATE_ARN = certificate.CertificateArn;
@@ -150,7 +146,7 @@ export default Machine<Context, Schema, Events>({
               "--require-approval",
               "never",
               "--app",
-              `${TSNODE} ${CDKSynthesizer}`,
+              CDKSynthesizer,
               ...TAGS,
               ...CONTEXT,
             ],
@@ -158,23 +154,16 @@ export default Machine<Context, Schema, Events>({
               stdio: "inherit",
             }
           );
-          if (child.exitCode) throw Error();
-        },
-        onDone: "cleaningUp",
-        onError: {
-          actions: actions.escalate((_context, event) => event.data),
-        },
-      },
-    },
-    cleaningUp: {
-      invoke: {
-        src: async (context) => {
-          // if the Docker file is -- our template we put there -- delete it
-          if (context.cleanUpFiles?.length) {
-            return Promise.all(
-              context.cleanUpFiles.map((fileName) => fs.remove(fileName))
-            );
+          if (child.exitCode) {
+            throw new ErrorMessage(`Exit ${child.exitCode}`);
           }
+          // if the Docker file is -- our template we put there -- delete it
+          return Promise.all(
+            context.cleanUpFiles?.map((fileName) => {
+              console.log(`Cleaning up ${fileName}`);
+              return fs.remove(fileName);
+            }) || []
+          );
         },
         onDone: "ready",
         onError: {

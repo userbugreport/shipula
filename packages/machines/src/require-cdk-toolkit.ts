@@ -1,7 +1,6 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps } from "../context";
 import AWS, { CloudFormation } from "aws-sdk";
-import { getStackName } from "../context";
+import { ShipulaContextProps, getStackName } from "@shipula/context";
 import path from "path";
 import appRoot from "app-root-path";
 import execa from "execa";
@@ -76,24 +75,14 @@ export default Machine<Context, Schema, Events>({
         src: async (context) => {
           await new Promise((resolve, reject) => {
             // need an app path
-            const CDKSynthesizer = path.resolve(
-              __dirname,
-              "..",
-              "aws",
-              "index"
-            );
+            const CDKSynthesizer = require.resolve("@shipula/server");
             const CDK = path.resolve(
               appRoot.path,
               "node_modules",
               ".bin",
               "cdk"
             );
-            const TSNODE = path.resolve(
-              appRoot.path,
-              "node_modules",
-              ".bin",
-              "ts-node"
-            );
+
             // env var to get the stack named before the CDK context is created
             process.env.STACK_NAME = getStackName(
               context.package.name,
@@ -109,7 +98,7 @@ export default Machine<Context, Schema, Events>({
             ];
             const child = execa.sync(
               CDK,
-              ["bootstrap", "--app", `${TSNODE} ${CDKSynthesizer}`, ...CONTEXT],
+              ["bootstrap", "--app", CDKSynthesizer, ...CONTEXT],
               { stdio: "inherit" }
             );
             if (child.exitCode) reject(child.exitCode);

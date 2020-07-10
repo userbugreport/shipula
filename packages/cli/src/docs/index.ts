@@ -20,17 +20,4 @@ export const message = (fileName: string): string => {
   return marked(content);
 };
 
-export const errorMessage = (fileName: string, extra?: string[]): Error => {
-  if (extra)
-    return new ErrorMessage(
-      message(fileName) + " " + marked(extra.map((e) => `**${e}**`).join(", "))
-    );
-  else return new ErrorMessage(message(fileName));
-};
-
-/**
- * Our own error message type.
- */
-export class ErrorMessage extends Error {}
-
 export default message;
