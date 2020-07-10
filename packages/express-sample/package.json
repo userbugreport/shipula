@@ -1,6 +1,5 @@
 {
   "name": "@shipula/express-sample",
-  "private": "true",
   "version": "0.0.14",
   "main": "index.js",
   "license": "MIT",
