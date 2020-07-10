@@ -58,7 +58,9 @@ function Home() {
       <header className={clsx("hero hero--dark", styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <p className="hero__subtitle">
+            Make <i>works on cloud</i> as easy as <b>works on my machine</b>!
+          </p>
           <div className={styles.buttons}>
             <Link
               className={clsx(

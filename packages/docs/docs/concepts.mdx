@@ -10,11 +10,23 @@ One of the big shocks you get when you go to the cloud is -- having multiple cop
 
 Dealing with this is the **big leap** from working locally.
 
+### Load Balancing
+
+Shipula will spread traffic across the multiple copies of you app. You can `scale` at any time, just by telling shipula to add CPU, memory, or more copies.
+
+### HTTPS
+
+Setting up DNS and HTTPS can be -- hard. Shipula makes this as easy as getting a domain name from a provider and typing two commands. [Learn about it](./reference/https).
+
 ### Files
 
 Locally -- you can just write to your disk, files, yaml, json, sqlite -- all just works. On the cloud, by default your find that while you might have a local disk, it's isn't **a** local disk, it's a disk per server/virtual machine/container.
 
-Shipula deals with this by setting up a shared file system that you can always reach at `/var/data`. Store files, have fun.
+Shipula deals with this by setting up a shared file system that you can always reach at `/cluster_shared`. Store files, have fun.
+
+### Backups
+
+Shipula takes a daily back of your shared file system, and you can take a back -- or restore -- on demand any time you like.
 
 ### Logs
 
@@ -22,7 +34,8 @@ Multiple running copies means multiple logs streaming from multiple machines. Lo
 
 In most hosted cloud setups, pretty complex log search engines are the norm. They are kinda cool -- but they don't have the immediacy of seeing the log go by and `grep`.
 
-Shipula deals with this by setting up cloud hosted log search _and_ real time log streaming. The real time logs are the combined logs of each of the runninig copies of you app.
+Shipula deals with this by setting up cloud hosted log search _and_ real time log streaming. 
+The real time logs are the combined logs of each of the running copies of you app.
 
 ## Apps and Stacks
 
