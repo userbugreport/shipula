@@ -11,6 +11,6 @@ module.exports = {
       "commands/logs",
       "commands/scale",
     ],
-    Reference: ["reference/https", "reference/package.json"],
+    Reference: ["reference/https"],
   },
 };
