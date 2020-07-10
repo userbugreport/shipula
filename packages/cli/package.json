@@ -15,7 +15,7 @@
   "scripts": {
     "test": "jest",
     "shipula-cli-test": "ts-node ./src/index.ts",
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf ./build && tsc && cp ./src/docs/*.md ./build/src/docs/"
   },
   "bugs": {
     "url": "https://github.com/userbugreport/shipula/issues"
