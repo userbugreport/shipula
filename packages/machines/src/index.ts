@@ -1,6 +1,6 @@
 import createDomain from "./create-domain";
 import deployStack from "./deploy-stack";
-import destroyStack from "./deploy-stack";
+import destroyStack from "./destroy-stack";
 import infoStack from "./info-stack";
 import showLogs from "./show-logs";
 import listBackup from "./list-backup";
