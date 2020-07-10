@@ -25,6 +25,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --use-workspaces",
     "build": "yarn workspaces run build",
+    "prepublish": "yarn build",
     "pretty": "prettier --write packages tests",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "yarn workspaces run test",
