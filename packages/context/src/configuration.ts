@@ -2,7 +2,12 @@ import fs from "fs-extra";
 import expandTide from "expand-tilde";
 import path from "path";
 
-export const AllAWSRegions = ["us-east-1", "us-west-1"] as const;
+export const AllAWSRegions = [
+  "us-east-1",
+  "us-east-2",
+  "us-west-1",
+  "us-west-2",
+] as const;
 export type AWSRegion = typeof AllAWSRegions[number];
 /**
  * Information to connect to AWS. Region is in there since
@@ -34,7 +39,7 @@ export const getCredentials = async (): Promise<Credentials> => {
     AWS_ACCESS_KEY_ID: undefined,
     AWS_SECRET_ACCESS_KEY: undefined,
     // default region
-    AWS_REGION: "us-east-1",
+    AWS_REGION: "us-west-2",
   };
   try {
     // defaults from user home dotfile

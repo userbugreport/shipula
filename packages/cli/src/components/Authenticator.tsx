@@ -159,7 +159,7 @@ export const Authenticator: React.FunctionComponent<Props> = ({
         context.verifiedCredentials = {
           AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
           AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-          AWS_REGION: (process.env.AWS_REGION as AWSRegion) || "us-east-1",
+          AWS_REGION: (process.env.AWS_REGION as AWSRegion) || "us-west-2",
         };
         if (completeCredentials(context.verifiedCredentials)) return;
         else throw new Error();
@@ -232,13 +232,20 @@ export const Authenticator: React.FunctionComponent<Props> = ({
     const { isFocused } = useFocus({
       autoFocus: props.autoFocus,
     });
+    const value = () => {
+      if (props.mask && props.value) {
+        return props.value.replace(/./g, props.mask);
+      } else {
+        return props.value;
+      }
+    };
     return (
       <Box flexDirection="row">
         <Text>{props.name}: </Text>
         {isFocused ? (
           <InkTextInput {...props} showCursor />
         ) : (
-          <Text>{props.value}</Text>
+          <Text>{value()}</Text>
         )}
       </Box>
     );
@@ -259,6 +266,7 @@ export const Authenticator: React.FunctionComponent<Props> = ({
           <Field name="AWS_ACCESS_KEY_ID" key="AWS_ACCESS_KEY_ID">
             {({ input }) => (
               <FocusableInkTextInput
+                mask="*"
                 {...input}
                 autoFocus
                 onSubmit={() => handleSubmit()}
@@ -268,6 +276,7 @@ export const Authenticator: React.FunctionComponent<Props> = ({
           <Field name="AWS_SECRET_ACCESS_KEY" key="AWS_SECRET_ACCESS_KEY">
             {({ input }) => (
               <FocusableInkTextInput
+                mask="*"
                 {...input}
                 onSubmit={() => handleSubmit()}
               />
