@@ -263,6 +263,10 @@ export const Authenticator: React.FunctionComponent<Props> = ({
     >
       {({ handleSubmit }) => (
         <Box flexDirection="column">
+          <Text>Learn how to get your AWS credentials:</Text>
+          <Text bold>
+            https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-your-credentials.htm
+          </Text>
           <Field name="AWS_ACCESS_KEY_ID" key="AWS_ACCESS_KEY_ID">
             {({ input }) => (
               <FocusableInkTextInput

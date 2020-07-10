@@ -2,8 +2,8 @@ import { Machine, actions } from "xstate";
 import { ShipulaContextProps } from "@shipula/context";
 import AWS from "aws-sdk";
 import path from "path";
-import appRoot from "app-root-path";
 import execa from "execa";
+import { CDK } from "./cdk";
 
 const PollInterval = 5000;
 
@@ -54,7 +54,6 @@ type Context = ShipulaContextProps & {
 type Events = { data?: Error } & { type: "*" };
 
 const deployCDK = async (context: Context, runPath: string): Promise<void> => {
-  const CDK = path.resolve(appRoot.path, "node_modules", ".bin", "cdk");
   const CONTEXT = [];
   // env var to get the stack named before the CDK context is created
   process.env.DOMAIN_NAME = context.domainName;
