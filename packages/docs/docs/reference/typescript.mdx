@@ -1,0 +1,27 @@
+---
+title: TypeScript
+---
+
+Working with TypeScript, you should know about [ts-node](https://www.npmjs.com/package/ts-node).
+
+This can be used in your `package.json` start script like:
+
+```
+...
+"scripts": {
+  "start": "ts-node index.ts"
+}
+...
+```
+
+So that you won't need to build in advance.
+
+However, if you _do_ need to build in advance, shipula honors the npm standard `prepublish` script and will runit for you.
+
+```
+"scripts": {
+  "prepublish": "tsc"
+}
+```
+
+You can of course have your prepublish call another build script if you aren't using `tsc`.

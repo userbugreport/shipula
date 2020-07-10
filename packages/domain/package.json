@@ -3,6 +3,7 @@
   "version": "0.0.16",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
+  "license": "MIT",
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./build && tsc"

@@ -28,6 +28,7 @@ export type Package = {
    */
   scripts?: {
     start?: string;
+    prepublish?: string;
   };
 };
 
