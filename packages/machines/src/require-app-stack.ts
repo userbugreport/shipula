@@ -4,8 +4,6 @@ import execa from "execa";
 import shell from "shelljs";
 import fs from "fs-extra";
 import path from "path";
-import { parseDomain, ParseResultType } from "parse-domain";
-import AWS from "aws-sdk";
 import { CDK } from "./cdk";
 
 const dockerFrom = path.resolve(
@@ -136,28 +134,7 @@ export default Machine<Context, Schema, Events>({
           )?.Value;
           if (hostName) {
             process.env.HOST_NAME = hostName;
-            const parsed = parseDomain(process.env.HOST_NAME);
-            if (parsed.type === ParseResultType.Listed) {
-              const { domain, topLevelDomains } = parsed;
-              process.env.DOMAIN_NAME = `${domain}.${topLevelDomains.join(
-                "."
-              )}`;
-              // oh AWS -- zone lookup yet again...
-              const route53 = new AWS.Route53();
-              const zone = await route53
-                .listHostedZonesByName({
-                  DNSName: process.env.DOMAIN_NAME,
-                })
-                .promise();
-              // really AWS -- /hostedzone/ ?
-              process.env.ZONE_ID = path.basename(zone.HostedZones[0].Id);
-              process.env.ZONE_NAME = process.env.DOMAIN_NAME;
-              // and we'll need a certificate
-              const certificate = (await Info.listShipulaCertificates()).find(
-                (c) => c.DomainName === `*.${process.env.DOMAIN_NAME}`
-              );
-              process.env.CERTIFICATE_ARN = certificate.CertificateArn;
-            }
+            process.env.DOMAIN_NAME = Info.domainName(hostName);
           }
           //
           // synchronous run -- with inherited stdio, this should re-use the

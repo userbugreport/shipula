@@ -12,7 +12,8 @@
     "aws-sdk": "^2.706.0",
     "fs-extra": "^9.0.1",
     "marked": "^1.1.0",
-    "marked-terminal": "^4.1.0"
+    "marked-terminal": "^4.1.0",
+    "parse-domain": "^3.0.2"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",

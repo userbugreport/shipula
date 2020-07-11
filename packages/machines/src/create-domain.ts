@@ -4,8 +4,9 @@ import AWS from "aws-sdk";
 import path from "path";
 import execa from "execa";
 import { CDK } from "./cdk";
+import dns from "dns";
 
-const PollInterval = 5000;
+const PollInterval = 1000;
 
 const messages = [
   "Enter these name servers into your domain name provider.",
@@ -18,10 +19,10 @@ type NoSubState = any;
 
 interface Schema {
   states: {
+    checkingParameters: NoSubState;
     creatingDomain: NoSubState;
     displaying: NoSubState;
     checking: NoSubState;
-    creatingCertificate: NoSubState;
     working: NoSubState;
     error: NoSubState;
     done: NoSubState;
@@ -34,18 +35,13 @@ type Context = ShipulaContextProps & {
    */
   messages?: string[];
   /**
-   * Once a domain is created, these are the name servers
-   * that need to be place in your provider.
-   */
-  nameServers?: string[];
-  /**
    * Ohh, AWS -- two names for everything.
    */
   zoneId?: string;
   /**
    * Test DNS.
    */
-  testDNS?: AWS.Route53.TestDNSAnswerResponse;
+  testDNS?: string[];
 };
 
 /**
@@ -71,8 +67,21 @@ const deployCDK = async (context: Context, runPath: string): Promise<void> => {
  * CDK needs a toolkit stack.
  */
 export default Machine<Context, Schema, Events>({
-  initial: "creatingDomain",
+  id: "create-domain",
+  initial: "checkingParameters",
   states: {
+    checkingParameters: {
+      always: [
+        {
+          cond: (context) => context?.domainName?.length > 0,
+          target: "creatingDomain",
+        },
+        {
+          cond: (context) => (context?.domainName || "").length === 0,
+          target: "done",
+        },
+      ],
+    },
     creatingDomain: {
       invoke: {
         src: async (context) => {
@@ -100,8 +109,10 @@ export default Machine<Context, Schema, Events>({
               Id: context.zoneId,
             })
             .promise();
-          context.nameServers = hostedZone.DelegationSet.NameServers;
-          context.messages = messages;
+          context.messages = [
+            ...messages,
+            ...hostedZone.DelegationSet.NameServers,
+          ];
         },
         onDone: "checking",
         onError: "error",
@@ -110,44 +121,43 @@ export default Machine<Context, Schema, Events>({
     checking: {
       always: [
         {
-          cond: (context) => context.testDNS?.ResponseCode === "NOERROR",
-          target: "creatingCertificate",
+          cond: (context) => {
+            const properAnswer = context.testDNS?.find((r) =>
+              r.toLowerCase().includes("shipula")
+            );
+            if (properAnswer) {
+              context.messages = [...context.messages, " ✅ Domain verified."];
+              return true;
+            } else {
+              return false;
+            }
+          },
+          target: "done",
         },
       ],
       invoke: {
         src: async (context) => {
-          const route53 = new AWS.Route53();
-          const answer = await route53
-            .testDNSAnswer({
-              HostedZoneId: context.zoneId,
-              RecordName: "starphleet.com",
-              RecordType: "TXT",
-            })
-            .promise();
+          const answer = await new Promise<string[]>((resolve, reject) => {
+            dns.resolveTxt(context.domainName, (err, records) => {
+              if (err) reject(err);
+              else resolve(records.flat());
+            });
+          });
           context.testDNS = answer;
         },
         onDone: "working",
-        onError: "error",
-      },
-    },
-    creatingCertificate: {
-      invoke: {
-        src: async (context) => {
-          // need an app path
-          const CDKSynthesizer = require.resolve("@shipula/certificate");
-          await deployCDK(context, CDKSynthesizer);
-        },
-        onDone: "done",
-        onError: "error",
+        onError: "working",
       },
     },
     working: {
+      entry: actions.assign({
+        lastError: (_context, event) => event?.data,
+      }),
       after: {
         [PollInterval]: "checking",
       },
     },
     error: {
-      type: "final",
       entry: actions.assign({
         lastError: (_context, event) => event?.data,
       }),

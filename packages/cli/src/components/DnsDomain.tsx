@@ -28,11 +28,9 @@ export const DnsDomain: React.FunctionComponent<Props> = () => {
           <Spinner type="dots" /> {state.value}
         </Text>
       )}
-      {state.context.nameServers && (
+      {state.context.messages && (
         <>
-          <Static
-            items={[...state.context.messages, ...state.context.nameServers]}
-          >
+          <Static items={state.context.messages}>
             {(name) => (
               <Text key={name} bold={name.startsWith("ns")}>
                 {name}

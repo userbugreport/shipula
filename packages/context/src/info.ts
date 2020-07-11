@@ -1,6 +1,20 @@
 import AWS, { CloudFormation } from "aws-sdk";
 import { getStackPath } from "./index";
 import path from "path";
+import { parseDomain, ParseResultType } from "parse-domain";
+
+/**
+ * Parse the domain name from a host name.
+ */
+export const domainName = (hostName: string): string => {
+  const parsed = parseDomain(hostName);
+  if (parsed.type === ParseResultType.Listed) {
+    const { domain, topLevelDomains } = parsed;
+    return `${domain}.${topLevelDomains.join(".")}`;
+  } else {
+    return undefined;
+  }
+};
 
 /**
  * List all Shipula stacks. This grabs all stacks
