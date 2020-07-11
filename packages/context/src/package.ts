@@ -27,6 +27,7 @@ export type Package = {
    * Need a start script to exist.
    */
   scripts?: {
+    build?: string;
     start?: string;
     prepublish?: string;
   };

@@ -1,6 +1,6 @@
 import requireCDKToolkit from "./require-cdk-toolkit";
-import requireAppStack from "./require-app-stack";
-import { ShipulaContextProps, getStackName } from "@shipula/context";
+import requireAppStack, { Context } from "./require-app-stack";
+import { getStackName } from "@shipula/context";
 import { Machine, actions } from "xstate";
 import assert from "assert";
 
@@ -14,7 +14,8 @@ interface Schema {
   states: {
     checkingSettings: NoSubState;
     checkingCDKToolkit: NoSubState;
-    checkingAppStack: NoSubState;
+    checkingPackage: NoSubState;
+    deploying: NoSubState;
     deployed: NoSubState;
     error: NoSubState;
   };
@@ -28,13 +29,8 @@ type Events = {
   data: Error;
 };
 
-/**
- * Little bit of context -- error tracking is nice.
- */
-type Context = ShipulaContextProps;
-
 export default Machine<Context, Schema, Events>({
-  initial: "checkingCDKToolkit",
+  initial: "checkingSettings",
   states: {
     checkingSettings: {
       invoke: {
@@ -49,11 +45,26 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: requireCDKToolkit,
         data: (context) => context,
-        onDone: "checkingAppStack",
+        onDone: "checkingPackage",
         onError: "error",
       },
     },
-    checkingAppStack: {
+    checkingPackage: {
+      invoke: {
+        src: async (context) => {
+          if (
+            context?.package?.scripts?.build?.startsWith("docusaurus build")
+          ) {
+            context.deployStyle = "@shipula/static";
+          } else {
+            context.deployStyle = "@shipula/server";
+          }
+        },
+        onDone: "deploying",
+        onError: "error",
+      },
+    },
+    deploying: {
       invoke: {
         src: requireAppStack,
         data: (context) => context,

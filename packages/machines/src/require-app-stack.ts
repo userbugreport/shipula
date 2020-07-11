@@ -25,12 +25,14 @@ interface Schema {
     checkingForDockerfile: NoSubState;
     creatingDockerfile: NoSubState;
     creating: NoSubState;
+    maybeBuilding: NoSubState;
     ready: NoSubState;
   };
 }
 
-type Context = ShipulaContextProps & {
+export type Context = ShipulaContextProps & {
   cleanUpFiles?: string[];
+  deployStyle: "@shipula/static" | "@shipula/server";
 };
 
 type Events = never;
@@ -66,7 +68,7 @@ export default Machine<Context, Schema, Events>({
           if (exists) return true;
           else throw new ErrorMessage("Missing Dockerfile");
         },
-        onDone: "creating",
+        onDone: "maybeBuilding",
         onError: "creatingDockerfile",
       },
     },
@@ -77,6 +79,25 @@ export default Machine<Context, Schema, Events>({
           context.cleanUpFiles = [dockerTo];
           return fs.copyFile(dockerFrom, dockerTo);
         },
+        onDone: "maybeBuilding",
+        onError: {
+          actions: actions.escalate((_context, event) => event.data),
+        },
+      },
+    },
+    maybeBuilding: {
+      invoke: {
+        src: async (context) => {
+          if (context.deployStyle === "@shipula/static") {
+            const child = execa.sync("yarn", ["build"], {
+              stdio: "inherit",
+              cwd: context.package.from,
+            });
+            if (child.exitCode) {
+              throw new ErrorMessage(`Exit ${child.exitCode}`);
+            }
+          }
+        },
         onDone: "creating",
         onError: {
           actions: actions.escalate((_context, event) => event.data),
@@ -86,8 +107,8 @@ export default Machine<Context, Schema, Events>({
     creating: {
       invoke: {
         src: async (context) => {
-          // need an app path
-          const CDKSynthesizer = require.resolve("@shipula/server");
+          // depending on the depoyment styles...
+          const CDKSynthesizer = require.resolve(context.deployStyle);
           const TAGS = [
             "--tags",
             `createdBy=shipula`,
