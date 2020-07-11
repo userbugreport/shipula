@@ -21,11 +21,11 @@
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
-    "@shipula/context": "",
-    "@shipula/domain": "",
-    "@shipula/machines": "",
-    "@shipula/server": "",
-    "@shipula/static": "",
+    "@shipula/context": "latest",
+    "@shipula/domain": "latest",
+    "@shipula/machines": "latest",
+    "@shipula/server": "latest",
+    "@shipula/static": "latest",
     "@xstate/react": "^0.8.1",
     "app-root-path": "^3.0.0",
     "aws-cdk": "^1.50.0",
