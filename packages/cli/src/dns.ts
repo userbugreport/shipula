@@ -4,6 +4,7 @@ import { buildEnvProps } from "./context";
 import { DnsDomain } from "./components/DnsDomain";
 import { display } from "./components/application";
 import { EnvSet } from "./components/EnvSet";
+import { Info } from "@shipula/context";
 
 const domainCommand = new Command()
   .command("domain <domainName>")
@@ -18,6 +19,8 @@ const nameCommand = new Command()
     async (hostName: string, packageDirectory: string, stackName: string) => {
       const props = await buildEnvProps(packageDirectory, stackName);
       props.setVariables = { SHIPULA_HOST_NAME: hostName };
+      props.domainName = Info.domainName(hostName);
+      // and then attach the host name
       display(props, EnvSet);
       return;
     }

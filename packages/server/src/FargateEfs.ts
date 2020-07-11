@@ -28,6 +28,8 @@ export class FargateEfs extends cdk.Stack {
     props?: cdk.StackProps
   ) {
     super(scope, id, props);
+    const hostName = process.env.HOST_NAME;
+    const domainName = process.env.DOMAIN_NAME;
 
     // used to read parameters
     const parameterOrDefault = (
@@ -50,23 +52,20 @@ export class FargateEfs extends cdk.Stack {
       }
     };
 
-    const domainZone =
-      process.env.ZONE_ID && process.env.ZONE_NAME
-        ? route53.PublicHostedZone.fromHostedZoneAttributes(this, "zone", {
-            hostedZoneId: process.env.ZONE_ID,
-            zoneName: process.env.ZONE_NAME,
+    // DNS anyone ?
+    const domainZone = domainName
+      ? route53.HostedZone.fromLookup(this, "Zone", {
+          domainName: domainName,
+        })
+      : undefined;
+    // remember that -- AWS uses domain name to mean host name
+    const certificate =
+      domainZone && hostName
+        ? new acm.DnsValidatedCertificate(this, "SiteCertificate", {
+            domainName: hostName,
+            hostedZone: domainZone,
           })
         : undefined;
-    const certificate = process.env.CERTIFICATE_ARN
-      ? acm.Certificate.fromCertificateArn(
-          this,
-          "certificate",
-          process.env.CERTIFICATE_ARN
-        )
-      : undefined;
-    // on purpose -- they call 'host name' 'domain name' in this api
-    // and the 'domain' is a 'zone' -- Amazon specific language
-    const domainName = process.env.HOST_NAME || undefined;
 
     const vpc = new ec2.Vpc(this, "vpc", { maxAzs: 2 });
     const ecsCluster = new ecs.Cluster(this, "WebCluster", {
@@ -189,7 +188,7 @@ export class FargateEfs extends cdk.Stack {
 
     // if all the stars are aligned -- then we get https
     const protocol =
-      domainZone && certificate && domainName
+      domainZone && certificate && hostName
         ? alb.ApplicationProtocol.HTTPS
         : alb.ApplicationProtocol.HTTP;
 
@@ -204,7 +203,8 @@ export class FargateEfs extends cdk.Stack {
         platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
         domainZone,
         certificate,
-        domainName,
+        // AWS -- calls host domain name...
+        domainName: hostName,
         protocol,
       }
     );

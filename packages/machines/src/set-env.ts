@@ -34,7 +34,9 @@ type Events = {
 /**
  * Little bit of context -- error tracking is nice.
  */
-type Context = ShipulaContextProps;
+type Context = ShipulaContextProps & {
+  messages?: string[];
+};
 
 /**
  * Setting an environment variable in systems manager.
@@ -100,17 +102,16 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           const ecs = new AWS.ECS();
-          const waitfor = context.selectedStack.webServices.map(
-            async (service) => {
-              return ecs
-                .updateService({
-                  cluster: context.selectedStack.webCluster.clusterArn,
-                  service: service.serviceArn,
-                  forceNewDeployment: true,
-                })
-                .promise();
-            }
-          );
+          const webServices = context.selectedStack.webServices || [];
+          const waitfor = webServices.map(async (service) => {
+            return ecs
+              .updateService({
+                cluster: context.selectedStack.webCluster.clusterArn,
+                service: service.serviceArn,
+                forceNewDeployment: true,
+              })
+              .promise();
+          });
           await Promise.all(waitfor);
           // and let them get stable so we can see our variable...
           await ecs
