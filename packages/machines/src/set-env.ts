@@ -102,7 +102,7 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           const ecs = new AWS.ECS();
-          const webServices = context.selectedStack.webServices || [];
+          const webServices = context?.selectedStack.webServices || [];
           const waitfor = webServices.map(async (service) => {
             return ecs
               .updateService({
