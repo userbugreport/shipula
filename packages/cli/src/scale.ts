@@ -42,6 +42,6 @@ export default new Command()
       SHIPULA_MEMORY: `${validMemory[command.memory]}`,
     };
     // scale is just another env set
-    display(props, EnvSet);
+    await display(props, EnvSet);
     return;
   });

@@ -13,7 +13,7 @@ const take = new Command()
     const props = packageDirectory
       ? await buildInfoProps(packageDirectory, stackName)
       : {};
-    display(props, TakeBackup);
+    await display(props, TakeBackup);
     return;
   });
 
@@ -31,9 +31,9 @@ const restore = new Command()
       : {};
     if (backupFrom) {
       props.backupFrom = backupFrom;
-      display(props, RestoreBackup);
+      await display(props, RestoreBackup);
     } else {
-      display(props, ListBackups);
+      await display(props, ListBackups);
     }
     return;
   });

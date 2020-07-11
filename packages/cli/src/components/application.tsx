@@ -30,14 +30,15 @@ const Application: React.FunctionComponent<Props> = ({
  * Main render entry point - this 'starts' the application and is fed arguments
  * and data from the command line through context.
  */
-export const display = (
+export const display = async (
   initialValues: ShipulaContextProps,
   Display: React.FunctionComponent
-): void => {
+): Promise<void> => {
   // start Ink rendering
-  render(
+  const instance = render(
     <Application initialValues={initialValues}>
       <Display />
     </Application>
   );
+  await instance.waitUntilExit();
 };

@@ -11,6 +11,6 @@ export default new Command()
     console.log(docs("deploy.md"));
   })
   .action(async (packageDirectory: string, stackName: string) => {
-    display(await buildDeployProps(packageDirectory, stackName), Deploy);
+    await display(await buildDeployProps(packageDirectory, stackName), Deploy);
     return;
   });

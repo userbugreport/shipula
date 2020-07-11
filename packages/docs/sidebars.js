@@ -11,6 +11,11 @@ module.exports = {
       "commands/logs",
       "commands/scale",
     ],
-    Reference: ["reference/https"],
+    Cookbook: [
+      "cookbook/docusaurus",
+      "cookbook/express",
+      "cookbook/express-typescript",
+      "cookbook/https",
+    ],
   },
 };
