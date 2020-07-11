@@ -102,7 +102,7 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           const ecs = new AWS.ECS();
-          const webServices = context?.selectedStack.webServices || [];
+          const webServices = context?.selectedStack?.webServices || [];
           const waitfor = webServices.map(async (service) => {
             return ecs
               .updateService({
@@ -114,14 +114,14 @@ export default Machine<Context, Schema, Events>({
           });
           await Promise.all(waitfor);
           // and let them get stable so we can see our variable...
-          await ecs
-            .waitFor("servicesStable", {
-              cluster: context.selectedStack.webCluster.clusterArn,
-              services: context.selectedStack.webServices.map(
-                (w) => w.serviceArn
-              ),
-            })
-            .promise();
+          if (webServices) {
+            await ecs
+              .waitFor("servicesStable", {
+                cluster: context.selectedStack.webCluster.clusterArn,
+                services: webServices.map((w) => w.serviceArn),
+              })
+              .promise();
+          }
         },
         onDone: "done",
         onError: "error",
