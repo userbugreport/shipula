@@ -2,7 +2,7 @@ module.exports = {
   title: "⛴🧛🏻‍♂️",
   tagline: "Make **works-on-cloud** as easy as *works-on-my-machine*!",
   url: "https://userbugreport.github.io/shipula/",
-  baseUrl: "/shipula/",
+  baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "userbugreport", // Usually your GitHub org/user name.
   projectName: "shipula", // Usually your repo name.

@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./build",
+    "module": "commonjs",
+    "typeRoots": ["node_modules/@types"],
+    "allowJs": true
+  },
+  "include": ["./src", "./src/lambda.js"],
+  "exclude": ["./tests"]
+}
