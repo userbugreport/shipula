@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Text, Static } from "ink";
+import { Box, Text } from "ink";
 import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
@@ -42,17 +42,6 @@ export const EnvSet: React.FunctionComponent<Props> = () => {
             )}
           </Text>
         </Box>
-      )}
-      {state.context.messages && (
-        <>
-          <Static items={state.context.messages}>
-            {(name) => (
-              <Text key={name} bold={name.startsWith("ns")}>
-                {name}
-              </Text>
-            )}
-          </Static>
-        </>
       )}
       {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />

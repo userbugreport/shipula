@@ -51,9 +51,14 @@ An App has a few required characteristics:
 - It needs to have a start script, what you do with `npm start` or `yarn start`
 - It needs to listen on a port that can be set by the environment variable `${PORT}`
 
+### Static Apps
+
+Static site generators, like Docusaurus or Create React App are a bit different -- there is no 'server' at run time.
+Shipula takes care of this by publishing your files using a global content distribution network.
+
 ### Stacks
 
-A Stack is an end to end copy of your App, you can have as many Stacks of your App as you like.
+A Stack is an end to end copy of your App, you can have as many Stacks of your App as you like, including Static Apps.
 
 ### Prod/Stage/Test/Dev
 

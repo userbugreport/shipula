@@ -14,6 +14,6 @@ export default new Command()
     const props = packageDirectory
       ? await buildInfoProps(packageDirectory, stackName)
       : {};
-    display(props, Info);
+    await display(props, Info);
     return;
   });

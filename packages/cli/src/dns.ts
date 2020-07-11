@@ -9,7 +9,7 @@ import { Info } from "@shipula/context";
 const domainCommand = new Command()
   .command("domain <domainName>")
   .action(async (domainName) => {
-    display({ domainName }, DnsDomain);
+    await display({ domainName }, DnsDomain);
     return;
   });
 
@@ -20,8 +20,10 @@ const nameCommand = new Command()
       const props = await buildEnvProps(packageDirectory, stackName);
       props.setVariables = { SHIPULA_HOST_NAME: hostName };
       props.domainName = Info.domainName(hostName);
-      // and then attach the host name
-      display(props, EnvSet);
+      // do the domain name verification
+      await display(props, DnsDomain);
+      // and then go ahead and update the env to set a host name
+      await display(props, EnvSet);
       return;
     }
   );

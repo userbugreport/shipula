@@ -18,7 +18,7 @@ Then you are going to find out you need to know a lot more things than just [nod
 | [CloudBackup](https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html)
 | [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
 | [CDK](https://docs.aws.amazon.com/cdk/latest/guide/home.html)
-| [AWS SDK](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/welcome.html
+| [AWS SDK](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/welcome.html)
 
 It's a lot to take in, and in most team settings, it ends up being a dedicated person to help everyone else out.
 But what you really want to do is just **ship** -- so let's.
@@ -39,4 +39,4 @@ npm install -g @shipula/cli
 - ... wait ...
 - curl
 
-To the 🏗[Docks](https://userbugreport.github.io/shipula/docs/)
+To the 🏗[Docks](https://shipula.userbugreport.com/)

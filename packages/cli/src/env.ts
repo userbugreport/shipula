@@ -8,7 +8,7 @@ import { EnvGet } from "./components/EnvGet";
 const getCommand = new Command()
   .command("get [packageDirectory] [stackName]")
   .action(async (packageDirectory, stackName) => {
-    display(await buildInfoProps(packageDirectory, stackName), EnvGet);
+    await display(await buildInfoProps(packageDirectory, stackName), EnvGet);
     return;
   });
 
@@ -21,7 +21,7 @@ const setCommand = new Command()
       variables: string[]
     ) => {
       const props = await buildEnvProps(packageDirectory, stackName, variables);
-      display(props, EnvSet);
+      await display(props, EnvSet);
       return;
     }
   );

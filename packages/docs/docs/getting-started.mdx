@@ -12,10 +12,11 @@ Make **works-on-cloud** as easy as _works-on-my-machine_.
 
 Programming node servers, whichever frameworks you use like [Express](https://expressjs.com/) or [Koa](https://koajs.com/), or just a raw port server, sooner or later you need to ship it.
 
-Then you are going to find out you need to know a lot more things than just [node](https://nodejs.org), things like:
+You may also create static sites -- JAMStack, using tools like [Docusaurus](https://docusaurus.io/), and you need the resulting app hosted on a world class cloud -- [Amazon Web Services](http://aws.amazon.com).
+
+Sounds like fun -- then you are going to find out you need to know a lot more things than just [node](https://nodejs.org), things like:
 
 [Docker](http://docker.com)
-| [AWS](http://aws.amazon.com)
 | [ALB](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html)
 | [Route53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html)
 | [ACM](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)
@@ -29,6 +30,10 @@ Then you are going to find out you need to know a lot more things than just [nod
 | [AWS SDK](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/welcome.html)
 
 It's a lot to take in, and in most team settings, it ends up being a dedicated person to help everyone else out.
+Or using a relatively expensive add-on service that can make hosting easier.
+Shipula lets you use a *real* cloud provider -- **AWS** but as easily as one command line.
+
+
 But what you really want to do is just **ship** -- so let's.
 
 ```shell
@@ -56,5 +61,6 @@ npm install -g @shipula/cli
 - You have signed up for AWS, and have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
 Yep -- that's it.
+One comand line `shipula deploy` and you are live.
 
-If you want to use your own domain name -- set up [HTTPS](./reference/https).
+If you want to use your own domain name -- set up [HTTPS](./cookbook/https).
