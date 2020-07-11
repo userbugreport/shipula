@@ -1,6 +1,6 @@
 {
   "name": "@shipula/static",
-  "version": "0.0.18",
+  "version": "0.1.0",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
@@ -11,6 +11,7 @@
   "dependencies": {
     "@aws-cdk/aws-backup": "^1.50.0",
     "@aws-cdk/aws-certificatemanager": "^1.50.0",
+    "@aws-cdk/aws-cloudfront": "^1.50.0",
     "@aws-cdk/aws-ec2": "^1.50.0",
     "@aws-cdk/aws-ecs": "^1.50.0",
     "@aws-cdk/aws-ecs-patterns": "^1.50.0",
@@ -18,10 +19,9 @@
     "@aws-cdk/aws-logs": "^1.50.0",
     "@aws-cdk/aws-route53": "^1.50.0",
     "@aws-cdk/aws-route53-targets": "^1.50.0",
-    "@aws-cdk/aws-ssm": "^1.50.0",
     "@aws-cdk/aws-s3": "^1.50.0",
     "@aws-cdk/aws-s3-deployment": "^1.50.0",
-    "@aws-cdk/aws-cloudfront": "^1.50.0",
+    "@aws-cdk/aws-ssm": "^1.50.0",
     "@aws-cdk/core": "^1.50.0",
     "@aws-cdk/custom-resources": "^1.50.0",
     "@shipula/context": "",
