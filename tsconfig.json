@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "lib": ["esnext"],
+    "lib": ["es2020"],
     "removeComments": true,
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "sourceMap": true,
-    "target": "es2015",
+    "target": "es2018",
+    "module": "commonjs",
     "outDir": "lib",
     "resolveJsonModule": true,
     "esModuleInterop": true,

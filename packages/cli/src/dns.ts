@@ -14,7 +14,7 @@ const domainCommand = new Command()
   });
 
 const nameCommand = new Command()
-  .command("name <hostName> <packageDirectory>] [stackName]")
+  .command("name <hostName> <packageDirectory> [stackName]")
   .action(
     async (hostName: string, packageDirectory: string, stackName: string) => {
       const props = await buildEnvProps(packageDirectory, stackName);
@@ -32,7 +32,7 @@ export default new Command()
   .command("dns")
   .description("Manage custom domain names.")
   .on("--help", () => {
-    console.log(docs("env.md"));
+    console.log(docs("dns.md"));
   })
   .addCommand(domainCommand)
   .addCommand(nameCommand);
