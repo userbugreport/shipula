@@ -27,6 +27,7 @@
     "@shipula/machines": "",
     "@shipula/server": "",
     "@xstate/react": "^0.8.1",
+    "parse-domain": "^3.0.2",
     "app-root-path": "^3.0.0",
     "aws-cdk": "^1.50.0",
     "aws-sdk": "^2.706.0",
