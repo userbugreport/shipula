@@ -12,7 +12,7 @@ Dealing with this is the **big leap** from working locally.
 
 ### Load Balancing
 
-Shipula will spread traffic across the multiple copies of you app. 
+Shipula will spread traffic across the multiple copies of you app.
 You can `shipul scale` at any time, just by telling shipula to add CPU, memory, or more copies.
 
 ### HTTPS
@@ -24,16 +24,21 @@ Setting up DNS and HTTPS can be -- hard. Shipula makes this as easy as getting a
 Shipula knows you have settings, so it lets you set environment variables for each App and Stage, which are stored in the cloud for you.
 These environment variables are automatically set when your app is deployed, and Shipula is so automatic, when you change an environment variable, it'll redeploy and restart for you so that your new variable is picked up.
 
+### CDN & Caching
+
+Shipula will deploy your static site to a CDN distribution, and automatically invalidate the cache for you when you `shipula deploy`.
+
+
 ### Backups
 
 Shipula takes a daily back of your shared file system, and you can take a back -- or restore -- on demand any time you like.
 
 ### Logs
 
-Multiple running copies means multiple logs streaming from multiple machines. 
+Multiple running copies means multiple logs streaming from multiple machines.
 Locally -- you just start your process and watch the log go by, or `> file` or `| less` or some other tool to let you search and grep.
 
-In most hosted cloud setups, pretty complex log search engines are the norm. 
+In most hosted cloud setups, pretty complex log search engines are the norm.
 They are kinda cool -- but they don't have the immediacy of seeing the log go by and `grep`.
 
 Shipula deals with this by setting up cloud hosted log search _and_ real time log streaming.
