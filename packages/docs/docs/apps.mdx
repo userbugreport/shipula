@@ -1,0 +1,61 @@
+---
+title: Supported Apps
+---
+
+Shipula is dedicated to publishing your Node packages with a `package.json` to the cloud.
+So for some terms, any given Node _package_, when published, is an _app_.
+Shipula supports dynamic apps, running Node programs that serve HTTP, as well as static site generators via CDN.
+
+## Node Services
+
+Any Node service is supported with the following rules:
+
+- You have a Node HTTP serving program you want on the cloud, using tools like [Express] or [Koa]
+- That node program listens on a `${PORT}` you can read from an environment variable.
+- It needs to have a start script, what you do with `npm start` or `yarn start`
+- It needs to have its `dependencies` and `devDependencies` correct
+  - Easy way to tell -- make a new directoy, clone from git `npm install` or `yarn` -- then start
+
+If you need to **build** your service before it starts, say you are using [TypeScript] -- just configure a [prepublish] script in your package.json.
+This is the nearest thing to a 'standard' for packge publication, so we followed along.
+
+## Static Site Generators
+
+Static site generators, like Docusaurus or Create React App are a bit different -- there is no 'server' at run time.
+Shipula takes care of this by publishing your files using a global content distribution network.
+
+### Docusaurus
+
+This one is my personal favorite, not just a documentation engine, but a great static site generator, simple blog platform, and uses MDX.
+
+Publishing a Docusaurs site with `shipula` is straighforward, just type
+
+```shell
+shipula deploy <path_to_package>
+```
+
+Shipula will autodetect Docusaurus by looking for a `docusaurus build` in your `package.json`.
+
+## Stacks
+
+A Stack is an end to end copy of your App, you can have as many Stacks of your App as you like, including Static Apps.
+
+### Prod/Stage/Test/Dev
+
+It's really common to need multiple copies of your app. Setting up multiple copies can be _work_ -- depending on which cloud tools you use, it can be as much work each time. And deploying to each copy can be work.
+
+Shipula deals with this by letting you set up multiple Stacks of your App.
+Each Stack is a complete, isolated copy.
+Make as many as you like, you just `npx shipula --stack stackName deploy appName`.
+
+## Shared Files
+
+One of the crazy differences between the cloud and your laptop is the file system -- or lack of it.
+Normally on a cloud, the file system on each of your server containers is a transient thing, not for long term storage at all.
+This isn't how you work locally. Your disk is -- your data!
+
+Locally -- you can just write to your disk, files, yaml, json, sqlite -- all just works.
+On the cloud, by default your find that while you might have a local disk, it's isn't **a** local disk, it's a disk per server/virtual machine/container, and it is going to get deleted when your server/vm/container goes away.
+
+Shipula deals with this by setting up a shared file system that you can always reach at `/cluster_shared`.
+Store files, have fun.

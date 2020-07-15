@@ -1,6 +1,6 @@
 module.exports = {
   someSidebar: {
-    Guide: ["getting-started", "concepts"],
+    Guide: ["getting-started", "apps", "operations"],
 
     Commands: [
       "commands/backup",

@@ -5,7 +5,14 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
-import { FaNode, FaCloud, FaLaptopCode } from "react-icons/fa";
+import {
+  FaNode,
+  FaCloud,
+  FaLaptopCode,
+  FaLock,
+  FaGlobe,
+  FaServer,
+} from "react-icons/fa";
 
 const features = [
   {
@@ -14,7 +21,8 @@ const features = [
     description: (
       <>
         Not a new framework, just keep programming with node the way you know
-        with popular frameworks like Express and Koa.
+        with popular frameworks like Express or Koa. Creates static sites with
+        Docusaurus.
       </>
     ),
   },
@@ -23,8 +31,8 @@ const features = [
     icon: <FaLaptopCode />,
     description: (
       <>
-        No need to learn containers, or remote cloud emulators. Develop locally
-        the easy way, and save the cloud for deployment.
+        No need to learn containers, or remote cloud emulators, or even Docker.
+        Develop locally the easy way, and save the cloud for deployment.
       </>
     ),
   },
@@ -32,7 +40,32 @@ const features = [
     title: <>One Line Cloud Deploy</>,
     icon: <FaCloud />,
     description: (
-      <>When it is time to ⛴ -- one command line will get you on the cloud.</>
+      <>
+        When it is time to ⛴ -- one command line will get you on the cloud.
+        Easy.
+      </>
+    ),
+  },
+  {
+    title: <>Custom Domain Names</>,
+    icon: <FaGlobe />,
+    description: <>Easiest custom DNS experience on the planet!</>,
+  },
+  {
+    title: <>Custom Domain Names</>,
+    icon: <FaLock />,
+    description: (
+      <>Automatic HTTPs -- secure by default with custom domain names.</>
+    ),
+  },
+  {
+    title: <>Simple Administration</>,
+    icon: <FaServer />,
+    description: (
+      <>
+        Automatic backups, built in log streaming, and an easy to use shared
+        file system.
+      </>
     ),
   },
 ];

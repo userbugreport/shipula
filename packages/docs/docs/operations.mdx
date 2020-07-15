@@ -1,0 +1,67 @@
+---
+title: Operations
+---
+
+Shipula tries to create an environment as close to your local programming world as possible, but on the cloud.
+
+## Clustering and Load Balancing
+
+One of the big shocks you get when you go to the cloud is -- having multiple copies of your App running at once, on different machines, virtual machines, or containers. You do this to scale, and you do this for resilience to keep on running if a little bit of your app crashes or is reclaimed by your cloud provider.
+
+Dealing with this is the **big leap** from working locally.
+
+### Load Balancing
+
+Shipula will spread traffic across the multiple copies of you app. 
+You can `shipul scale` at any time, just by telling shipula to add CPU, memory, or more copies.
+
+### HTTPS
+
+Setting up DNS and HTTPS can be -- hard. Shipula makes this as easy as getting a domain name from a provider and typing two commands. [Learn about it](./reference/https).
+
+### Environment Variables
+
+Shipula knows you have settings, so it lets you set environment variables for each App and Stage, which are stored in the cloud for you.
+These environment variables are automatically set when your app is deployed, and Shipula is so automatic, when you change an environment variable, it'll redeploy and restart for you so that your new variable is picked up.
+
+### Backups
+
+Shipula takes a daily back of your shared file system, and you can take a back -- or restore -- on demand any time you like.
+
+### Logs
+
+Multiple running copies means multiple logs streaming from multiple machines. 
+Locally -- you just start your process and watch the log go by, or `> file` or `| less` or some other tool to let you search and grep.
+
+In most hosted cloud setups, pretty complex log search engines are the norm. 
+They are kinda cool -- but they don't have the immediacy of seeing the log go by and `grep`.
+
+Shipula deals with this by setting up cloud hosted log search _and_ real time log streaming.
+The real time logs are the combined logs of each of the running copies of you app.
+
+## Deployment
+
+A load balanced cloud app has multiple copies -- and that means deploying multiple copies.
+
+And coordinaing those deployments, which can be confusing and hard to keep track of which server/virtual machine/container has which code.
+
+Shipula makes this automatic, just `shipula deploy`.
+
+### Builds
+
+Shipula will build for you, pulling in dependencies from your package.json as well as creating a cloud ready copy of your App.
+You don't need to set up a separate build server, or even run a separate build, you just deploy from your shell.
+
+Shipula is just a command line app -- so you can totally set it up to run in a CI tool, such as [GitHub Actions].
+
+### Containers
+
+Shipula uses containers, it's currently the most efficient method of deployment.
+What Shipula doesn't do is expect you to learn containers.
+Shipula uses [Docker] to create container images, and stores those images in your own private container registry, but you don't have to create a Dockerfile, or learn Kubernetes, or even _run_ Docker containers on your machine.
+
+### Hot, Rolling Updates
+
+Shipula adopts a hot rolling update strategy, making new copies of your app with the new version, and turning down old copies as their web requests end.
+In practice, this means -- you just `npx shipula deploy` and shipula will figure it out for you.
+If you have ever done this by hand, you'll appreaciate it.
