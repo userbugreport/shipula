@@ -114,7 +114,7 @@ export default Machine<Context, Schema, Events>({
           });
           await Promise.all(waitfor);
           // and let them get stable so we can see our variable...
-          if (webServices) {
+          if (webServices.length) {
             await ecs
               .waitFor("servicesStable", {
                 cluster: context.selectedStack.webCluster.clusterArn,
