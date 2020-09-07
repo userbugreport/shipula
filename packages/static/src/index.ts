@@ -6,7 +6,7 @@ import * as cloudfront from "@aws-cdk/aws-cloudfront";
 import * as route53 from "@aws-cdk/aws-route53";
 import * as targets from "@aws-cdk/aws-route53-targets";
 import assert from "assert";
-import { getStackName } from "@shipula/context";
+import { getStackName, loadPackage } from "@shipula/context";
 import path from "path";
 
 const app = new cdk.App();
@@ -21,6 +21,8 @@ const domainName = process.env.DOMAIN_NAME;
 class ShipulaStatic extends cdk.Stack {
   constructor(parent: cdk.App, name: string, props: cdk.StackProps) {
     super(parent, name, props);
+    // package we're building -- useful to get shipula settings
+    const deployPackage = loadPackage(packageFrom);
     // need to put the files -- somewhere
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       bucketName: name,
@@ -101,7 +103,11 @@ class ShipulaStatic extends cdk.Stack {
     }
 
     // Deploy site contents to S3 bucket -- this actually copies files
-    const buildFilesIn = path.join(packageFrom, "build");
+    // ask the package json or default to build
+    const buildFilesIn = path.join(
+      packageFrom,
+      deployPackage?.shipula?.static || "build"
+    );
     new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
       sources: [s3deploy.Source.asset(buildFilesIn)],
       destinationBucket: siteBucket,

@@ -8,6 +8,7 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "touch index.ts",
+    "clean": "rm -rf ./build",
     "prepublish": "tsc"
   },
   "devDependencies": {

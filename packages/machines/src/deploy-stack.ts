@@ -53,7 +53,8 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async (context) => {
           if (
-            context?.package?.scripts?.build?.startsWith("docusaurus build")
+            context?.package?.scripts?.build?.startsWith("docusaurus build") ||
+            context?.package?.shipula?.static
           ) {
             context.deployStyle = "@shipula/static";
           } else {

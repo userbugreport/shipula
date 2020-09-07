@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf ./build && tsc",
+    "clean": "rm -rf ./build"
   },
   "dependencies": {
     "aws-sdk": "^2.706.0",

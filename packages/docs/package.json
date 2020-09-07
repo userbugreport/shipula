@@ -5,6 +5,7 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "clean": "rm -rf ./build",
     "swizzle": "docusaurus swizzle",
     "deploy": "USE_SSH=true GIT_USER=${GIT_USER:=wballard} docusaurus deploy"
   },

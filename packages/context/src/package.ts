@@ -31,19 +31,30 @@ export type Package = {
     start?: string;
     prepublish?: string;
   };
+
+  /**
+   * Shipula specific settings.
+   */
+  shipula?: {
+    /**
+     * When provided, this relative directory will be deployed as a static site.
+     */
+    static?: string;
+  };
 };
 
 /**
- * Load -- just throws if there are ny problems at all.
+ * Load -- just throws if there are any problems at all.
  */
-export const loadPackage = async (filename?: string): Promise<Package> => {
+export const loadPackage = (filename?: string): Package => {
+  const defaultToWorkingDirectory = filename || ".";
+  const forgiveDirectory = path.resolve(
+    path.basename(defaultToWorkingDirectory, ".json") === "package"
+      ? defaultToWorkingDirectory
+      : path.join(defaultToWorkingDirectory, "package.json")
+  );
   try {
-    const defaultToWorkingDirectory = filename || ".";
-    const forgiveDirectory =
-      path.basename(defaultToWorkingDirectory, ".json") === "package"
-        ? defaultToWorkingDirectory
-        : path.join(defaultToWorkingDirectory, "package.json");
-    const p = (await fs.readJson(forgiveDirectory)) as Package;
+    const p = fs.readJsonSync(forgiveDirectory) as Package;
     p.from = path.dirname(forgiveDirectory);
     assert(p.name, "Must have a name in your package.");
     assert(p.version, "Must have a version in your package");
@@ -56,7 +67,7 @@ export const loadPackage = async (filename?: string): Promise<Package> => {
     const err: Error = e;
     if (err.message.startsWith("ENOENT"))
       throw new ErrorMessage(
-        "No `package.json` could be found at the path you provided."
+        `No \`package.json\` could be found at the path you provided \`${forgiveDirectory}\`.`
       );
     throw e;
   }

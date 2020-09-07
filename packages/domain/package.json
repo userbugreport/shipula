@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf ./build && tsc",
+    "clean": "rm -rf ./build"
   },
   "dependencies": {
     "@aws-cdk/aws-route53": "^1.50.0",

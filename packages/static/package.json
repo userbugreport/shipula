@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf ./build && tsc",
+    "clean": "rm -rf ./build"
   },
   "dependencies": {
     "@aws-cdk/aws-backup": "^1.50.0",
@@ -24,7 +25,7 @@
     "@aws-cdk/aws-ssm": "^1.50.0",
     "@aws-cdk/core": "^1.50.0",
     "@aws-cdk/custom-resources": "^1.50.0",
-    "@shipula/context": "",
+    "@shipula/context": "*",
     "aws-sdk": "^2.706.0"
   },
   "devDependencies": {

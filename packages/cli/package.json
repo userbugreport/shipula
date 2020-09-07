@@ -15,17 +15,18 @@
   "scripts": {
     "test": "jest",
     "shipula-cli-test": "ts-node ./src/index.ts",
-    "build": "rm -rf ./build && tsc && cp ./src/docs/*.md ./build/src/docs/"
+    "build": "rm -rf ./build && tsc && cp ./src/docs/*.md ./build/src/docs/",
+    "clean": "rm -rf ./build"
   },
   "bugs": {
     "url": "https://github.com/userbugreport/shipula/issues"
   },
   "dependencies": {
-    "@shipula/context": "latest",
-    "@shipula/domain": "latest",
-    "@shipula/machines": "latest",
-    "@shipula/server": "latest",
-    "@shipula/static": "latest",
+    "@shipula/context": "*",
+    "@shipula/domain": "*",
+    "@shipula/machines": "*",
+    "@shipula/server": "*",
+    "@shipula/static": "*",
     "@xstate/react": "^0.8.1",
     "app-root-path": "^3.0.0",
     "aws-cdk": "^1.50.0",
@@ -37,7 +38,7 @@
     "expand-tilde": "^2.0.2",
     "final-form": "^4.20.0",
     "ignore-walk": "^3.0.3",
-    "ink": "3.0.0-5",
+    "ink": "3.0.0-6",
     "ink-progress-bar": "^3.0.0",
     "ink-select-input": "^3.1.2",
     "ink-spinner": "4.0.0-0",
@@ -54,6 +55,7 @@
     "resolve-bin": "^0.4.0",
     "shelljs": "^0.8.4",
     "term-size": "^2.2.0",
+    "ts-node": "^9.0.0",
     "yaml": "^1.10.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import React from "react";
 import { ShipulaContextProps } from "@shipula/context";
-import { loadPackage } from "@shipula/context/build/package";
+import { loadPackage } from "@shipula/context";
 
 /**
  * Context contains the entire state. This is the 'store' from a

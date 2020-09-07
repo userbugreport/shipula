@@ -3,9 +3,9 @@
   "compilerOptions": {
     "outDir": "./build",
     "module": "commonjs",
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": [],
+    "types": ["node"],
     "allowJs": true
   },
-  "include": ["./src", "./src/lambda.js"],
-  "exclude": ["./tests"]
+  "include": ["./src", "./src/lambda.js"]
 }
