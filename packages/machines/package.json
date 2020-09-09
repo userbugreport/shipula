@@ -12,5 +12,6 @@
   "dependencies": {
     "@shipula/context": "^0.1.9",
     "xstate": "^4.11.0"
-  }
+  },
+  "gitHead": "7ff56f7af3d767cc4a0119a542513f0fa35e2525"
 }
