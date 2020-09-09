@@ -9,8 +9,6 @@ import * as ecs from "@aws-cdk/aws-ecs";
 import * as logs from "@aws-cdk/aws-logs";
 import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 import * as efs from "@aws-cdk/aws-efs";
-import * as cr from "@aws-cdk/custom-resources";
-import { FargateEfsCustomResource } from "./FargateEfsCustomResource";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
 import AWS from "aws-sdk";
@@ -86,7 +84,7 @@ export class FargateEfs extends cdk.Stack {
     // auto backup the file system
     const vault = new backup.BackupVault(this, "Backup", {
       backupVaultName: id,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.SNAPSHOT,
     });
     const plan = new backup.BackupPlan(this, "BackupPlan", {
       backupPlanName: id,
@@ -97,47 +95,19 @@ export class FargateEfs extends cdk.Stack {
     });
     plan.addRule(backup.BackupPlanRule.daily(vault));
 
-    const params = {
-      FileSystemId: fileSystem.fileSystemId,
-      PosixUser: {
-        Gid: 1000,
-        Uid: 1000,
-      },
-      RootDirectory: {
-        CreationInfo: {
-          OwnerGid: 1000,
-          OwnerUid: 1000,
-          Permissions: "755",
-        },
-        Path: "/cluster_shared",
-      },
-      Tags: [
-        {
-          Key: "Name",
-          Value: "ecsuploads",
-        },
-      ],
-    };
-
-    const efsAccessPoint = new cr.AwsCustomResource(this, "EfsAccessPoint", {
-      onUpdate: {
-        service: "EFS",
-        action: "createAccessPoint",
-        parameters: params,
-        physicalResourceId: cr.PhysicalResourceId.of("12121212121"),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-    });
-
-    efsAccessPoint.node.addDependency(fileSystem);
-
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
       memoryLimitMiB: parseInt(parameterOrDefault("SHIPULA_MEMORY", "2048")),
       cpu: parseInt(parameterOrDefault("SHIPULA_CPU", "1024")),
       // avoid guid trash names
       family: `${id}-WebTask`,
+    });
+    // hook on EFS
+    taskDef.addVolume({
+      name: "clusterShared",
+      efsVolumeConfiguration: {
+        fileSystemId: fileSystem.fileSystemId,
+        rootDirectory: "/",
+      },
     });
 
     // cloud watch logs
@@ -170,7 +140,7 @@ export class FargateEfs extends cdk.Stack {
     const containerDef = new ecs.ContainerDefinition(this, "WebContainer", {
       image: ecs.ContainerImage.fromAsset(packageFrom, {
         buildArgs: {
-          PREPUBLISH: process.env.PREPUBLISH,
+          PREPUBLISH: process.env.DESTROY,
         },
       }),
       logging: logging,
@@ -184,6 +154,13 @@ export class FargateEfs extends cdk.Stack {
     // oh yes, this is the port
     containerDef.addPortMappings({
       containerPort: 8000,
+    });
+
+    // mount EFS
+    containerDef.addMountPoints({
+      containerPath: "/clusterShared",
+      readOnly: false,
+      sourceVolume: "clusterShared",
     });
 
     // if all the stars are aligned -- then we get https
@@ -218,20 +195,5 @@ export class FargateEfs extends cdk.Stack {
     fileSystem.connections.allowDefaultPortFrom(
       albFargateService.service.connections
     );
-
-    //Custom Resource to add EFS Mount to Task Definition
-    const resource = new FargateEfsCustomResource(
-      this,
-      "FargateEfsCustomResource",
-      {
-        TaskDefinition: taskDef.taskDefinitionArn,
-        EcsService: albFargateService.service.serviceName,
-        EcsCluster: ecsCluster.clusterName,
-        EfsFileSystemId: fileSystem.fileSystemId,
-        EfsMountName: "cluster_shared",
-      }
-    );
-
-    resource.node.addDependency(albFargateService);
   }
 }

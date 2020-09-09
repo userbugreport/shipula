@@ -17,5 +17,6 @@ RUN if [ "${PREPUBLISH}" = "YES" ]; then yarn prepublish; fi
 # expect that the processes honor the port variable
 # this needs to match up with what we tell ECS
 ENV PORT=8000
+ENV CLUSTER_SHARED="/cluster_shared"
 
 CMD ["yarn", "start"]

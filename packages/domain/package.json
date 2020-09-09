@@ -10,10 +10,10 @@
     "clean": "rm -rf ./build"
   },
   "dependencies": {
-    "@aws-cdk/aws-route53": "^1.50.0",
-    "@aws-cdk/core": "^1.50.0"
+    "@aws-cdk/aws-route53": "^1.62.0",
+    "@aws-cdk/core": "^1.62.0"
   },
   "devDependencies": {
-    "@types/node": "^14.0.20"
+    "@types/node": "^14.6.4"
   }
 }
