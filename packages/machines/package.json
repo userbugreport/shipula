@@ -1,6 +1,6 @@
 {
   "name": "@shipula/machines",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "clean": "rm -rf ./build"
   },
   "dependencies": {
-    "@shipula/context": "^0.1.7",
+    "@shipula/context": "^0.1.9",
     "xstate": "^4.11.0"
   }
 }
