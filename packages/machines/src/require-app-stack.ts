@@ -50,7 +50,7 @@ export default Machine<Context, Schema, Events>({
     checkingForDocker: {
       invoke: {
         src: async () => {
-          if (!shell.which("Docker")) {
+          if (!shell.which("docker")) {
             throw new ErrorMessage(
               "You need [Docker](https://docs.docker.com/get-docker/) installed."
             );
