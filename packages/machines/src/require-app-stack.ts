@@ -1,5 +1,10 @@
 import { Machine, actions } from "xstate";
-import { Info, ShipulaContextProps, ErrorMessage } from "@shipula/context";
+import {
+  Info,
+  ShipulaContextProps,
+  ErrorMessage,
+  setShipulaEnvironmentForCDK,
+} from "@shipula/context";
 import execa from "execa";
 import shell from "shelljs";
 import fs from "fs-extra";
@@ -122,13 +127,7 @@ export default Machine<Context, Schema, Events>({
             context.package.name,
             context.stackName
           );
-          // env var to get the stack named before the CDK context is created
-          process.env.PACKAGE_FROM = context.package.from;
-          process.env.PACKAGE_NAME = context.package.name;
-          process.env.STACK_NAME = context.stackName;
-          // do we have a prepublish?
-          if (context.package.scripts.prepublish)
-            process.env.PREPUBLISH = "YES";
+          setShipulaEnvironmentForCDK(context);
           const hostName = parameters.find(
             (p) => path.basename(p.Name) === "SHIPULA_HOST_NAME"
           )?.Value;

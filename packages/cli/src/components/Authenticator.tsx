@@ -159,7 +159,7 @@ export const Authenticator: React.FunctionComponent<Props> = ({
         context.verifiedCredentials = {
           AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
           AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-          AWS_REGION: (process.env.AWS_REGION as AWSRegion) || "us-west-2",
+          AWS_REGION: (process.env.AWS_REGION as AWSRegion) || "us-east-1",
         };
         if (completeCredentials(context.verifiedCredentials)) return;
         else throw new Error();
@@ -169,10 +169,11 @@ export const Authenticator: React.FunctionComponent<Props> = ({
           const userHomeConfigProps = JSON.parse(
             await fs.readFile(userHomeConfig, "utf8")
           ) as Credentials;
-          // go ahead and write over if there are values
+          // user config values
+          // over-ridden by the previously read env vars
           context.verifiedCredentials = {
-            ...context.verifiedCredentials,
             ...userHomeConfigProps,
+            ...context.verifiedCredentials,
           };
           if (completeCredentials(context.verifiedCredentials)) return;
           else throw new Error();

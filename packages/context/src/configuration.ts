@@ -1,7 +1,3 @@
-import fs from "fs-extra";
-import expandTide from "expand-tilde";
-import path from "path";
-
 export const AllAWSRegions = [
   "us-east-1",
   "us-east-2",
@@ -28,44 +24,4 @@ export const completeCredentials = (credentials: Credentials): boolean => {
       credentials?.AWS_SECRET_ACCESS_KEY?.length &&
       credentials?.AWS_REGION?.length) > 0
   );
-};
-
-/**
- * Credentials can be in environment variables, or in a user dotfile.
- */
-export const getCredentials = async (): Promise<Credentials> => {
-  //
-  let initialConfig: Credentials = {
-    AWS_ACCESS_KEY_ID: undefined,
-    AWS_SECRET_ACCESS_KEY: undefined,
-    // default region
-    AWS_REGION: "us-west-2",
-  };
-  try {
-    // defaults from user home dotfile
-    const userHomeConfig = path.join(expandTide("~"), ".shipula.json");
-    if (await fs.pathExists(userHomeConfig)) {
-      const userHomeConfigProps = JSON.parse(
-        await fs.readFile(userHomeConfig, "utf8")
-      ) as Credentials;
-      // keep on writing over -- discovery new props
-      initialConfig = {
-        ...initialConfig,
-        ...userHomeConfigProps,
-      };
-    }
-    // env var can be set on the command line -- so they take precedence
-    // over the dotfile
-    initialConfig.AWS_SECRET_ACCESS_KEY =
-      process.env.AWS_SECRET_ACCESS_KEY || initialConfig.AWS_SECRET_ACCESS_KEY;
-    initialConfig.AWS_ACCESS_KEY_ID =
-      process.env.AWS_ACCESS_KEY_ID || initialConfig.AWS_ACCESS_KEY_ID;
-    initialConfig.AWS_REGION =
-      (process.env.AWS_REGION as AWSRegion) || initialConfig.AWS_REGION;
-  } catch (e) {
-    console.error(e);
-  } finally {
-    // be extremely forgiving
-    return initialConfig;
-  }
 };

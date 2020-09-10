@@ -120,3 +120,19 @@ export type ShipulaContextProps = {
    */
   domainName?: string;
 };
+
+/**
+ * Set up the environment based on the shipula context.
+ *
+ * This is used to pass variables to the CDK.
+ */
+export const setShipulaEnvironmentForCDK = (
+  context: ShipulaContextProps
+): void => {
+  // env var to get the stack named before the CDK context is created
+  process.env.PACKAGE_FROM = context.package.from;
+  process.env.PACKAGE_NAME = context.package.name;
+  process.env.STACK_NAME = context.stackName;
+  // do we have a prepublish?
+  if (context.package.scripts.prepublish) process.env.PREPUBLISH = "YES";
+};

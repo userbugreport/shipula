@@ -1,6 +1,10 @@
 import { Machine, actions } from "xstate";
 import AWS, { CloudFormation } from "aws-sdk";
-import { ShipulaContextProps, getStackName } from "@shipula/context";
+import {
+  ShipulaContextProps,
+  getStackName,
+  setShipulaEnvironmentForCDK,
+} from "@shipula/context";
 import { CDK } from "./cdk";
 import execa from "execa";
 
@@ -81,14 +85,8 @@ export default Machine<Context, Schema, Events>({
               context.package.name,
               context.stackName
             );
-            const CONTEXT = [
-              "--context",
-              `PACKAGE_FROM=${context.package.from}`,
-              "--context",
-              `PACKAGE=${context.package.name}`,
-              "--context",
-              `STACK=${context.stackName}`,
-            ];
+            const CONTEXT = [];
+            setShipulaEnvironmentForCDK(context);
             const child = execa.sync(
               CDK,
               ["bootstrap", "--app", CDKSynthesizer, ...CONTEXT],

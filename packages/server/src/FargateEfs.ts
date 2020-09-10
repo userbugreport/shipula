@@ -1,4 +1,4 @@
-import * as backup from "@aws-cdk/aws-backup";
+//import * as backup from "@aws-cdk/aws-backup";
 import * as acm from "@aws-cdk/aws-certificatemanager";
 import * as route53 from "@aws-cdk/aws-route53";
 import * as cdk from "@aws-cdk/core";
@@ -80,11 +80,25 @@ export class FargateEfs extends cdk.Stack {
       throughputMode: efs.ThroughputMode.BURSTING,
       removalPolicy: RemovalPolicy.DESTROY,
     });
+    // need to access the files
+    const accessPoint = fileSystem.addAccessPoint("ClusterShared", {
+      path: "/",
+      createAcl: {
+        ownerGid: "1000",
+        ownerUid: "1000",
+        permissions: "755",
+      },
+      posixUser: {
+        gid: "1000",
+        uid: "1000",
+      },
+    });
 
     // auto backup the file system
+    /*
     const vault = new backup.BackupVault(this, "Backup", {
       backupVaultName: id,
-      removalPolicy: cdk.RemovalPolicy.SNAPSHOT,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
     const plan = new backup.BackupPlan(this, "BackupPlan", {
       backupPlanName: id,
@@ -94,6 +108,7 @@ export class FargateEfs extends cdk.Stack {
       allowRestores: true,
     });
     plan.addRule(backup.BackupPlanRule.daily(vault));
+    */
 
     const taskDef = new ecs.FargateTaskDefinition(this, "WebTask", {
       memoryLimitMiB: parseInt(parameterOrDefault("SHIPULA_MEMORY", "2048")),
@@ -103,10 +118,14 @@ export class FargateEfs extends cdk.Stack {
     });
     // hook on EFS
     taskDef.addVolume({
-      name: "clusterShared",
+      name: "ClusterShared",
       efsVolumeConfiguration: {
         fileSystemId: fileSystem.fileSystemId,
+        authorizationConfig: {
+          accessPointId: accessPoint.accessPointId,
+        },
         rootDirectory: "/",
+        transitEncryption: "ENABLED",
       },
     });
 
@@ -158,9 +177,9 @@ export class FargateEfs extends cdk.Stack {
 
     // mount EFS
     containerDef.addMountPoints({
-      containerPath: "/clusterShared",
+      containerPath: "/cluster_shared",
       readOnly: false,
-      sourceVolume: "clusterShared",
+      sourceVolume: "ClusterShared",
     });
 
     // if all the stars are aligned -- then we get https
