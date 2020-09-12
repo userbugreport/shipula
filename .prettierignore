@@ -1,3 +1,5 @@
 build
 coverage
 packages/docs/.docusaurus
+packages/cli/cdk.out
+**/dist/

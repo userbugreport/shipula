@@ -1,11 +1,11 @@
 import { Machine, actions } from "xstate";
-import { ShipulaContextProps } from "@shipula/context";
+import { ShipulaContextProps, getStackPath } from "@shipula/context";
 import AWS, { CloudWatchLogs } from "aws-sdk";
 import Randoma from "randoma";
 import chalk from "chalk";
 import path from "path";
 
-const PollInterval = 5000;
+const PollInterval = 5 * 1000;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NoSubState = any;
@@ -99,7 +99,10 @@ export default Machine<Context, Schema, Events>({
           ): Promise<CloudWatchLogs.DescribeLogGroupsResponse> => {
             return cloudWatch
               .describeLogGroups({
-                logGroupNamePrefix: "shipula/",
+                logGroupNamePrefix: getStackPath(
+                  context.package.name,
+                  context.stackName
+                ),
                 nextToken: nextToken === "-" ? undefined : nextToken,
               })
               .promise();
@@ -132,40 +135,39 @@ export default Machine<Context, Schema, Events>({
           const fetchStreams = async (
             logGroup: CloudWatchLogs.LogGroup
           ): Promise<void> => {
-            const moreStreams = async (
-              nextToken: string
-            ): Promise<CloudWatchLogs.DescribeLogStreamsResponse> => {
+            const moreStreams = async (): Promise<
+              CloudWatchLogs.DescribeLogStreamsResponse
+            > => {
               return cloudWatch
                 .describeLogStreams({
                   logGroupName: logGroup.logGroupName,
-                  nextToken: nextToken === "-" ? undefined : nextToken,
+                  orderBy: "LastEventTime",
+                  descending: true,
+                  limit: 10,
                 })
                 .promise();
             };
-            let token = "-";
-            // more to fetch...
-            while (token) {
-              const { logStreams, nextToken } = await moreStreams(token);
-              context.logStreams = [
-                ...context.logStreams,
-                ...logStreams.map((logStream) => {
-                  // generate a 'constant random' colorized source
-                  const notRandom = new Randoma({
-                    seed: logStream.logStreamName,
-                  });
-                  const sourceColor = notRandom.color(0.5).hex().toString();
-                  return {
-                    ...logGroup,
-                    ...logStream,
-                    colorizedSource: chalk.hex(sourceColor)(
-                      `${logGroup.logGroupName}/${logStream.logStreamName}`
-                    ),
-                    colorizer: chalk.hex(sourceColor),
-                  };
-                }),
-              ];
-              token = nextToken;
-            }
+            // more to fetch... but really on need the most recent streams
+            // so we are ignoring the next token on purpose
+            const { logStreams } = await moreStreams();
+            context.logStreams = [
+              ...context.logStreams,
+              ...logStreams.map((logStream) => {
+                // generate a 'constant random' colorized source
+                const notRandom = new Randoma({
+                  seed: logStream.logStreamName,
+                });
+                const sourceColor = notRandom.color(0.5).hex().toString();
+                return {
+                  ...logGroup,
+                  ...logStream,
+                  colorizedSource: chalk.hex(sourceColor)(
+                    `${logGroup.logGroupName}/${logStream.logStreamName}`
+                  ),
+                  colorizer: chalk.hex(sourceColor),
+                };
+              }),
+            ];
           };
           // no news is good news -- the context is updated
           await Promise.all(context.logGroups.map(fetchStreams));
@@ -210,6 +212,8 @@ export default Machine<Context, Schema, Events>({
                 );
               });
             };
+            // saving the token in the context, this way we have a cursor
+            // into each log stream
             let nextToken =
               context.nextTokens[
                 `${logStream.logGroupName}/${logStream.logStreamName}`
