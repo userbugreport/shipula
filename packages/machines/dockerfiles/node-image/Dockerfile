@@ -1,9 +1,7 @@
-FROM mhart/alpine-node:12
+FROM node:12
 
 ARG PREPUBLISH
-
-RUN apk add --no-cache tini
-ENTRYPOINT ["/sbin/tini", "--"]
+ARG BUILD
 
 WORKDIR /app
 COPY . .
@@ -12,6 +10,7 @@ COPY . .
 # RUN apk add --no-cache make gcc g++ python
 
 RUN yarn
+RUN if [ "${BUILD}" = "YES" ]; then yarn build; fi
 RUN if [ "${PREPUBLISH}" = "YES" ]; then yarn prepublish; fi
 
 # expect that the processes honor the port variable

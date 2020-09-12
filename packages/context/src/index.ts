@@ -133,6 +133,6 @@ export const setShipulaEnvironmentForCDK = (
   process.env.PACKAGE_FROM = context.package.from;
   process.env.PACKAGE_NAME = context.package.name;
   process.env.STACK_NAME = context.stackName;
-  // do we have a prepublish?
+  if (context.package.scripts.build) process.env.BUILD = "YES";
   if (context.package.scripts.prepublish) process.env.PREPUBLISH = "YES";
 };
