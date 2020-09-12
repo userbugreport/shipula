@@ -80,19 +80,6 @@ export class FargateEfs extends cdk.Stack {
       throughputMode: efs.ThroughputMode.BURSTING,
       removalPolicy: RemovalPolicy.DESTROY,
     });
-    // need to access the files
-    const accessPoint = fileSystem.addAccessPoint("ClusterShared", {
-      path: "/",
-      createAcl: {
-        ownerGid: "1000",
-        ownerUid: "1000",
-        permissions: "755",
-      },
-      posixUser: {
-        gid: "1000",
-        uid: "1000",
-      },
-    });
 
     // auto backup the file system
     /*
@@ -121,9 +108,6 @@ export class FargateEfs extends cdk.Stack {
       name: "ClusterShared",
       efsVolumeConfiguration: {
         fileSystemId: fileSystem.fileSystemId,
-        authorizationConfig: {
-          accessPointId: accessPoint.accessPointId,
-        },
         rootDirectory: "/",
         transitEncryption: "ENABLED",
       },
