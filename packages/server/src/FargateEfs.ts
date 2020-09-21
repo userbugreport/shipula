@@ -201,8 +201,6 @@ export class FargateEfs extends cdk.Stack {
     );
 
     // Allow access to EFS from Fargate ECS
-    fileSystem.connections.allowDefaultPortFrom(
-      albFargateService.service.connections
-    );
+    fileSystem.connections.allowDefaultPortFromAnyIpv4();
   }
 }
