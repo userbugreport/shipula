@@ -8,31 +8,59 @@ import { infoStack } from "@shipula/machines";
 import { Stacks } from "./Stacks";
 import yaml from "yaml";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
-import { Info as ShipulaInfo, ShipulaStack } from "@shipula/context";
+import {
+  Info as ShipulaInfo,
+  ShipulaStack,
+  Environment,
+  ServiceWithTaskDefinition,
+} from "@shipula/context";
 import path from "path";
+
+/**
+ * Cherry pick out parameters.
+ */
+export const displayEnvironment = (environment: Environment) => {
+  return Object.fromEntries(
+    environment.map((p) => [path.basename(p.Name), p.Value])
+  );
+};
+
+/**
+ * Cherry pick service info.
+ */
+export const displayService = (
+  stack: ShipulaStack,
+  service: ServiceWithTaskDefinition
+) => {
+  return {
+    name: service.serviceName,
+    url: stack.stack.Outputs.find(
+      (o) =>
+        o.OutputKey.startsWith(service.serviceName) &&
+        o.OutputValue.startsWith("http")
+    )?.OutputValue,
+    numberRunning: service.runningCount,
+    cpu: ShipulaInfo.decodeCPU(service.task.taskDefinition.cpu),
+    memory: Number.parseInt(service.task.taskDefinition.memory),
+    ports: service.task.taskDefinition.containerDefinitions.flatMap((c) =>
+      c.portMappings.map((p) => p.containerPort)
+    ),
+    sharedVolumes: service.task.taskDefinition.containerDefinitions.flatMap(
+      (c) => c.mountPoints.map((m) => m.containerPath)
+    ),
+  };
+};
 
 /**
  * Cherry pick the parts we want to display.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const displayStack = (stack: ShipulaStack) => {
-  const webContainer = stack.webTaskDefinition?.containerDefinitions.find(
-    (c) => c.name === "WebContainer"
-  );
   return {
-    web: {
-      url: stack.stack.Outputs.find((o) =>
-        o.OutputKey.startsWith("WebServiceServiceURL")
-      )?.OutputValue,
-      numberRunning: stack.webTasks.length,
-      cpu: ShipulaInfo.decodeCPU(stack.webTaskDefinition.cpu),
-      memory: Number.parseInt(stack.webTaskDefinition.memory),
-      port: webContainer.portMappings[0].containerPort,
-      sharedDirectory: path.join("/", stack.webTaskDefinition.volumes[0]?.name),
-      environment: Object.fromEntries(
-        stack.parameters.map((p) => [path.basename(p.Name), p.Value])
-      ),
-    },
+    services: stack.webCluster.services.map((service) =>
+      displayService(stack, service)
+    ),
+    environment: displayEnvironment(stack.environment),
   };
 };
 
@@ -67,7 +95,7 @@ export const Info: React.FunctionComponent<Props> = () => {
         <Box flexDirection="column" width={columns}>
           <Text>{false && yaml.stringify(state.context.selectedStack)}</Text>
           <Text>
-            {yaml.stringify(displayStack(state.context.selectedStack))}
+            {true && yaml.stringify(displayStack(state.context.selectedStack))}
           </Text>
         </Box>
       )}

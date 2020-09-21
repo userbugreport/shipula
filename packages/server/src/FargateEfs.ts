@@ -14,6 +14,7 @@ import { RemovalPolicy } from "@aws-cdk/core";
 import AWS from "aws-sdk";
 import { getStackPath, ShipulaNetworkName } from "@shipula/context";
 import path from "path";
+import { EfsBrowser } from "./EfsBrowser";
 
 export class FargateEfs extends cdk.Stack {
   constructor(
@@ -178,29 +179,23 @@ export class FargateEfs extends cdk.Stack {
         ? alb.ApplicationProtocol.HTTPS
         : alb.ApplicationProtocol.HTTP;
 
-    const albFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
-      this,
-      "WebService",
-      {
-        serviceName: "WebService",
-        cluster: ecsCluster,
-        taskDefinition: taskDef,
-        desiredCount: parseInt(parameterOrDefault("SHIPULA_NUMBER", "2")),
-        platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
-        domainZone,
-        certificate,
-        // AWS -- calls host domain name...
-        domainName: hostName,
-        protocol,
-      }
-    );
-
-    albFargateService.targetGroup.setAttribute(
-      "deregistration_delay.timeout_seconds",
-      "30"
-    );
+    new ecs_patterns.ApplicationLoadBalancedFargateService(this, "WebService", {
+      serviceName: "WebService",
+      cluster: ecsCluster,
+      taskDefinition: taskDef,
+      desiredCount: parseInt(parameterOrDefault("SHIPULA_NUMBER", "2")),
+      platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
+      domainZone,
+      certificate,
+      // AWS -- calls host domain name...
+      domainName: hostName,
+      protocol,
+    });
 
     // Allow access to EFS from Fargate ECS
     fileSystem.connections.allowDefaultPortFromAnyIpv4();
+
+    // attach file browsering
+    new EfsBrowser(this, id, ecsCluster, fileSystem, logGroup);
   }
 }

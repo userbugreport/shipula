@@ -1,4 +1,9 @@
-import { ShipulaContextProps, getStackName, Info } from "@shipula/context";
+import {
+  ShipulaContextProps,
+  getStackName,
+  Info,
+  TaskWithDefinition,
+} from "@shipula/context";
 import { Machine, actions } from "xstate";
 import AWS from "aws-sdk";
 import assert from "assert";
@@ -90,6 +95,9 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).clusters[0];
+          const webClusterServiceArns = (
+            await ecs.listServices({ cluster: webCluster.clusterArn }).promise()
+          ).serviceArns;
           const webClusterTaskArns = (
             await ecs
               .listTasks({
@@ -97,7 +105,15 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).taskArns;
-          const webTasks = (
+          const webClusterServices = (
+            await ecs
+              .describeServices({
+                services: webClusterServiceArns,
+                cluster: webCluster.clusterArn,
+              })
+              .promise()
+          ).services;
+          const webClusterTasks = (
             await ecs
               .describeTasks({
                 tasks: webClusterTaskArns,
@@ -105,25 +121,31 @@ export default Machine<Context, Schema, Events>({
               })
               .promise()
           ).tasks;
-          const webServicesArns = (
-            await ecs.listServices({ cluster: webCluster.clusterArn }).promise()
-          ).serviceArns;
-          const webServices = (
-            await ecs
-              .describeServices({
-                services: webServicesArns,
-                cluster: webCluster.clusterArn,
-              })
-              .promise()
-          ).services;
-          const webTaskDefinition = (
-            await ecs
-              .describeTaskDefinition({
-                taskDefinition: webTasks[0].taskDefinitionArn,
-              })
-              .promise()
-          ).taskDefinition;
-          const parameters = await Info.listShipulaParameters(
+          const webTasksWithDefinitions = await Promise.all(
+            webClusterTasks.map(
+              async (webTask): Promise<TaskWithDefinition> => {
+                return {
+                  ...webTask,
+                  taskDefinition: (
+                    await ecs
+                      .describeTaskDefinition({
+                        taskDefinition: webTask.taskDefinitionArn,
+                      })
+                      .promise()
+                  ).taskDefinition,
+                };
+              }
+            )
+          );
+
+          const services = webClusterServices.map((service) => ({
+            ...service,
+            task: webTasksWithDefinitions.find(
+              (wt) => wt.taskDefinitionArn == service.taskDefinition
+            ),
+          }));
+
+          const environment = await Info.listShipulaParameters(
             context.package.name,
             context.stackName
           );
@@ -131,11 +153,11 @@ export default Machine<Context, Schema, Events>({
           context.selectedStack = {
             stack,
             resources,
-            webCluster,
-            webServices,
-            webTasks,
-            webTaskDefinition,
-            parameters,
+            webCluster: {
+              ...webCluster,
+              services,
+            },
+            environment,
           };
         },
         onDone: "done",

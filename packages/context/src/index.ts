@@ -49,16 +49,36 @@ export const getStackPath = (
 };
 
 /**
+ * Merge a task and its definition into one useful object.
+ */
+export type TaskWithDefinition = ECS.Task & {
+  taskDefinition: ECS.TaskDefinition;
+};
+
+/**
+ * Merge up service and task
+ */
+export type ServiceWithTaskDefinition = ECS.Service & {
+  task: TaskWithDefinition;
+};
+
+/**
+ * Merge up cluster with services.
+ */
+export type ClusterWithServices = ECS.Cluster & {
+  services: Array<ServiceWithTaskDefinition>;
+};
+
+export type Environment = AWS.SSM.ParameterList;
+
+/**
  * Thinks we know about a stack.
  */
 export type ShipulaStack = {
   stack: CloudFormation.Stack;
   resources: CloudFormation.StackResources;
-  webCluster: ECS.Cluster;
-  webServices: ECS.Services;
-  webTasks: ECS.Tasks;
-  webTaskDefinition: ECS.TaskDefinition;
-  parameters: AWS.SSM.ParameterList;
+  webCluster: ClusterWithServices;
+  environment: Environment;
 };
 
 /**

@@ -1,13 +1,11 @@
 import React from "react";
-import { Box, Text } from "ink";
+import { Text } from "ink";
 import { ShipulaContext } from "../context";
 import { useMachine } from "@xstate/react";
 import Spinner from "ink-spinner";
 import { ErrorMessage } from "./ErrorMessage";
 import { setEnv } from "@shipula/machines";
-import yaml from "yaml";
-import useStdoutDimensions from "ink-use-stdout-dimensions";
-import { displayStack } from "./Info";
+import { DisplayEnvironment } from "./EnvGet";
 
 /**
  * No props needed, the app context is enough.
@@ -18,7 +16,6 @@ type Props = never;
  * Update the running environment variables.
  */
 export const EnvSet: React.FunctionComponent<Props> = () => {
-  const [columns] = useStdoutDimensions();
   // the app context is *the* shared data all the way down to
   // the state machines
   const appContext = React.useContext(ShipulaContext);
@@ -35,13 +32,9 @@ export const EnvSet: React.FunctionComponent<Props> = () => {
         </Text>
       )}
       {state.done && state.context.selectedStack && (
-        <Box flexDirection="column" width={columns}>
-          <Text>
-            {yaml.stringify(
-              displayStack(state.context.selectedStack)?.web.environment
-            )}
-          </Text>
-        </Box>
+        <DisplayEnvironment
+          environment={state.context.selectedStack.environment}
+        />
       )}
       {state.context.lastError && (
         <ErrorMessage error={state.context.lastError} />

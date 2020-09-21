@@ -116,6 +116,14 @@ export const listShipulaCertificates = async (): Promise<
  */
 export const CPU_Memory = [
   {
+    display: 0.25,
+    cpu: 256,
+    memory: {
+      0.5: 512,
+      1: 1024,
+    },
+  },
+  {
     display: 1,
     cpu: 1024,
     memory: {
