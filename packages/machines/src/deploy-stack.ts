@@ -1,4 +1,5 @@
 import requireCDKToolkit from "./require-cdk-toolkit";
+import requireShipulaNetwork from "./require-shipula-network";
 import requireAppStack, { Context } from "./require-app-stack";
 import { getStackName } from "@shipula/context";
 import { Machine, actions } from "xstate";
@@ -14,6 +15,7 @@ interface Schema {
   states: {
     checkingSettings: NoSubState;
     checkingCDKToolkit: NoSubState;
+    checkingNetwork: NoSubState;
     checkingPackage: NoSubState;
     deploying: NoSubState;
     deployed: NoSubState;
@@ -44,6 +46,14 @@ export default Machine<Context, Schema, Events>({
     checkingCDKToolkit: {
       invoke: {
         src: requireCDKToolkit,
+        data: (context) => context,
+        onDone: "checkingNetwork",
+        onError: "error",
+      },
+    },
+    checkingNetwork: {
+      invoke: {
+        src: requireShipulaNetwork,
         data: (context) => context,
         onDone: "checkingPackage",
         onError: "error",

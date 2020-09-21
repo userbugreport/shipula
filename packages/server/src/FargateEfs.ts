@@ -12,7 +12,7 @@ import * as efs from "@aws-cdk/aws-efs";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { RemovalPolicy } from "@aws-cdk/core";
 import AWS from "aws-sdk";
-import { getStackPath } from "@shipula/context";
+import { getStackPath, ShipulaNetworkName } from "@shipula/context";
 import path from "path";
 
 export class FargateEfs extends cdk.Stack {
@@ -65,13 +65,19 @@ export class FargateEfs extends cdk.Stack {
           })
         : undefined;
 
-    const vpc = new ec2.Vpc(this, "vpc", { maxAzs: 2 });
+    // look to our shared shipula network and use it
+    const vpc = ec2.Vpc.fromLookup(this, "vpc", {
+      tags: Object.fromEntries([[ShipulaNetworkName, "true"]]),
+    });
+
+    // a single ECS cluster is set up for any given package
     const ecsCluster = new ecs.Cluster(this, "WebCluster", {
       vpc: vpc,
       // use a name without guidtrash
       clusterName: id,
     });
 
+    // and a single shared file system is set up for any given package
     const fileSystem = new efs.FileSystem(this, "Efs", {
       vpc: vpc,
       encrypted: true,

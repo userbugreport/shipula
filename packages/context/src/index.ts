@@ -16,6 +16,8 @@ export {
   completeCredentials,
 };
 
+export const ShipulaNetworkName = "ShipulaVPC";
+
 /**
  * Generate a consistent stack name from the context, with clean up
  * of invalid characters.

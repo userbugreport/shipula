@@ -44,7 +44,6 @@ type Events = never;
  * We will need an ECR in order to store our containers to deploy on ECS.
  */
 export default Machine<Context, Schema, Events>({
-  id: "appstack",
   initial: "checkingForDocker",
   states: {
     checkingForDocker: {
@@ -135,7 +134,11 @@ export default Machine<Context, Schema, Events>({
             process.env.HOST_NAME = hostName;
             process.env.DOMAIN_NAME = Info.domainName(hostName);
           }
-          //
+
+          // clear context caching, I get taht AWS is trying to be helpful
+          // to 'not call the SDK', but local cache state is just goofy
+          execa.sync(CDK, ["context", "--clear"]);
+
           // synchronous run -- with inherited stdio, this should re-use the
           // CDK text UI for us
           const child = execa.sync(
