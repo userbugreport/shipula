@@ -121,6 +121,7 @@ export const CPU_Memory = [
     memory: {
       0.5: 512,
       1: 1024,
+      2: 2048,
     },
   },
   {

@@ -48,14 +48,14 @@ export const buildEnvProps = async (
     variables = [stackName, ...(variables || [])];
     stackName = "default";
   }
-  // parse out those variables
   const setVariables = Object.fromEntries(
-    variables
-      ?.map((v) => v.split("="))
-      .map(([n, v]) => {
-        const name = n.replace(/\W/g, "");
-        return [name, v];
-      }) || []
+    (variables || []).map((variable) => {
+      const splitAt = variable.indexOf("=");
+      return [
+        variable.substr(0, splitAt).replace(/\W/g, ""),
+        variable.substr(splitAt),
+      ];
+    })
   );
   const deployProps = await buildDeployProps(packageDirectory, stackName);
   return {
