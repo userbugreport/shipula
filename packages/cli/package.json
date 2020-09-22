@@ -1,6 +1,6 @@
 {
   "name": "@shipula/cli",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The simplest way to get your node server to the cloud!",
   "author": "Will Ballard <wballard@mailframe.net>",
   "homepage": "https://github.com/userbugreport/shipula#readme",
@@ -25,8 +25,8 @@
     "@shipula/context": "^0.2.1",
     "@shipula/domain": "^0.2.0",
     "@shipula/machines": "^0.2.1",
-    "@shipula/server": "^0.2.1",
     "@shipula/network": "^0.2.1",
+    "@shipula/server": "^0.2.1",
     "@shipula/static": "^0.2.1",
     "@xstate/react": "^0.8.1",
     "app-root-path": "^3.0.0",
