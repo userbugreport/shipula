@@ -53,7 +53,7 @@ export const buildEnvProps = async (
       const splitAt = variable.indexOf("=");
       return [
         variable.substr(0, splitAt).replace(/\W/g, ""),
-        variable.substr(splitAt),
+        variable.substr(splitAt + 1),
       ];
     })
   );
