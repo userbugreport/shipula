@@ -73,8 +73,9 @@ class ShipulaStatic extends cdk.Stack {
         aliasConfiguration: aliasConfiguration(),
         originConfigs: [
           {
-            s3OriginSource: {
-              s3BucketSource: siteBucket,
+            customOriginSource: {
+              domainName: siteBucket.bucketWebsiteDomainName,
+              originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
             },
             behaviors: [{ isDefaultBehavior: true }],
           },
