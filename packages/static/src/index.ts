@@ -1,10 +1,10 @@
 import * as cdk from "@aws-cdk/core";
 import * as s3 from "@aws-cdk/aws-s3";
-import * as acm from "@aws-cdk/aws-certificatemanager";
 import * as s3deploy from "@aws-cdk/aws-s3-deployment";
 import * as cloudfront from "@aws-cdk/aws-cloudfront";
 import * as route53 from "@aws-cdk/aws-route53";
 import * as targets from "@aws-cdk/aws-route53-targets";
+import * as ssm from "@aws-cdk/aws-ssm";
 import assert from "assert";
 import { getStackName, loadPackage } from "@shipula/context";
 import path from "path";
@@ -41,22 +41,20 @@ class ShipulaStatic extends cdk.Stack {
           domainName: domainName,
         })
       : undefined;
-    // certificate must be in us-east-1 -- so make one...
-    const certificateArn =
-      zone && hostName
-        ? new acm.DnsValidatedCertificate(this, "SiteCertificate", {
-            domainName: hostName,
-            hostedZone: zone,
-            region: "us-east-1", // Cloudfront only checks this region for certificates.
-          }).certificateArn
-        : undefined;
+    // look up our wildcard certificate
+    const wildcardCertificate = ssm.StringParameter.fromStringParameterName(
+      this,
+      "WildcardCertificate",
+      `/shipula/${domainName}/wildcard`
+    );
+    const certificateArn = wildcardCertificate.stringValue;
     // depending on the settings -- build an alias for a custom
     // domain name
     const aliasConfiguration = () => {
       if (hostName && certificateArn) {
         return {
           acmCertRef: certificateArn,
-          names: [hostName],
+          names: [hostName, domainName],
           sslMethod: cloudfront.SSLMethod.SNI,
           securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_1_2016,
         };

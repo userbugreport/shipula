@@ -25,7 +25,8 @@ class ShipulaDomain extends cdk.Stack {
       this,
       "SiteCertificate",
       {
-        domainName: `*.${props.domainName}`,
+        domainName: props.domainName,
+        subjectAlternativeNames: [props.domainName, `*.${props.domainName}`],
         hostedZone: zone,
         region: "us-east-1",
       }
