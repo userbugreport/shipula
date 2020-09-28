@@ -57,9 +57,10 @@ export const displayService = (
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const displayStack = (stack: ShipulaStack) => {
   return {
-    services: stack.webCluster.services.map((service) =>
-      displayService(stack, service)
-    ),
+    services:
+      stack.webCluster?.services.map((service) =>
+        displayService(stack, service)
+      ) || "Static Site",
     environment: displayEnvironment(stack.environment),
   };
 };

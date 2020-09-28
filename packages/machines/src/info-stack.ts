@@ -81,70 +81,79 @@ export default Machine<Context, Schema, Events>({
               .promise()
           ).StackResources;
 
-          const ecs = new AWS.ECS();
-          const webClusterResource = resources.find(
-            (r) =>
-              r.ResourceType === "AWS::ECS::Cluster" &&
-              r.LogicalResourceId.startsWith("WebCluster")
-          );
+          const webClusterDetails = async () => {
+            const ecs = new AWS.ECS();
+            const webClusterResource = resources.find(
+              (r) =>
+                r.ResourceType === "AWS::ECS::Cluster" &&
+                r.LogicalResourceId.startsWith("WebCluster")
+            );
 
-          const webCluster = (
-            await ecs
-              .describeClusters({
-                clusters: [webClusterResource.PhysicalResourceId],
-              })
-              .promise()
-          ).clusters[0];
-          const webClusterServiceArns = (
-            await ecs.listServices({ cluster: webCluster.clusterArn }).promise()
-          ).serviceArns;
-          const webClusterTaskArns = (
-            await ecs
-              .listTasks({
-                cluster: webCluster.clusterArn,
-              })
-              .promise()
-          ).taskArns;
-          const webClusterServices = (
-            await ecs
-              .describeServices({
-                services: webClusterServiceArns,
-                cluster: webCluster.clusterArn,
-              })
-              .promise()
-          ).services;
-          const webClusterTasks = (
-            await ecs
-              .describeTasks({
-                tasks: webClusterTaskArns,
-                cluster: webCluster.clusterArn,
-              })
-              .promise()
-          ).tasks;
-          const webTasksWithDefinitions = await Promise.all(
-            webClusterTasks.map(
-              async (webTask): Promise<TaskWithDefinition> => {
-                return {
-                  ...webTask,
-                  taskDefinition: (
-                    await ecs
-                      .describeTaskDefinition({
-                        taskDefinition: webTask.taskDefinitionArn,
-                      })
-                      .promise()
-                  ).taskDefinition,
-                };
-              }
-            )
-          );
+            // read web cluster info, this doesn't apply for static sites
+            if (webClusterResource) {
+              const webCluster = (
+                await ecs
+                  .describeClusters({
+                    clusters: [webClusterResource.PhysicalResourceId],
+                  })
+                  .promise()
+              ).clusters[0];
+              const webClusterServiceArns = (
+                await ecs
+                  .listServices({ cluster: webCluster.clusterArn })
+                  .promise()
+              ).serviceArns;
+              const webClusterTaskArns = (
+                await ecs
+                  .listTasks({
+                    cluster: webCluster.clusterArn,
+                  })
+                  .promise()
+              ).taskArns;
+              const webClusterServices = (
+                await ecs
+                  .describeServices({
+                    services: webClusterServiceArns,
+                    cluster: webCluster.clusterArn,
+                  })
+                  .promise()
+              ).services;
+              const webClusterTasks = (
+                await ecs
+                  .describeTasks({
+                    tasks: webClusterTaskArns,
+                    cluster: webCluster.clusterArn,
+                  })
+                  .promise()
+              ).tasks;
+              const webTasksWithDefinitions = await Promise.all(
+                webClusterTasks.map(
+                  async (webTask): Promise<TaskWithDefinition> => {
+                    return {
+                      ...webTask,
+                      taskDefinition: (
+                        await ecs
+                          .describeTaskDefinition({
+                            taskDefinition: webTask.taskDefinitionArn,
+                          })
+                          .promise()
+                      ).taskDefinition,
+                    };
+                  }
+                )
+              );
 
-          const services = webClusterServices.map((service) => ({
-            ...service,
-            task: webTasksWithDefinitions.find(
-              (wt) => wt.taskDefinitionArn == service.taskDefinition
-            ),
-          }));
-
+              const services = webClusterServices.map((service) => ({
+                ...service,
+                task: webTasksWithDefinitions.find(
+                  (wt) => wt.taskDefinitionArn == service.taskDefinition
+                ),
+              }));
+              return { ...webCluster, services };
+            } else {
+              return null;
+            }
+          };
           const environment = await Info.listShipulaParameters(
             context.package.name,
             context.stackName
@@ -153,10 +162,7 @@ export default Machine<Context, Schema, Events>({
           context.selectedStack = {
             stack,
             resources,
-            webCluster: {
-              ...webCluster,
-              services,
-            },
+            webCluster: await webClusterDetails(),
             environment,
           };
         },
