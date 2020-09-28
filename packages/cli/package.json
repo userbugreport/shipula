@@ -1,6 +1,6 @@
 {
   "name": "@shipula/cli",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "The simplest way to get your node server to the cloud!",
   "author": "Will Ballard <wballard@mailframe.net>",
   "homepage": "https://github.com/userbugreport/shipula#readme",
@@ -24,8 +24,8 @@
   "dependencies": {
     "@shipula/context": "^0.2.3",
     "@shipula/domain": "^0.2.6",
-    "@shipula/machines": "^0.2.3",
-    "@shipula/network": "^0.2.6",
+    "@shipula/machines": "^0.2.7",
+    "@shipula/network": "^0.2.7",
     "@shipula/server": "^0.2.3",
     "@shipula/static": "^0.2.6",
     "@xstate/react": "^0.8.1",
