@@ -25,6 +25,10 @@ export class Network extends cdk.Stack {
       service: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
     });
     ecr_docker.connections.allowDefaultPortFromAnyIpv4();
+    const cloudwatch_logs = vpc.addInterfaceEndpoint("CloudwatchLogsEndpoint", {
+      service: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+    });
+    cloudwatch_logs.connections.allowDefaultPortFromAnyIpv4();
 
     // and that is it -- tagged network will be looked up by name from
     // any shipula deploys in this Region
