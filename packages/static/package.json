@@ -1,6 +1,6 @@
 {
   "name": "@shipula/static",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
