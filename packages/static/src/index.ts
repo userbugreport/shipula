@@ -54,7 +54,10 @@ class ShipulaStatic extends cdk.Stack {
       if (hostName && certificateArn) {
         return {
           acmCertRef: certificateArn,
-          names: [hostName, domainName],
+          names:
+            hostName === `www.${domainName}`
+              ? [hostName, domainName]
+              : [hostName],
           sslMethod: cloudfront.SSLMethod.SNI,
           securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_1_2016,
         };
