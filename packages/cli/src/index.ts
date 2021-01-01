@@ -47,6 +47,7 @@ export const main = async (): Promise<void> => {
       console.error(e);
     }
     // error exit so this will bail out in Actions
+    console.error("exiting error");
     process.exit(1);
   }
 };

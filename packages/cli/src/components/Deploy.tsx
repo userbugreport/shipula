@@ -23,6 +23,7 @@ export const Deploy: React.FunctionComponent<Props> = () => {
   const [state] = useMachine(deployStack, {
     context: appContext,
   });
+
   // the display just shows what the state machine is doing
   return (
     <>

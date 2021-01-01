@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "ink";
+import { Text, useApp } from "ink";
 
 type Props = {
   /**
@@ -14,6 +14,10 @@ type Props = {
 export const ErrorMessage: React.FunctionComponent<Props> = ({
   error,
 }: Props) => {
+  const app = useApp();
+  React.useEffect(() => {
+    app.exit(error);
+  }, []);
   return (
     <>
       <Text color="red" bold>
