@@ -10,8 +10,8 @@
     "clean": "rm -rf ./build"
   },
   "dependencies": {
-    "@aws-cdk/aws-ec2": "^1.62.0",
-    "@aws-cdk/core": "^1.62.0",
+    "@aws-cdk/aws-ec2": "1.81.0",
+    "@aws-cdk/core": "1.81.0",
     "@shipula/context": "^0.2.3"
   },
   "devDependencies": {

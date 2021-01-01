@@ -30,7 +30,7 @@
     "@shipula/static": "^0.2.8",
     "@xstate/react": "^0.8.1",
     "app-root-path": "^3.0.0",
-    "aws-cdk": "^1.62.0",
+    "aws-cdk": "1.81.0",
     "aws-sdk": "^2.747.0",
     "chalk": "^4.1.0",
     "commander": "^6.2.1",
