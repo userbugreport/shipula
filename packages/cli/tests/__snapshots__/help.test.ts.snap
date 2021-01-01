@@ -18,7 +18,7 @@ Commands:
 exports[`CLI sub commands deploy help strings 1`] = `
 "Usage:  deploy [options] [packageDirectory] [stackName]
 
-Deploys your pacakge to the cloud, creating and App and Stack.
+Deploys your package to the cloud, creating an App and Stack.
 
 Options:
   -h, --help  display help for command

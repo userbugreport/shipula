@@ -135,9 +135,7 @@ export default Machine<Context, Schema, Events>({
           const fetchStreams = async (
             logGroup: CloudWatchLogs.LogGroup
           ): Promise<void> => {
-            const moreStreams = async (): Promise<
-              CloudWatchLogs.DescribeLogStreamsResponse
-            > => {
+            const moreStreams = async (): Promise<CloudWatchLogs.DescribeLogStreamsResponse> => {
               return cloudWatch
                 .describeLogStreams({
                   logGroupName: logGroup.logGroupName,

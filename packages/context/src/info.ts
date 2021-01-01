@@ -81,9 +81,7 @@ export const listShipulaParameters = async (
 /**
  * List all certificates.
  */
-export const listShipulaCertificates = async (): Promise<
-  AWS.ACM.CertificateSummaryList
-> => {
+export const listShipulaCertificates = async (): Promise<AWS.ACM.CertificateSummaryList> => {
   const acm = new AWS.ACM();
   let buffer = new Array<AWS.ACM.CertificateSummary>();
 

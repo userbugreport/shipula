@@ -6,7 +6,7 @@ import { display } from "./components/application";
 
 export default new Command()
   .command("deploy [packageDirectory] [stackName]")
-  .description("Deploys your pacakge to the cloud, creating and App and Stack.")
+  .description("Deploys your package to the cloud, creating an App and Stack.")
   .on("--help", () => {
     console.log(docs("deploy.md"));
   })
