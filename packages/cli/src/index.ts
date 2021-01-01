@@ -42,10 +42,12 @@ export const main = async (): Promise<void> => {
     if (e instanceof ErrorMessage) {
       // these messages are 'handled' in the sense that we threw them
       // on purpose and have custom messages -- so no stack trace
-      console.log((e as ErrorMessage).message);
+      console.error((e as ErrorMessage).message);
     } else {
-      console.log(e);
+      console.error(e);
     }
+    // error exit so this will bail out in Actions
+    process.exit(1);
   }
 };
 

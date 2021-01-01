@@ -40,17 +40,17 @@ export default Machine<Context, Schema, Events>({
       invoke: {
         src: async () => {
           const cloudFormation = new AWS.CloudFormation();
-          const CDKToolkit = await new Promise<
-            CloudFormation.DescribeStacksOutput
-          >((resolve, reject) => {
-            cloudFormation.describeStacks(
-              { StackName: "CDKToolkit" },
-              (err, data) => {
-                if (err) reject(err);
-                else resolve(data);
-              }
-            );
-          });
+          const CDKToolkit = await new Promise<CloudFormation.DescribeStacksOutput>(
+            (resolve, reject) => {
+              cloudFormation.describeStacks(
+                { StackName: "CDKToolkit" },
+                (err, data) => {
+                  if (err) reject(err);
+                  else resolve(data);
+                }
+              );
+            }
+          );
           if (
             ["UPDATE_COMPLETE", "CREATE_COMPLETE"].includes(
               CDKToolkit.Stacks[0].StackStatus
@@ -93,7 +93,7 @@ export default Machine<Context, Schema, Events>({
               { stdio: "inherit" }
             );
             if (child.exitCode) reject(child.exitCode);
-            else resolve();
+            else resolve(0);
           });
         },
         onDone: "ready",

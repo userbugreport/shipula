@@ -1,3 +1,6 @@
 const config = require("../../jest.config");
 
-module.exports = config;
+module.exports = {
+  ...config,
+  testPathIgnorePatterns: ["/node_modules/", "/cdk.out/"],
+};

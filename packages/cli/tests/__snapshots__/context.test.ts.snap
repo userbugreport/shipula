@@ -12,9 +12,10 @@ Object {
     "name": "@shipula/express-sample",
     "scripts": Object {
       "build": "touch index.js",
+      "clean": "echo OK",
       "start": "node index.js",
     },
-    "version": "0.1.0",
+    "version": "0.2.0",
   },
   "stackName": "default",
 }
@@ -32,9 +33,10 @@ Object {
     "name": "@shipula/express-sample",
     "scripts": Object {
       "build": "touch index.js",
+      "clean": "echo OK",
       "start": "node index.js",
     },
-    "version": "0.1.0",
+    "version": "0.2.0",
   },
   "setVariables": Object {
     "a": "b",
@@ -55,9 +57,10 @@ Object {
     "name": "@shipula/express-sample",
     "scripts": Object {
       "build": "touch index.js",
+      "clean": "echo OK",
       "start": "node index.js",
     },
-    "version": "0.1.0",
+    "version": "0.2.0",
   },
   "setVariables": Object {
     "a": "b",
@@ -79,9 +82,10 @@ Object {
     "name": "@shipula/express-sample",
     "scripts": Object {
       "build": "touch index.js",
+      "clean": "echo OK",
       "start": "node index.js",
     },
-    "version": "0.1.0",
+    "version": "0.2.0",
   },
   "stackName": "default",
 }
@@ -99,9 +103,10 @@ Object {
     "name": "@shipula/express-sample",
     "scripts": Object {
       "build": "touch index.js",
+      "clean": "echo OK",
       "start": "node index.js",
     },
-    "version": "0.1.0",
+    "version": "0.2.0",
   },
   "stackName": "dev",
 }
