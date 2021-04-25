@@ -1,6 +1,6 @@
 {
   "name": "@shipula/server",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "@aws-cdk/aws-ssm": "1.80.0",
     "@aws-cdk/core": "1.80.0",
     "@aws-cdk/custom-resources": "1.80.0",
-    "@shipula/context": "^0.4.0",
+    "@shipula/context": "^0.4.1",
     "aws-sdk": "2.747.0"
   },
   "gitHead": "7ff56f7af3d767cc4a0119a542513f0fa35e2525"
