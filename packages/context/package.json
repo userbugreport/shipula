@@ -1,6 +1,6 @@
 {
   "name": "@shipula/context",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": "Will Ballard <wballard@mailframe.net>",
   "main": "./build/index.js",
   "license": "MIT",
@@ -10,17 +10,11 @@
     "clean": "rm -rf ./build"
   },
   "dependencies": {
-    "aws-sdk": "^2.747.0",
-    "fs-extra": "^9.0.1",
-    "marked": "^1.1.0",
-    "marked-terminal": "^4.1.0",
-    "parse-domain": "^3.0.2"
-  },
-  "devDependencies": {
-    "@types/aws-sdk": "^2.7.0",
-    "@types/fs-extra": "^9.0.1",
-    "@types/jest": "^26.0.13",
-    "@types/node": "^14.6.4"
+    "aws-sdk": "2.747.0",
+    "fs-extra": "9.0.1",
+    "marked": "1.1.0",
+    "marked-terminal": "4.1.0",
+    "parse-domain": "3.0.2"
   },
   "gitHead": "7ff56f7af3d767cc4a0119a542513f0fa35e2525"
 }
