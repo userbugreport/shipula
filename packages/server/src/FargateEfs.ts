@@ -183,7 +183,7 @@ export class FargateEfs extends cdk.Stack {
       serviceName: "WebService",
       cluster: ecsCluster,
       taskDefinition: taskDef,
-      desiredCount: parseInt(parameterOrDefault("SHIPULA_NUMBER", "2")),
+      desiredCount: parseInt(parameterOrDefault("SHIPULA_NUMBER", "1")),
       platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
       domainZone,
       certificate,
@@ -196,6 +196,7 @@ export class FargateEfs extends cdk.Stack {
     fileSystem.connections.allowDefaultPortFromAnyIpv4();
 
     // attach file browsering
-    new EfsBrowser(this, id, ecsCluster, fileSystem, logGroup);
+    console.assert(EfsBrowser);
+    //new EfsBrowser(this, id, ecsCluster, fileSystem, logGroup);
   }
 }

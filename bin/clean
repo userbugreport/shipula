@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+yarn workspaces run clean
+npx lerna clean --yes
+rm -rf node_modules
