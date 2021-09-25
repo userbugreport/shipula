@@ -34,7 +34,7 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "aws-sdk": "2.747.0",
+    "aws-sdk": "2.995.0",
     "fs-extra": "9.0.1"
   }
 }

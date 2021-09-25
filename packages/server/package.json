@@ -22,7 +22,7 @@
     "@aws-cdk/core": "1.111.0",
     "@aws-cdk/custom-resources": "1.111.0",
     "@shipula/context": "^0.4.10",
-    "aws-sdk": "2.747.0"
+    "aws-sdk": "2.995.0"
   },
   "gitHead": "7ff56f7af3d767cc4a0119a542513f0fa35e2525"
 }
