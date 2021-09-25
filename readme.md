@@ -39,4 +39,10 @@ npm install -g @shipula/cli
 - ... wait ...
 - curl
 
+## Publication
+
+```
+npx lerna publish --force-publish
+```
+
 To the 🏗[Docks](https://shipula.userbugreport.com/)
