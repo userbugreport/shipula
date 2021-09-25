@@ -31,8 +31,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "test": "yarn workspaces run test",
     "docs": "yarn workspace @shipula/docs start",
-    "prepublish": "yarn build",
-    "version": "lerna version --force-publish"
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "aws-sdk": "2.747.0",
