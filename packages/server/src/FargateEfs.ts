@@ -76,6 +76,7 @@ export class FargateEfs extends cdk.Stack {
       vpc: vpc,
       // use a name without guidtrash
       clusterName: id,
+      capacityProviders: ["FARGATE_SPOT"],
     });
 
     // and a single shared file system is set up for any given package
